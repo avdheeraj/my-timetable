@@ -4,15 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Link Preview Tags for WhatsApp / Social Media -->
-<title id="pageTitle">Client Portal | @cinebydheeraj</title>
-<meta property="og:title" content="Client Portal | @cinebydheeraj">
-<meta property="og:description" content="View shoot schedules, edit deadlines, and script documents.">
+<!-- Link Preview Tags for WhatsApp & Social Media -->
+<title id="pageTitle">Client Workspace | @cinebydheeraj</title>
+<meta property="og:title" content="Client Workspace | @cinebydheeraj">
+<meta property="og:description" content="Access live shoot schedules, edit deadlines, and script documents.">
 
 <!-- iOS Web App Tags -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Client Portal">
+<meta name="apple-mobile-web-app-title" content="Workspace">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Inter:wght@400;500;600&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
@@ -498,7 +498,7 @@ let notifiedTasks = new Set();
 const urlParams = new URLSearchParams(window.location.search);
 const targetClient = urlParams.get('client');
 
-/* Update Browser Title immediately for Browser Tabs & Desktop Views */
+/* Update Browser Title immediately for Browser Tabs */
 if (targetClient) {
   document.title = `${targetClient} Portal | @cinebydheeraj`;
 }
