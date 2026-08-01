@@ -219,7 +219,7 @@
     background:transparent;color:#D8C9A8;padding:16px;display:flex;
     justify-content:center;font-family:'Space Grotesk',sans-serif;cursor:pointer;
   }
-  .form-note{ background:var(--cream); border-radius:5px; padding:18px; color:var(--ink); }
+  .form-note{ background:var(--cream); border-radius:5px; padding:18px; color:var(--ink); margin-bottom: 16px; }
   .form-row{ display:flex; gap:10px; margin-bottom:10px; }
   .form-row > div{ flex:1; }
   input, textarea, select{ width:100%; padding:8px; border-radius:5px; border:1px solid #D8C9A8; }
@@ -461,8 +461,8 @@
         </div>
       </div>
 
-      <!-- Add / Edit Schedule / Script Form -->
-      <div id="scheduleForm" class="form-note" style="display:none; margin-bottom:20px;">
+      <!-- Shared Dynamic Add / Edit Schedule / Script Form -->
+      <div id="scheduleForm" class="form-note" style="display:none;">
         <div class="form-row">
           <div>
             <label style="font-size:12px; font-weight:bold;">Project / Item Name</label>
@@ -814,7 +814,7 @@ function deleteClient(id) {
   closeAllDropdowns();
 }
 
-/* ADD / EDIT ITEM TO CLIENT PORTAL */
+/* ADD / EDIT ITEM TO CLIENT PORTAL (DYNAMIC POSITIONING) */
 function openScheduleForm(clientId) {
   activeScheduleClientId = clientId;
   editingItemId = null;
@@ -825,7 +825,15 @@ function openScheduleForm(clientId) {
   document.getElementById('schNoteInput').value = '';
   document.getElementById('schStatusInput').value = 'Upcoming';
   document.getElementById('schFormSaveBtn').textContent = 'Add To Client Portal';
-  document.getElementById('scheduleForm').style.display = 'block';
+  
+  // Move schedule form inside the clicked client portal box
+  const formEl = document.getElementById('scheduleForm');
+  const formSlot = document.getElementById(`formSlot-${clientId}`);
+  if (formSlot && formEl) {
+    formSlot.appendChild(formEl);
+    formEl.style.display = 'block';
+    formEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
 }
 
 function startEditScheduleItem(clientId, itemId) {
@@ -843,11 +851,22 @@ function startEditScheduleItem(clientId, itemId) {
   document.getElementById('schNoteInput').value = item.note || '';
   document.getElementById('schStatusInput').value = item.status || 'Upcoming';
   document.getElementById('schFormSaveBtn').textContent = 'Update Item Changes';
-  document.getElementById('scheduleForm').style.display = 'block';
+
+  // Move schedule form directly inside that client's portal box
+  const formEl = document.getElementById('scheduleForm');
+  const formSlot = document.getElementById(`formSlot-${clientId}`);
+  if (formSlot && formEl) {
+    formSlot.appendChild(formEl);
+    formEl.style.display = 'block';
+    formEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
 }
 
 function closeScheduleForm() {
-  document.getElementById('scheduleForm').style.display = 'none';
+  const formEl = document.getElementById('scheduleForm');
+  if (formEl) {
+    formEl.style.display = 'none';
+  }
   activeScheduleClientId = null;
   editingItemId = null;
 }
@@ -1003,6 +1022,9 @@ function renderClientsPortals() {
         <span style="font-size:12px; font-weight:bold; letter-spacing:0.5px; text-transform:uppercase; color:var(--paper-yellow);">Schedules & Script Documents</span>
         <button class="admin-only btn-save" style="font-size:11px; padding:4px 10px;" onclick="openScheduleForm('${c.id}')">+ Add Schedule/Script</button>
       </div>
+
+      <!-- Container Slot for Form Insertion -->
+      <div id="formSlot-${c.id}"></div>
 
       ${itemsHtml}
     `;
