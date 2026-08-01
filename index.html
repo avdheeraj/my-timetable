@@ -103,6 +103,27 @@
   h1{ font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:24px; margin:0; }
   .tagline{ font-family:'Caveat',cursive; font-size:18px; color:#D8C9A8; margin-top:2px; }
 
+  /* Watermark Badge */
+  .brand-watermark {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    color: rgba(247, 241, 225, 0.45);
+    background: rgba(247, 241, 225, 0.05);
+    border: 1px solid rgba(247, 241, 225, 0.12);
+    padding: 4px 10px;
+    border-radius: 999px;
+    user-select: none;
+    white-space: nowrap;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
   .notify-btn{
     font-family:'Space Grotesk',sans-serif; font-size:12px; font-weight:500;
     padding:6px 12px; border-radius:999px; border:1px solid rgba(247,241,225,0.3);
@@ -338,7 +359,10 @@
           <h1>Desk pad</h1>
           <div class="tagline">pin it, peek later</div>
         </div>
-        <button class="notify-btn" id="notifyBtn" onclick="requestNotificationPermission()">🔔 Enable Alerts</button>
+        <div class="header-actions">
+          <span class="brand-watermark">@cinebydheeraj</span>
+          <button class="notify-btn" id="notifyBtn" onclick="requestNotificationPermission()">🔔 Enable Alerts</button>
+        </div>
       </header>
 
       <div class="day-tabs" id="dayTabs"></div>
@@ -352,7 +376,10 @@
           <h1 id="clientHeaderTitle">Client Portals</h1>
           <div class="tagline" id="clientHeaderTagline">manage all client schedules, deliverables & script PDFs</div>
         </div>
-        <button class="btn-save" id="addClientBtn" onclick="openClientForm()">+ Add New Client</button>
+        <div class="header-actions">
+          <span class="brand-watermark">@cinebydheeraj</span>
+          <button class="btn-save" id="addClientBtn" onclick="openClientForm()">+ Add New Client</button>
+        </div>
       </header>
 
       <!-- Client Form -->
@@ -844,7 +871,10 @@ function renderClientsPortals() {
     box.innerHTML = `
       <div class="portal-header">
         <div>
-          <div class="portal-title">${escapeHtml(c.name)}</div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div class="portal-title">${escapeHtml(c.name)}</div>
+            <span class="brand-watermark">@cinebydheeraj</span>
+          </div>
           ${c.note ? `<div class="client-note">${escapeHtml(c.note)}</div>` : ''}
         </div>
         <div class="dropdown-container">
