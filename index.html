@@ -15,7 +15,7 @@
 <meta name="apple-mobile-web-app-title" content="Workspace">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Inter:wght@400;500;600&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --mat: #1F2B21;
@@ -28,6 +28,9 @@
     --paper-coral: #E7AE97;
     --paper-blue: #A6C6D8;
     --cream: #F7F1E1;
+    --badge-red: #FF4D4D;
+    --badge-red-bg: rgba(255, 77, 77, 0.12);
+    --badge-red-border: rgba(255, 77, 77, 0.35);
   }
   *{box-sizing:border-box;}
   body{
@@ -127,6 +130,37 @@
     color: var(--paper-yellow);
     background: rgba(243, 222, 132, 0.15);
     border-color: var(--paper-yellow);
+  }
+
+  /* Red Stacked Edit Badge */
+  .red-edit-badge {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--badge-red-bg);
+    border: 1px solid var(--badge-red-border);
+    border-radius: 8px;
+    padding: 4px 10px;
+    text-align: center;
+    user-select: none;
+  }
+  .red-edit-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--badge-red);
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+  .red-edit-number {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--badge-red);
+    line-height: 1;
   }
 
   .header-actions {
@@ -399,6 +433,20 @@
           <div>
             <label style="font-size:12px; font-weight:bold;">Client Name</label>
             <input type="text" id="clientNameInput" placeholder="e.g. Procafe">
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Badge Label Title (Top Line)</label>
+            <input type="text" id="clientBadgeLabelInput" placeholder="e.g. KEEP YOUR WISH">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Completed Edits / Deliverables (Bottom Line)</label>
+            <input type="number" id="clientEditsDoneInput" placeholder="e.g. 1" min="0">
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Total Monthly Limit / Quota</label>
+            <input type="number" id="clientEditLimitInput" placeholder="e.g. 40" min="0">
           </div>
         </div>
         <div class="form-row">
@@ -685,6 +733,9 @@ function renderNotes(){
 function openClientForm() {
   editingClientId = null;
   document.getElementById('clientNameInput').value = '';
+  document.getElementById('clientBadgeLabelInput').value = 'KEEP YOUR WISH';
+  document.getElementById('clientEditsDoneInput').value = '';
+  document.getElementById('clientEditLimitInput').value = '';
   document.getElementById('clientNoteInput').value = '';
   document.getElementById('clientFormSaveBtn').textContent = 'Save Client Portal';
   document.getElementById('clientForm').style.display = 'block';
@@ -695,6 +746,9 @@ function startEditClientPortal(clientId) {
   if(!client) return;
   editingClientId = clientId;
   document.getElementById('clientNameInput').value = client.name || '';
+  document.getElementById('clientBadgeLabelInput').value = client.badgeLabel || 'KEEP YOUR WISH';
+  document.getElementById('clientEditsDoneInput').value = client.editsDone !== undefined ? client.editsDone : '';
+  document.getElementById('clientEditLimitInput').value = client.editLimit !== undefined ? client.editLimit : '';
   document.getElementById('clientNoteInput').value = client.note || '';
   document.getElementById('clientFormSaveBtn').textContent = 'Update Client Portal';
   document.getElementById('clientForm').style.display = 'block';
@@ -708,14 +762,31 @@ function closeClientForm() {
 
 function saveClient() {
   const name = document.getElementById('clientNameInput').value.trim();
+  const badgeLabel = document.getElementById('clientBadgeLabelInput').value.trim();
+  const editsDone = document.getElementById('clientEditsDoneInput').value.trim();
+  const editLimit = document.getElementById('clientEditLimitInput').value.trim();
   const note = document.getElementById('clientNoteInput').value.trim();
   if(!name) { alert('Please enter a client name.'); return; }
   
   if(editingClientId) {
     const client = clients.find(c => c.id === editingClientId);
-    if(client) { client.name = name; client.note = note; }
+    if(client) {
+      client.name = name;
+      client.badgeLabel = badgeLabel || 'KEEP YOUR WISH';
+      client.editsDone = editsDone !== '' ? editsDone : null;
+      client.editLimit = editLimit !== '' ? editLimit : null;
+      client.note = note;
+    }
   } else {
-    clients.push({ id: uid(), name, note, items: [] });
+    clients.push({
+      id: uid(),
+      name,
+      badgeLabel: badgeLabel || 'KEEP YOUR WISH',
+      editsDone: editsDone !== '' ? editsDone : null,
+      editLimit: editLimit !== '' ? editLimit : null,
+      note,
+      items: []
+    });
   }
   
   saveClientsToFirebase();
@@ -884,11 +955,20 @@ function renderClientsPortals() {
       itemsHtml = '<div style="font-size:13px; color:#D8C9A8; font-style:italic;">No schedules or scripts added to this portal yet.</div>';
     }
 
+    const hasNumbers = (c.editsDone !== undefined && c.editsDone !== null && c.editLimit !== undefined && c.editLimit !== null);
+    const badgeLabelText = c.badgeLabel || 'KEEP YOUR WISH';
+
     box.innerHTML = `
       <div class="portal-header">
         <div>
-          <div style="display:flex; align-items:center; gap:10px;">
+          <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
             <div class="portal-title">${escapeHtml(c.name)}</div>
+            ${hasNumbers ? `
+              <div class="red-edit-badge">
+                <span class="red-edit-label">${escapeHtml(badgeLabelText)}</span>
+                <span class="red-edit-number">${c.editsDone}/${c.editLimit}</span>
+              </div>
+            ` : ''}
             <a href="https://www.instagram.com/cineby.dheeraj?igsh=cTM1cXRrZW00dXpy&utm_source=qr" target="_blank" class="brand-watermark">@cinebydheeraj</a>
           </div>
           ${c.note ? `<div class="client-note">${escapeHtml(c.note)}</div>` : ''}
