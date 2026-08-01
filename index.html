@@ -224,7 +224,7 @@
   .btn-save{background:var(--ink);color:var(--cream);border:none;padding:8px 16px;border-radius:5px;cursor:pointer;}
   .btn-cancel{background:transparent;color:var(--ink-soft);border:1px solid #D8C9A8;padding:8px 16px;border-radius:5px;cursor:pointer;}
 
-  /* Clients Styles */
+  /* Clients Styles & Dropdown Menu */
   .client-card {
     background: rgba(247, 241, 225, 0.08);
     border: 1px solid rgba(247,241,225,0.15);
@@ -234,6 +234,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: relative;
   }
   .client-name {
     font-family: 'Space Grotesk', sans-serif;
@@ -245,25 +246,55 @@
     color: #D8C9A8;
     margin-top: 4px;
   }
-  .client-actions {
-    display: flex;
-    gap: 8px;
+  
+  /* Dropdown Menu Styles */
+  .dropdown-container {
+    position: relative;
   }
-  .client-actions button.btn-edit {
-    background: rgba(247, 241, 225, 0.15);
-    border: 1px solid rgba(247,241,225,0.3);
+  .dropdown-trigger {
+    background: transparent;
+    border: none;
     color: var(--cream);
-    padding: 6px 12px;
-    border-radius: 5px;
+    font-size: 18px;
+    padding: 4px 10px;
+    border-radius: 4px;
     cursor: pointer;
   }
-  .client-actions button.btn-remove {
-    background: rgba(231, 174, 151, 0.2);
-    border: 1px solid var(--paper-coral);
-    color: var(--paper-coral);
-    padding: 6px 12px;
-    border-radius: 5px;
+  .dropdown-trigger:hover {
+    background: rgba(247,241,225,0.15);
+  }
+  .dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 30px;
+    background: var(--cream);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 10;
+    overflow: hidden;
+    min-width: 110px;
+  }
+  .dropdown-menu.show {
+    display: block;
+  }
+  .dropdown-item {
+    width: 100%;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    border: none;
+    background: transparent;
+    text-align: left;
     cursor: pointer;
+    color: var(--ink);
+    display: block;
+  }
+  .dropdown-item:hover {
+    background: rgba(0,0,0,0.08);
+  }
+  .dropdown-item.delete {
+    color: #A93226;
   }
 
   @media (max-width: 600px) {
@@ -559,6 +590,7 @@ function startEditClient(id) {
   document.getElementById('clientNoteInput').value = client.note || '';
   document.getElementById('clientFormSaveBtn').textContent = 'Update Changes';
   document.getElementById('clientForm').style.display = 'block';
+  closeAllDropdowns();
 }
 
 function closeClientForm() {
@@ -592,7 +624,27 @@ function deleteClient(id) {
   clients = clients.filter(c => c.id !== id);
   saveClientsToFirebase();
   renderClients();
+  closeAllDropdowns();
 }
+
+/* Toggle Dropdown Menu */
+function toggleDropdown(id, event) {
+  event.stopPropagation();
+  const currentMenu = document.getElementById(`dropdown-${id}`);
+  const isShow = currentMenu.classList.contains('show');
+  closeAllDropdowns();
+  if (!isShow) {
+    currentMenu.classList.add('show');
+  }
+}
+
+function closeAllDropdowns() {
+  document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('show'));
+}
+
+window.onclick = function() {
+  closeAllDropdowns();
+};
 
 function renderClients() {
   const container = document.getElementById('clientsList');
@@ -611,9 +663,12 @@ function renderClients() {
         <div class="client-name">${escapeHtml(c.name)}</div>
         ${c.note ? `<div class="client-note">${escapeHtml(c.note)}</div>` : ''}
       </div>
-      <div class="client-actions">
-        <button class="btn-edit" onclick="startEditClient('${c.id}')">Edit</button>
-        <button class="btn-remove" onclick="deleteClient('${c.id}')">Remove</button>
+      <div class="dropdown-container">
+        <button class="dropdown-trigger" onclick="toggleDropdown('${c.id}', event)">⋮</button>
+        <div class="dropdown-menu" id="dropdown-${c.id}">
+          <button class="dropdown-item" onclick="startEditClient('${c.id}')">✏️ Edit</button>
+          <button class="dropdown-item delete" onclick="deleteClient('${c.id}')">🗑️ Remove</button>
+        </div>
       </div>
     `;
     container.appendChild(card);
