@@ -568,11 +568,11 @@
             <input type="text" id="teamAssigneeInput" placeholder="e.g. Dheeraj, Editor 1">
           </div>
           <div>
-            <label style="font-size:12px; font-weight:bold;">Status</label>
-            <select id="teamStatusInput">
-              <option value="Upcoming">Upcoming</option>
-              <option value="InProgress">In Progress</option>
-              <option value="Completed">Completed</option>
+            <label style="font-size:12px; font-weight:bold;">Task Type 📌</label>
+            <select id="teamTypeInput">
+              <option value="Shoot">Shoot 🎬</option>
+              <option value="Edit">Edit ✂️</option>
+              <option value="Both">Both (Shoot & Edit) 🎬✂️</option>
             </select>
           </div>
         </div>
@@ -580,6 +580,14 @@
           <div>
             <label style="font-size:12px; font-weight:bold;">Client / Project Title</label>
             <input type="text" id="teamTitleInput" placeholder="e.g. Taluka - Commercial Shoot">
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Status</label>
+            <select id="teamStatusInput">
+              <option value="Upcoming">Upcoming</option>
+              <option value="InProgress">In Progress</option>
+              <option value="Completed">Completed</option>
+            </select>
           </div>
         </div>
         <div class="form-row">
@@ -673,8 +681,8 @@ function formatDate(dateStr) {
   return `${dd}/${mm}/${yy}`;
 }
 
-/* Helper to get Today / Tomorrow label */
-function getDateCategoryLabel(dateStr) {
+/* Helper to get Today / Tomorrow label with dynamic Shoot vs Edit context */
+function getDateCategoryLabel(dateStr, taskType) {
   if (!dateStr) return 'UNSCHEDULED / TBD';
   
   const now = new Date();
@@ -684,12 +692,16 @@ function getDateCategoryLabel(dateStr) {
   tomorrow.setDate(now.getDate() + 1);
   const tomorrowStr = tomorrow.toISOString().split('T')[0];
 
+  let prefix = 'DATE';
+  if (taskType === 'Shoot') prefix = 'SHOOT DATE';
+  else if (taskType === 'Edit') prefix = 'EDIT DEADLINE';
+
   if (dateStr === todayStr) {
     return `TODAY (${formatDate(dateStr)})`;
   } else if (dateStr === tomorrowStr) {
     return `TOMORROW (${formatDate(dateStr)})`;
   } else {
-    return `SHOOT DATE: ${formatDate(dateStr)}`;
+    return `${prefix}: ${formatDate(dateStr)}`;
   }
 }
 
@@ -1082,10 +1094,11 @@ function removeItemFromClient(clientId, itemId) {
   }
 }
 
-/* TEAM SCHEDULE LOGIC (WITH ASSIGNEE NAME) */
+/* TEAM SCHEDULE LOGIC (DYNAMIC SHOOT / EDIT CONTEXT) */
 function openTeamForm() {
   editingTeamItemId = null;
   document.getElementById('teamAssigneeInput').value = '';
+  document.getElementById('teamTypeInput').value = 'Shoot';
   document.getElementById('teamTitleInput').value = '';
   document.getElementById('teamShootDateInput').value = '';
   document.getElementById('teamEditDateInput').value = '';
@@ -1102,6 +1115,7 @@ function startEditTeamItem(itemId) {
 
   editingTeamItemId = itemId;
   document.getElementById('teamAssigneeInput').value = item.assignee || '';
+  document.getElementById('teamTypeInput').value = item.taskType || 'Shoot';
   document.getElementById('teamTitleInput').value = item.title || '';
   document.getElementById('teamShootDateInput').value = item.shootDate || '';
   document.getElementById('teamEditDateInput').value = item.editDate || '';
@@ -1119,6 +1133,7 @@ function closeTeamForm() {
 
 function saveTeamItem() {
   const assignee = document.getElementById('teamAssigneeInput').value.trim();
+  const taskType = document.getElementById('teamTypeInput').value;
   const title = document.getElementById('teamTitleInput').value.trim();
   const shootDate = document.getElementById('teamShootDateInput').value;
   const editDate = document.getElementById('teamEditDateInput').value;
@@ -1132,6 +1147,7 @@ function saveTeamItem() {
     const item = teamTasks.find(t => t.id === editingTeamItemId);
     if(item) {
       item.assignee = assignee || null;
+      item.taskType = taskType;
       item.title = title;
       item.shootDate = shootDate;
       item.editDate = editDate;
@@ -1143,6 +1159,7 @@ function saveTeamItem() {
     teamTasks.push({
       id: uid(),
       assignee: assignee || null,
+      taskType: taskType || 'Shoot',
       title,
       shootDate,
       editDate,
@@ -1199,21 +1216,31 @@ function renderTeamSchedules() {
     return;
   }
 
+  // Determine primary sort/group date based on task type (Shoot Date vs Edit Date)
+  visibleTasks.forEach(t => {
+    if (t.taskType === 'Edit') {
+      t._primaryDate = t.editDate || t.shootDate || '';
+    } else {
+      t._primaryDate = t.shootDate || t.editDate || '';
+    }
+  });
+
   visibleTasks.sort((a, b) => {
-    if (!a.shootDate) return 1;
-    if (!b.shootDate) return -1;
-    return a.shootDate.localeCompare(b.shootDate);
+    if (!a._primaryDate) return 1;
+    if (!b._primaryDate) return -1;
+    return a._primaryDate.localeCompare(b._primaryDate);
   });
 
   const groups = {};
   visibleTasks.forEach(task => {
-    const key = task.shootDate || 'TBD';
+    const key = task._primaryDate || 'TBD';
     if (!groups[key]) groups[key] = [];
     groups[key].push(task);
   });
 
   Object.keys(groups).forEach(dateKey => {
-    const headerTitle = getDateCategoryLabel(dateKey === 'TBD' ? '' : dateKey);
+    const sampleTask = groups[dateKey][0];
+    const headerTitle = getDateCategoryLabel(dateKey === 'TBD' ? '' : dateKey, sampleTask ? sampleTask.taskType : 'Shoot');
     
     const groupHeader = document.createElement('div');
     groupHeader.className = 'date-group-header';
