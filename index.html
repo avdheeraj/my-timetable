@@ -409,9 +409,9 @@
   /* Client & Team Mode Styles */
   body.client-mode .sidebar, body.team-mode .sidebar { display: none !important; }
   body.client-mode .notify-btn, body.team-mode .notify-btn { display: none !important; }
-  body.client-mode #addClientBtn, body.team-mode #addTeamItemBtn { display: none !important; }
+  body.client-mode #addClientBtn, body.team-mode #addTeamItemBtn, body.learnings-mode #addLearningBtn { display: none !important; }
   body.client-mode .dropdown-container, body.team-mode .dropdown-container { display: none !important; }
-  body.client-mode .admin-only, body.team-mode .admin-only { display: none !important; }
+  body.client-mode .admin-only, body.team-mode .admin-only, body.learnings-mode .admin-only { display: none !important; }
   body.client-mode .main-content, body.team-mode .main-content { max-width: 680px; padding-top: 40px; }
 
   @media (max-width: 600px) {
@@ -431,6 +431,8 @@
     <button class="nav-btn active" onclick="switchTab('deskpad', this)">📌 Desk Pad</button>
     <button class="nav-btn" onclick="switchTab('clients', this)">👤 Client Portals</button>
     <button class="nav-btn" onclick="switchTab('team', this)">👥 Team Schedule</button>
+    <!-- NEW TAB FOR TEAM LEARNINGS -->
+    <button class="nav-btn" onclick="switchTab('learnings', this)">💡 Team Learnings</button>
   </div>
 
   <div class="main-content">
@@ -626,6 +628,47 @@
       <div id="teamSchedulesList"></div>
     </div>
 
+    <!-- PANEL 4: What We Learned Today Tab -->
+    <div id="learnings" class="view-panel">
+      <header>
+        <div>
+          <h1>What We Learned Today</h1>
+          <div class="tagline">daily knowledge, fixes & key takeaways from the team</div>
+        </div>
+        <div class="header-actions">
+          <a href="https://www.instagram.com/cineby.dheeraj?igsh=cTM1cXRrZW00dXpy&utm_source=qr" target="_blank" class="brand-watermark">@cinebydheeraj</a>
+          <button class="admin-only btn-save" id="addLearningBtn" onclick="openLearningForm()">+ Add New Learning</button>
+        </div>
+      </header>
+
+      <!-- Add / Edit Learning Form -->
+      <div id="learningForm" class="form-note" style="display:none;">
+        <div class="form-row">
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Team Member Name 👤</label>
+            <input type="text" id="learnAuthorInput" placeholder="e.g. Alex / Editor 1">
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Topic / Title 💡</label>
+            <input type="text" id="learnTitleInput" placeholder="e.g. Color Grading Log Footage in Premiere">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Key Takeaways & Notes 📝</label>
+            <textarea id="learnContentInput" placeholder="Write what you learned today, workflow improvements, or issues solved..."></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-cancel" onclick="closeLearningForm()">Cancel</button>
+          <button class="btn-save" id="learnFormSaveBtn" onclick="saveLearningItem()">Post Learning</button>
+        </div>
+      </div>
+
+      <!-- Learnings Feed List Container -->
+      <div id="learningsList"></div>
+    </div>
+
   </div>
 </div>
 
@@ -652,6 +695,7 @@ const COLORS = ['yellow','mint','coral','blue'];
 let entries = [];
 let clients = [];
 let teamTasks = [];
+let learnings = [];
 let activeDay = DAYS[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
 let openId = null;
 let formOpen = false;
@@ -660,6 +704,7 @@ let editingClientId = null;
 let activeScheduleClientId = null;
 let editingItemId = null;
 let editingTeamItemId = null;
+let editingLearningId = null;
 let notifiedTasks = new Set();
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -791,6 +836,12 @@ function load(){
     teamTasks = data ? Object.values(data) : [];
     renderTeamSchedules();
   });
+
+  db.ref('team-learnings').on('value', (snapshot) => {
+    const data = snapshot.val();
+    learnings = data ? Object.values(data) : [];
+    renderLearnings();
+  });
 }
 
 function save(){
@@ -809,6 +860,12 @@ function saveTeamToFirebase(){
   const teamObj = {};
   teamTasks.forEach(t => teamObj[t.id] = t);
   db.ref('team-schedules').set(teamObj);
+}
+
+function saveLearningsToFirebase(){
+  const learnObj = {};
+  learnings.forEach(l => learnObj[l.id] = l);
+  db.ref('team-learnings').set(learnObj);
 }
 
 function to12h(t){
@@ -1274,6 +1331,140 @@ function renderTeamSchedules() {
         </div>
         ${item.pdfUrl ? `<a href="${escapeHtml(item.pdfUrl)}" target="_blank" class="pdf-link">📄 Open Script PDF / Document</a>` : ''}
         ${item.note ? `<div class="client-note" style="margin-top:10px; font-size:13px; color:#D8C9A8;">${escapeHtml(item.note)}</div>` : ''}
+      `;
+
+      container.appendChild(card);
+    });
+  });
+}
+
+/* TEAM LEARNINGS LOGIC */
+function openLearningForm() {
+  editingLearningId = null;
+  document.getElementById('learnAuthorInput').value = '';
+  document.getElementById('learnTitleInput').value = '';
+  document.getElementById('learnContentInput').value = '';
+  document.getElementById('learnFormSaveBtn').textContent = 'Post Learning';
+  document.getElementById('learningForm').style.display = 'block';
+}
+
+function startEditLearningItem(id) {
+  const item = learnings.find(l => l.id === id);
+  if (!item) return;
+
+  editingLearningId = id;
+  document.getElementById('learnAuthorInput').value = item.author || '';
+  document.getElementById('learnTitleInput').value = item.title || '';
+  document.getElementById('learnContentInput').value = item.content || '';
+  document.getElementById('learnFormSaveBtn').textContent = 'Update Learning';
+  document.getElementById('learningForm').style.display = 'block';
+}
+
+function closeLearningForm() {
+  document.getElementById('learningForm').style.display = 'none';
+  editingLearningId = null;
+}
+
+function saveLearningItem() {
+  const author = document.getElementById('learnAuthorInput').value.trim();
+  const title = document.getElementById('learnTitleInput').value.trim();
+  const content = document.getElementById('learnContentInput').value.trim();
+
+  if(!title || !content) { alert('Please enter both a topic title and key takeaways.'); return; }
+
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  if(editingLearningId) {
+    const item = learnings.find(l => l.id === editingLearningId);
+    if(item) {
+      item.author = author || 'Team Member';
+      item.title = title;
+      item.content = content;
+    }
+  } else {
+    learnings.push({
+      id: uid(),
+      author: author || 'Team Member',
+      title,
+      content,
+      date: todayStr,
+      timestamp: Date.now()
+    });
+  }
+
+  saveLearningsToFirebase();
+  closeLearningForm();
+  renderLearnings();
+}
+
+function deleteLearningItem(id) {
+  const confirmed = confirm("Are you sure you want to delete this daily learning entry?");
+  if (!confirmed) return;
+
+  learnings = learnings.filter(l => l.id !== id);
+  saveLearningsToFirebase();
+  renderLearnings();
+}
+
+function getLearningDateLabel(dateStr) {
+  if(!dateStr) return 'RECENT LEARNINGS';
+  const now = new Date();
+  const todayStr = now.toISOString().split('T')[0];
+
+  const yesterday = new Date();
+  yesterday.setDate(now.getDate() - 1);
+  const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+  if (dateStr === todayStr) return `TODAY'S LEARNINGS (${formatDate(dateStr)})`;
+  if (dateStr === yesterdayStr) return `YESTERDAY'S LEARNINGS (${formatDate(dateStr)})`;
+  return `LEARNED ON ${formatDate(dateStr)}`;
+}
+
+function renderLearnings() {
+  const container = document.getElementById('learningsList');
+  if(!container) return;
+  container.innerHTML = '';
+
+  if(learnings.length === 0) {
+    container.innerHTML = `<div class="empty">no daily learnings posted yet</div>`;
+    return;
+  }
+
+  // Sort by date/timestamp descending (newest first)
+  const sortedLearnings = [...learnings].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+  // Group by Date
+  const groups = {};
+  sortedLearnings.forEach(item => {
+    const key = item.date || 'TBD';
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(item);
+  });
+
+  Object.keys(groups).forEach(dateKey => {
+    const headerTitle = getLearningDateLabel(dateKey === 'TBD' ? '' : dateKey);
+
+    const groupHeader = document.createElement('div');
+    groupHeader.className = 'date-group-header';
+    groupHeader.textContent = headerTitle;
+    container.appendChild(groupHeader);
+
+    groups[dateKey].forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'schedule-item';
+      card.style.padding = '16px';
+      card.style.marginBottom = '14px';
+
+      card.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <div class="assignee-badge" style="margin-bottom:0;">👤 ${escapeHtml(item.author || 'Team Member')}</div>
+          <div class="admin-only item-actions">
+            <button class="btn-item-action" onclick="startEditLearningItem('${item.id}')">✏️ Edit</button>
+            <button class="btn-item-action delete" onclick="deleteLearningItem('${item.id}')">✕ Delete</button>
+          </div>
+        </div>
+        <strong style="font-size:16px; color:var(--paper-yellow); display:block; margin-bottom:6px;">${escapeHtml(item.title)}</strong>
+        <div style="font-size:14px; line-height:1.5; color:var(--cream); white-space:pre-wrap;">${escapeHtml(item.content)}</div>
       `;
 
       container.appendChild(card);
