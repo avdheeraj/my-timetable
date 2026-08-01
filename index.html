@@ -229,7 +229,7 @@
     align-items: center;
     gap: 6px;
     margin-top: 8px;
-    padding: 5px 10px;
+    padding: 6px 12px;
     background: rgba(231, 174, 151, 0.2);
     border: 1px solid var(--paper-coral);
     color: var(--paper-coral);
@@ -238,6 +238,7 @@
     font-size: 12px;
     font-weight: 600;
   }
+  .pdf-link:hover { background: rgba(231, 174, 151, 0.35); }
 
   /* Dropdown Menu */
   .dropdown-container { position: relative; }
@@ -379,14 +380,14 @@
         </div>
         <div class="form-row">
           <div>
-            <label style="font-size:12px; font-weight:bold;">Upload Script PDF 📄 (Optional)</label>
-            <input type="file" id="schPdfInput" accept="application/pdf">
+            <label style="font-size:12px; font-weight:bold;">Script PDF / Google Drive URL 📄</label>
+            <input type="text" id="schPdfInput" placeholder="https://drive.google.com/file/d/... or any PDF link">
           </div>
         </div>
         <div class="form-row">
           <div>
             <label style="font-size:12px; font-weight:bold;">Notes / Instructions (Optional)</label>
-            <textarea id="schNoteInput" placeholder="Drive links, revision specs..."></textarea>
+            <textarea id="schNoteInput" placeholder="Instructions, drive links, specs..."></textarea>
           </div>
         </div>
         <div class="form-actions">
@@ -672,9 +673,9 @@ function saveSchedule() {
   const title = document.getElementById('schTitleInput').value.trim();
   const shootDate = document.getElementById('schShootDateInput').value;
   const editDate = document.getElementById('schEditDateInput').value;
+  const pdfUrl = document.getElementById('schPdfInput').value.trim();
   const note = document.getElementById('schNoteInput').value.trim();
   const status = document.getElementById('schStatusInput').value;
-  const pdfFile = document.getElementById('schPdfInput').files[0];
 
   if(!title) { alert('Please enter an item/project title.'); return; }
   const client = clients.find(c => c.id === activeScheduleClientId);
@@ -682,29 +683,19 @@ function saveSchedule() {
 
   if(!client.items) client.items = [];
 
-  const finalizeSave = (pdfDataUrl) => {
-    client.items.push({
-      id: uid(),
-      title,
-      shootDate,
-      editDate,
-      note,
-      status,
-      pdfUrl: pdfDataUrl || null
-    });
+  client.items.push({
+    id: uid(),
+    title,
+    shootDate,
+    editDate,
+    note,
+    status,
+    pdfUrl: pdfUrl || null
+  });
 
-    saveClientsToFirebase();
-    closeScheduleForm();
-    renderClientsPortals();
-  };
-
-  if (pdfFile) {
-    const reader = new FileReader();
-    reader.onload = function(e) { finalizeSave(e.target.result); };
-    reader.readAsDataURL(pdfFile);
-  } else {
-    finalizeSave(null);
-  }
+  saveClientsToFirebase();
+  closeScheduleForm();
+  renderClientsPortals();
 }
 
 function removeItemFromClient(clientId, itemId) {
@@ -770,7 +761,7 @@ function renderClientsPortals() {
               <span class="meta-tag">🎬 Shoot: <strong>${item.shootDate ? item.shootDate : 'TBD'}</strong></span>
               <span class="meta-tag">✂️ Edit Deadline: <strong>${item.editDate ? item.editDate : 'TBD'}</strong></span>
             </div>
-            ${item.pdfUrl ? `<a href="${item.pdfUrl}" target="_blank" download="${item.title}-Script.pdf" class="pdf-link">📄 Download / View Script PDF</a>` : ''}
+            ${item.pdfUrl ? `<a href="${escapeHtml(item.pdfUrl)}" target="_blank" class="pdf-link">📄 Open Script PDF / Document</a>` : ''}
             ${item.note ? `<div class="client-note" style="margin-top:6px;">${escapeHtml(item.note)}</div>` : ''}
           </div>
         `;
@@ -795,7 +786,7 @@ function renderClientsPortals() {
       </div>
 
       <div style="margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
-        <span style="font-size:12px; font-weight:bold; letter-spacing:0.5px; text-transform:uppercase; color:var(--paper-yellow);">Schedules & Script PDFs</span>
+        <span style="font-size:12px; font-weight:bold; letter-spacing:0.5px; text-transform:uppercase; color:var(--paper-yellow);">Schedules & Script Documents</span>
         <button class="admin-only btn-save" style="font-size:11px; padding:4px 10px;" onclick="openScheduleForm('${c.id}')">+ Add Schedule/Script</button>
       </div>
 
@@ -896,7 +887,7 @@ if (targetClient) {
   document.body.classList.add('client-mode');
   switchTab('clients', null);
   document.getElementById('clientHeaderTitle').textContent = `${targetClient} Client Portal`;
-  document.getElementById('clientHeaderTagline').textContent = 'Your live project schedules, deadlines & script PDFs';
+  document.getElementById('clientHeaderTagline').textContent = 'Your live project schedules, deadlines & script documents';
 }
 
 load();
