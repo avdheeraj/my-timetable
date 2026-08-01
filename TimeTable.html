@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Desk Pad — Timetable</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Inter:wght@400;500;600&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --mat: #1F2B21;
+    --mat-dark: #172018;
+    --stitch: rgba(245,240,225,0.08);
+    --ink: #2B2118;
+    --ink-soft: #4A3B2C;
+    --paper-yellow: #F3DE84;
+    --paper-yellow-shadow: #D8C264;
+    --paper-mint: #B6D3AC;
+    --paper-mint-shadow: #96B78C;
+    --paper-coral: #E7AE97;
+    --paper-coral-shadow: #CC907A;
+    --paper-blue: #A6C6D8;
+    --paper-blue-shadow: #85A6B8;
+    --cream: #F7F1E1;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    background:
+      radial-gradient(ellipse at top, rgba(255,255,255,0.03), transparent 60%),
+      var(--mat);
+    background-image:
+      repeating-linear-gradient(0deg, var(--stitch) 0 1px, transparent 1px 42px),
+      repeating-linear-gradient(90deg, var(--stitch) 0 1px, transparent 1px 42px),
+      var(--mat);
+    font-family:'Inter', sans-serif;
+    color:var(--cream);
+    padding:32px 20px 80px;
+  }
+  .wrap{max-width:640px;margin:0 auto;}
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:22px;
+    padding-bottom:16px;
+    border-bottom:1px dashed rgba(247,241,225,0.25);
+  }
+  h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    font-size:26px;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .tagline{
+    font-family:'Caveat',cursive;
+    font-size:20px;
+    color:#D8C9A8;
+    margin-top:2px;
+  }
+  .notify-btn{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:12px;
+    font-weight:500;
+    padding:6px 12px;
+    border-radius:999px;
+    border:1px solid rgba(247,241,225,0.3);
+    background:rgba(247,241,225,0.1);
+    color:var(--cream);
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .notify-btn:hover{
+    background:rgba(247,241,225,0.2);
+  }
+  .day-tabs{
+    display:flex;
+    gap:6px;
+    margin-bottom:26px;
+    flex-wrap:wrap;
+  }
+  .day-tab{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:13px;
+    font-weight:500;
+    padding:7px 13px;
+    border-radius:999px;
+    border:1px solid rgba(247,241,225,0.2);
+    background:transparent;
+    color:#D8C9A8;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .day-tab:hover{border-color:rgba(247,241,225,0.5);}
+  .day-tab.active{
+    background:var(--cream);
+    color:var(--mat-dark);
+    border-color:var(--cream);
+  }
+  .notes{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+  .empty{
+    font-family:'Caveat',cursive;
+    font-size:22px;
+    color:#B8AB8C;
+    text-align:center;
+    padding:50px 20px;
+    border:2px dashed rgba(247,241,225,0.2);
+    border-radius:10px;
+  }
+  .note{
+    position:relative;
+    border-radius:3px;
+    padding:14px 18px 16px;
+    cursor:pointer;
+    box-shadow:0 5px 12px rgba(0,0,0,0.28), 0 1px 0 rgba(255,255,255,0.15) inset;
+    transform:rotate(var(--tilt));
+    transition:transform .15s ease, box-shadow .15s ease;
+    color:var(--ink);
+  }
+  .note:hover{
+    transform:rotate(var(--tilt)) translateY(-2px);
+    box-shadow:0 9px 18px rgba(0,0,0,0.34), 0 1px 0 rgba(255,255,255,0.15) inset;
+  }
+  .note::before{
+    content:'';
+    position:absolute;
+    top:-9px;
+    left:50%;
+    transform:translateX(-50%) rotate(-3deg);
+    width:56px;
+    height:20px;
+    background:rgba(255,255,255,0.55);
+    border:1px solid rgba(255,255,255,0.3);
+    box-shadow:0 2px 3px rgba(0,0,0,0.15);
+  }
+  .note.yellow{background:var(--paper-yellow);}
+  .note.mint{background:var(--paper-mint);}
+  .note.coral{background:var(--paper-coral);}
+  .note.blue{background:var(--paper-blue);}
+  .note-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .note-time{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    font-size:13px;
+    letter-spacing:0.02em;
+    opacity:0.75;
+    white-space:nowrap;
+  }
+  .note-title{
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:16px;
+    flex:1;
+    margin:0 4px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .chevron{
+    font-size:15px;
+    opacity:0.6;
+    transition:transform .2s ease;
+    flex-shrink:0;
+  }
+  .note.open .chevron{transform:rotate(180deg);}
+  .note-body{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height .25s ease, margin-top .25s ease;
+  }
+  .note.open .note-body{
+    max-height:260px;
+    margin-top:12px;
+  }
+  .note-detail{
+    font-size:14px;
+    line-height:1.5;
+    white-space:pre-wrap;
+    opacity:0.9;
+    margin:0 0 10px;
+  }
+  .note-actions{
+    display:flex;
+    gap:8px;
+  }
+  .note-actions button{
+    font-family:'Inter',sans-serif;
+    font-size:12px;
+    font-weight:500;
+    padding:6px 12px;
+    border-radius:5px;
+    border:1px solid rgba(0,0,0,0.15);
+    background:rgba(255,255,255,0.35);
+    color:var(--ink);
+    cursor:pointer;
+  }
+  .note-actions button:hover{background:rgba(255,255,255,0.6);}
+  .note-actions button.danger{color:#7A2E1E;}
+
+  .add-note{
+    border-radius:3px;
+    border:2px dashed rgba(247,241,225,0.35);
+    background:transparent;
+    color:#D8C9A8;
+    padding:16px 18px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    font-family:'Space Grotesk',sans-serif;
+    font-size:14px;
+    font-weight:500;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .add-note:hover{border-color:rgba(247,241,225,0.7);color:var(--cream);}
+
+  .form-note{
+    background:var(--cream);
+    border-radius:5px;
+    padding:18px;
+    box-shadow:0 6px 16px rgba(0,0,0,0.3);
+    color:var(--ink);
+  }
+  .form-row{display:flex;gap:10px;margin-bottom:10px;}
+  .form-row label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    color:var(--ink-soft);
+    display:block;
+    margin-bottom:4px;
+    font-weight:600;
+  }
+  .form-row > div{flex:1;}
+  input, textarea, select{
+    width:100%;
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    padding:8px 10px;
+    border-radius:5px;
+    border:1px solid #D8C9A8;
+    background:#fff;
+    color:var(--ink);
+  }
+  textarea{resize:vertical;min-height:56px;font-family:'Inter',sans-serif;}
+  .color-picker{display:flex;gap:8px;margin-bottom:14px;}
+  .swatch{
+    width:26px;height:26px;border-radius:50%;
+    cursor:pointer;border:2px solid transparent;
+  }
+  .swatch.selected{border-color:var(--ink);}
+  .swatch.yellow{background:var(--paper-yellow);}
+  .swatch.mint{background:var(--paper-mint);}
+  .swatch.coral{background:var(--paper-coral);}
+  .swatch.blue{background:var(--paper-blue);}
+  .form-actions{display:flex;gap:8px;justify-content:flex-end;}
+  .form-actions button{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:13px;
+    font-weight:600;
+    padding:8px 16px;
+    border-radius:5px;
+    border:none;
+    cursor:pointer;
+  }
+  .btn-save{background:var(--ink);color:var(--cream);}
+  .btn-cancel{background:transparent;color:var(--ink-soft);border:1px solid #D8C9A8 !important;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Desk pad</h1>
+      <div class="tagline">pin it, peek later</div>
+    </div>
+    <button class="notify-btn" id="notifyBtn" onclick="requestNotificationPermission()">🔔 Enable Alerts</button>
+  </header>
+
+  <div class="day-tabs" id="dayTabs"></div>
+  <div class="notes" id="notesList"></div>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+<script>
+// Your specific Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBdtfVQVFkA1-48ZJczmIHgLxirf9byHMQ",
+  authDomain: "sync-8b93f.firebaseapp.com",
+  projectId: "sync-8b93f",
+  storageBucket: "sync-8b93f.firebasestorage.app",
+  messagingSenderId: "762945992908",
+  appId: "1:762945992908:web:241c2e2802a94d149faa69",
+  measurementId: "G-BRTV17TSDR",
+  databaseURL: "https://sync-8b93f-default-rtdb.firebaseio.com"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const COLORS = ['yellow','mint','coral','blue'];
+let entries = [];
+let activeDay = DAYS[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
+let openId = null;
+let formOpen = false;
+let editingId = null;
+let notifiedTasks = new Set();
+
+function uid(){ return 'e' + Math.random().toString(36).slice(2, 9); }
+
+function tiltFor(id){
+  let h = 0;
+  for(const c of id) h = (h * 31 + c.charCodeAt(0)) % 1000;
+  return ((h % 5) - 2) * 0.6 + 'deg';
+}
+
+// Request Notification Permission
+function requestNotificationPermission() {
+  if (!("Notification" in window)) {
+    alert("This browser does not support desktop notifications.");
+    return;
+  }
+  Notification.requestPermission().then(permission => {
+    updateNotificationButton();
+    if (permission === "granted") {
+      new Notification("Desk Pad Alerts On!", { body: "You will be notified when your task start times arrive." });
+    }
+  });
+}
+
+function updateNotificationButton() {
+  const btn = document.getElementById("notifyBtn");
+  if (!("Notification" in window)) {
+    btn.style.display = "none";
+    return;
+  }
+  if (Notification.permission === "granted") {
+    btn.textContent = "🔔 Alerts Active";
+    btn.style.opacity = "0.7";
+  } else {
+    btn.textContent = "🔔 Enable Alerts";
+    btn.style.opacity = "1";
+  }
+}
+
+// Check schedule and send notification at start time
+function checkStartTimes() {
+  if (!("Notification" in window) || Notification.permission !== "granted") return;
+
+  const now = new Date();
+  const currentDayIndex = now.getDay() === 0 ? 6 : now.getDay() - 1;
+  const currentDay = DAYS[currentDayIndex];
+  
+  const currentHours = String(now.getHours()).padStart(2, '0');
+  const currentMinutes = String(now.getMinutes()).padStart(2, '0');
+  const currentTime = `${currentHours}:${currentMinutes}`;
+
+  entries.forEach(entry => {
+    if (entry.day === currentDay && entry.start === currentTime) {
+      const notificationKey = `${entry.id}-${entry.start}`;
+      if (!notifiedTasks.has(notificationKey)) {
+        notifiedTasks.add(notificationKey);
+        new Notification(`Task Starting: ${entry.title}`, {
+          body: entry.details ? entry.details : `It's ${to12h(entry.start)}! Time to start your task.`,
+          icon: 'https://cdn-icons-png.flaticon.com/512/2693/2693507.png'
+        });
+      }
+    }
+  });
+}
+
+// Realtime Firebase Listener across all devices
+function load(){
+  db.ref('timetable-entries').on('value', (snapshot) => {
+    const data = snapshot.val();
+    entries = data ? Object.values(data) : [];
+    render();
+  });
+}
+
+// Save directly to Firebase Database
+function save(){
+  const entriesObj = {};
+  entries.forEach(item => entriesObj[item.id] = item);
+  db.ref('timetable-entries').set(entriesObj);
+}
+
+function to12h(t){
+  if(!t) return '';
+  let [h,m] = t.split(':').map(Number);
+  const ap = h >= 12 ? 'PM' : 'AM';
+  h = h % 12; if(h===0) h = 12;
+  return h + ':' + String(m).padStart(2,'0') + ' ' + ap;
+}
+
+function renderTabs(){
+  const tabs = document.getElementById('dayTabs');
+  tabs.innerHTML = '';
+  DAYS.forEach(d => {
+    const btn = document.createElement('button');
+    btn.className = 'day-tab' + (d === activeDay ? ' active' : '');
+    btn.textContent = d;
+    btn.onclick = () => { activeDay = d; openId = null; formOpen = false; render(); };
+    tabs.appendChild(btn);
+  });
+}
+
+function renderNotes(){
+  const list = document.getElementById('notesList');
+  list.innerHTML = '';
+
+  const dayEntries = entries
+    .filter(e => e.day === activeDay)
+    .sort((a,b) => a.start.localeCompare(b.start));
+
+  if(dayEntries.length === 0 && !formOpen){
+    const empty = document.createElement('div');
+    empty.className = 'empty';
+    empty.textContent = 'nothing pinned for ' + activeDay + ' yet';
+    list.appendChild(empty);
+  }
+
+  dayEntries.forEach(entry => {
+    const note = document.createElement('div');
+    note.className = 'note ' + entry.color + (openId === entry.id ? ' open' : '');
+    note.style.setProperty('--tilt', tiltFor(entry.id));
+    note.onclick = (ev) => {
+      if(ev.target.closest('.note-actions')) return;
+      openId = openId === entry.id ? null : entry.id;
+      render();
+    };
+
+    const row = document.createElement('div');
+    row.className = 'note-row';
+    row.innerHTML = `
+      <span class="note-time">${to12h(entry.start)}${entry.end ? ' – ' + to12h(entry.end) : ''}</span>
+      <span class="note-title">${escapeHtml(entry.title)}</span>
+      <span class="chevron">⌄</span>
+    `;
+    note.appendChild(row);
+
+    const body = document.createElement('div');
+    body.className = 'note-body';
+    const detailText = entry.details ? escapeHtml(entry.details) : 'No extra notes.';
+    body.innerHTML = `<p class="note-detail">${detailText}</p>`;
+    const actions = document.createElement('div');
+    actions.className = 'note-actions';
+    const editBtn = document.createElement('button');
+    editBtn.textContent = 'Edit';
+    editBtn.onclick = (e) => { e.stopPropagation(); startEdit(entry.id); };
+    const delBtn = document.createElement('button');
+    delBtn.className = 'danger';
+    delBtn.textContent = 'Remove';
+    delBtn.onclick = (e) => { e.stopPropagation(); deleteEntry(entry.id); };
+    actions.appendChild(editBtn);
+    actions.appendChild(delBtn);
+    body.appendChild(actions);
+    note.appendChild(body);
+
+    list.appendChild(note);
+  });
+
+  if(formOpen){
+    list.appendChild(buildForm());
+  } else {
+    const addBtn = document.createElement('button');
+    addBtn.className = 'add-note';
+    addBtn.innerHTML = '+ &nbsp;pin a new task';
+    addBtn.onclick = () => { formOpen = true; editingId = null; render(); };
+    list.appendChild(addBtn);
+  }
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function startEdit(id){
+  editingId = id;
+  formOpen = true;
+  openId = null;
+  render();
+}
+
+function deleteEntry(id){
+  entries = entries.filter(e => e.id !== id);
+  save();
+  render();
+}
+
+function buildForm(){
+  const editing = editingId ? entries.find(e => e.id === editingId) : null;
+  const wrap = document.createElement('div');
+  wrap.className = 'form-note';
+
+  wrap.innerHTML = `
+    <div class="form-row">
+      <div>
+        <label>Start</label>
+        <input type="time" id="fStart" value="${editing ? editing.start : ''}">
+      </div>
+      <div>
+        <label>End (optional)</label>
+        <input type="time" id="fEnd" value="${editing && editing.end ? editing.end : ''}">
+      </div>
+    </div>
+    <div class="form-row">
+      <div>
+        <label>Task</label>
+        <input type="text" id="fTitle" placeholder="e.g. Chemistry revision" value="${editing ? escapeHtml(editing.title) : ''}">
+      </div>
+    </div>
+    <div class="form-row">
+      <div>
+        <label>Notes (optional)</label>
+        <textarea id="fDetails" placeholder="Any extra detail...">${editing ? escapeHtml(editing.details || '') : ''}</textarea>
+      </div>
+    </div>
+    <div class="color-picker" id="colorPicker"></div>
+    <div class="form-actions">
+      <button class="btn-cancel" id="cancelBtn">Cancel</button>
+      <button class="btn-save" id="saveBtn">${editing ? 'Save changes' : 'Pin it'}</button>
+    </div>
+  `;
+
+  const picker = wrap.querySelector('#colorPicker');
+  let selectedColor = editing ? editing.color : COLORS[Math.floor(Math.random()*COLORS.length)];
+  COLORS.forEach(c => {
+    const sw = document.createElement('div');
+    sw.className = 'swatch ' + c + (c === selectedColor ? ' selected' : '');
+    sw.onclick = () => {
+      selectedColor = c;
+      picker.querySelectorAll('.swatch').forEach(s => s.classList.remove('selected'));
+      sw.classList.add('selected');
+    };
+    picker.appendChild(sw);
+  });
+
+  wrap.querySelector('#cancelBtn').onclick = () => { formOpen = false; editingId = null; render(); };
+  wrap.querySelector('#saveBtn').onclick = () => {
+    const start = wrap.querySelector('#fStart').value;
+    const end = wrap.querySelector('#fEnd').value;
+    const title = wrap.querySelector('#fTitle').value.trim();
+    const details = wrap.querySelector('#fDetails').value.trim();
+    if(!start || !title){
+      alert('Please add at least a start time and a task name.');
+      return;
+    }
+    if(editing){
+      editing.start = start; editing.end = end; editing.title = title;
+      editing.details = details; editing.color = selectedColor;
+    } else {
+      entries.push({ id: uid(), day: activeDay, start, end, title, details, color: selectedColor });
+    }
+    formOpen = false; editingId = null;
+    save();
+    render();
+  };
+
+  return wrap;
+}
+
+function render(){
+  renderTabs();
+  renderNotes();
+  updateNotificationButton();
+}
+
+load();
+
+// Periodically check for start-time alerts every 10 seconds
+setInterval(checkStartTimes, 10000);
+</script>
+</body>
+</html>
