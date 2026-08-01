@@ -234,7 +234,7 @@
   .btn-save{ background:var(--ink); color:var(--cream); border:none; padding:8px 16px; border-radius:5px; cursor:pointer; }
   .btn-cancel{ background:transparent; color:var(--ink-soft); border:1px solid #D8C9A8; padding:8px 16px; border-radius:5px; cursor:pointer; }
 
-  /* Client Portal Dashboard Box */
+  /* Client Portal & Team Dashboard Box */
   .portal-box {
     background: rgba(247, 241, 225, 0.08);
     border: 1px solid rgba(247,241,225,0.18);
@@ -369,13 +369,13 @@
     border-color: rgba(231, 174, 151, 0.4);
   }
 
-  /* Client Portal Mode (Hides Admin UI for Shared Client Links) */
-  body.client-mode .sidebar { display: none !important; }
-  body.client-mode .notify-btn { display: none !important; }
-  body.client-mode #addClientBtn { display: none !important; }
-  body.client-mode .dropdown-container { display: none !important; }
-  body.client-mode .admin-only { display: none !important; }
-  body.client-mode .main-content { max-width: 680px; padding-top: 40px; }
+  /* Client & Team Mode Styles */
+  body.client-mode .sidebar, body.team-mode .sidebar { display: none !important; }
+  body.client-mode .notify-btn, body.team-mode .notify-btn { display: none !important; }
+  body.client-mode #addClientBtn, body.team-mode #addTeamItemBtn { display: none !important; }
+  body.client-mode .dropdown-container, body.team-mode .dropdown-container { display: none !important; }
+  body.client-mode .admin-only, body.team-mode .admin-only { display: none !important; }
+  body.client-mode .main-content, body.team-mode .main-content { max-width: 680px; padding-top: 40px; }
 
   @media (max-width: 600px) {
     .app-container { flex-direction: column; }
@@ -393,6 +393,7 @@
     <div class="sidebar-brand">📌 Workspace</div>
     <button class="nav-btn active" onclick="switchTab('deskpad', this)">📌 Desk Pad</button>
     <button class="nav-btn" onclick="switchTab('clients', this)">👤 Client Portals</button>
+    <button class="nav-btn" onclick="switchTab('team', this)">👥 Team Schedule</button>
   </div>
 
   <div class="main-content">
@@ -512,6 +513,68 @@
       <div id="clientsPortalsList"></div>
     </div>
 
+    <!-- PANEL 3: Team Schedule Tab -->
+    <div id="team" class="view-panel">
+      <header>
+        <div>
+          <h1 id="teamHeaderTitle">Team Schedule</h1>
+          <div class="tagline" id="teamHeaderTagline">live shoot schedule & task deadlines for the team</div>
+        </div>
+        <div class="header-actions">
+          <a href="https://www.instagram.com/cineby.dheeraj?igsh=cTM1cXRrZW00dXpy&utm_source=qr" target="_blank" class="brand-watermark">@cinebydheeraj</a>
+          <button class="admin-only btn-save" onclick="shareTeamLink()" style="background:var(--paper-blue); color:var(--ink);">🔗 Copy Team Link</button>
+          <button class="admin-only btn-save" id="addTeamItemBtn" onclick="openTeamForm()">+ Add Team Task</button>
+        </div>
+      </header>
+
+      <!-- Add / Edit Team Schedule Form -->
+      <div id="teamForm" class="form-note" style="display:none;">
+        <div class="form-row">
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Client / Project Title</label>
+            <input type="text" id="teamTitleInput" placeholder="e.g. Taluka - Commercial Shoot">
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Status</label>
+            <select id="teamStatusInput">
+              <option value="Upcoming">Upcoming</option>
+              <option value="InProgress">In Progress</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Shoot Date 🎬</label>
+            <input type="date" id="teamShootDateInput">
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Edit Deadline ✂️</label>
+            <input type="date" id="teamEditDateInput">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Script PDF / Document Link 📄</label>
+            <input type="text" id="teamPdfInput" placeholder="https://drive.google.com/file/d/.../preview">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Team Notes & Instructions</label>
+            <textarea id="teamNoteInput" placeholder="Assignees, camera gear, location details..."></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-cancel" onclick="closeTeamForm()">Cancel</button>
+          <button class="btn-save" id="teamFormSaveBtn" onclick="saveTeamItem()">Save Team Task</button>
+        </div>
+      </div>
+
+      <!-- Team Schedules List Container -->
+      <div id="teamSchedulesList"></div>
+    </div>
+
   </div>
 </div>
 
@@ -537,6 +600,7 @@ const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const COLORS = ['yellow','mint','coral','blue'];
 let entries = [];
 let clients = [];
+let teamTasks = [];
 let activeDay = DAYS[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
 let openId = null;
 let formOpen = false;
@@ -544,14 +608,18 @@ let editingId = null;
 let editingClientId = null;
 let activeScheduleClientId = null;
 let editingItemId = null;
+let editingTeamItemId = null;
 let notifiedTasks = new Set();
 
 const urlParams = new URLSearchParams(window.location.search);
 const targetClient = urlParams.get('client');
+const targetView = urlParams.get('view');
 
-/* Update Browser Title immediately for Browser Tabs */
+/* Update Browser Title immediately for Shared Links */
 if (targetClient) {
   document.title = `${targetClient} Portal | @cinebydheeraj`;
+} else if (targetView === 'team') {
+  document.title = `Team Schedule | @cinebydheeraj`;
 }
 
 function uid(){ return 'e' + Math.random().toString(36).slice(2, 9); }
@@ -642,6 +710,12 @@ function load(){
     clients = data ? Object.values(data) : [];
     renderClientsPortals();
   });
+
+  db.ref('team-schedules').on('value', (snapshot) => {
+    const data = snapshot.val();
+    teamTasks = data ? Object.values(data) : [];
+    renderTeamSchedules();
+  });
 }
 
 function save(){
@@ -654,6 +728,12 @@ function saveClientsToFirebase(){
   const clientsObj = {};
   clients.forEach(c => clientsObj[c.id] = c);
   db.ref('clients-portals').set(clientsObj);
+}
+
+function saveTeamToFirebase(){
+  const teamObj = {};
+  teamTasks.forEach(t => teamObj[t.id] = t);
+  db.ref('team-schedules').set(teamObj);
 }
 
 function to12h(t){
@@ -742,7 +822,7 @@ function renderNotes(){
   }
 }
 
-/* CLIENT PORTAL LOGIC (DYNAMIC POSITIONING FOR EDIT FORM) */
+/* CLIENT PORTAL LOGIC */
 function openClientForm() {
   editingClientId = null;
   document.getElementById('clientNameInput').value = '';
@@ -772,7 +852,6 @@ function startEditClientPortal(clientId) {
   document.getElementById('clientNoteInput').value = client.note || '';
   document.getElementById('clientFormSaveBtn').textContent = 'Update Client Portal';
   
-  // Dynamically move client edit form directly inside the selected client portal card
   const formEl = document.getElementById('clientForm');
   const clientCardSlot = document.getElementById(`clientFormSlot-${clientId}`);
   if (clientCardSlot && formEl) {
@@ -836,7 +915,7 @@ function deleteClient(id) {
   closeAllDropdowns();
 }
 
-/* ADD / EDIT ITEM TO CLIENT PORTAL (DYNAMIC POSITIONING) */
+/* ADD / EDIT ITEM TO CLIENT PORTAL */
 function openScheduleForm(clientId) {
   activeScheduleClientId = clientId;
   editingItemId = null;
@@ -944,6 +1023,148 @@ function removeItemFromClient(clientId, itemId) {
   }
 }
 
+/* TEAM SCHEDULE LOGIC */
+function openTeamForm() {
+  editingTeamItemId = null;
+  document.getElementById('teamTitleInput').value = '';
+  document.getElementById('teamShootDateInput').value = '';
+  document.getElementById('teamEditDateInput').value = '';
+  document.getElementById('teamPdfInput').value = '';
+  document.getElementById('teamNoteInput').value = '';
+  document.getElementById('teamStatusInput').value = 'Upcoming';
+  document.getElementById('teamFormSaveBtn').textContent = 'Save Team Task';
+  document.getElementById('teamForm').style.display = 'block';
+}
+
+function startEditTeamItem(itemId) {
+  const item = teamTasks.find(t => t.id === itemId);
+  if(!item) return;
+
+  editingTeamItemId = itemId;
+  document.getElementById('teamTitleInput').value = item.title || '';
+  document.getElementById('teamShootDateInput').value = item.shootDate || '';
+  document.getElementById('teamEditDateInput').value = item.editDate || '';
+  document.getElementById('teamPdfInput').value = item.pdfUrl || '';
+  document.getElementById('teamNoteInput').value = item.note || '';
+  document.getElementById('teamStatusInput').value = item.status || 'Upcoming';
+  document.getElementById('teamFormSaveBtn').textContent = 'Update Team Task';
+  document.getElementById('teamForm').style.display = 'block';
+}
+
+function closeTeamForm() {
+  document.getElementById('teamForm').style.display = 'none';
+  editingTeamItemId = null;
+}
+
+function saveTeamItem() {
+  const title = document.getElementById('teamTitleInput').value.trim();
+  const shootDate = document.getElementById('teamShootDateInput').value;
+  const editDate = document.getElementById('teamEditDateInput').value;
+  const pdfUrl = document.getElementById('teamPdfInput').value.trim();
+  const note = document.getElementById('teamNoteInput').value.trim();
+  const status = document.getElementById('teamStatusInput').value;
+
+  if(!title) { alert('Please enter a team task/project title.'); return; }
+
+  if(editingTeamItemId) {
+    const item = teamTasks.find(t => t.id === editingTeamItemId);
+    if(item) {
+      item.title = title;
+      item.shootDate = shootDate;
+      item.editDate = editDate;
+      item.pdfUrl = pdfUrl || null;
+      item.note = note;
+      item.status = status;
+    }
+  } else {
+    teamTasks.push({
+      id: uid(),
+      title,
+      shootDate,
+      editDate,
+      pdfUrl: pdfUrl || null,
+      note,
+      status
+    });
+  }
+
+  saveTeamToFirebase();
+  closeTeamForm();
+  renderTeamSchedules();
+}
+
+function deleteTeamItem(itemId) {
+  const confirmed = confirm("Are you sure you want to remove this team schedule?");
+  if (!confirmed) return;
+
+  teamTasks = teamTasks.filter(t => t.id !== itemId);
+  saveTeamToFirebase();
+  renderTeamSchedules();
+}
+
+function shareTeamLink() {
+  const cleanUrl = window.location.origin + window.location.pathname;
+  const teamUrl = `${cleanUrl}?view=team`;
+
+  if (navigator.share) {
+    navigator.share({
+      title: `Team Schedule | @cinebydheeraj`,
+      text: `Live shoot schedule & deadlines for the team`,
+      url: teamUrl
+    }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(teamUrl).then(() => {
+      alert(`🔗 Team Schedule Link copied!\n\n${teamUrl}`);
+    });
+  }
+}
+
+function renderTeamSchedules() {
+  const container = document.getElementById('teamSchedulesList');
+  if(!container) return;
+  container.innerHTML = '';
+
+  let visibleTasks = teamTasks;
+
+  // For shared Team Link (?view=team), filter out Completed tasks if desired or show current/upcoming
+  if (targetView === 'team') {
+    visibleTasks = teamTasks.filter(t => t.status !== 'Completed');
+  }
+
+  if (visibleTasks.length === 0) {
+    container.innerHTML = `<div class="empty">no ${targetView === 'team' ? 'upcoming or present' : ''} team schedules found</div>`;
+    return;
+  }
+
+  visibleTasks.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'schedule-item';
+    card.style.padding = '16px';
+    card.style.marginBottom = '14px';
+
+    card.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <strong style="font-size:16px;">${escapeHtml(item.title)}</strong>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="status-badge status-${item.status}">${item.status}</span>
+          <div class="admin-only item-actions">
+            <button class="btn-item-action" onclick="startEditTeamItem('${item.id}')">✏️ Edit</button>
+            <button class="btn-item-action delete" onclick="deleteTeamItem('${item.id}')">✕ Delete</button>
+          </div>
+        </div>
+      </div>
+      <div class="schedule-meta" style="margin-top:10px;">
+        <span class="meta-tag">🎬 Shoot: <strong>${formatDate(item.shootDate)}</strong></span>
+        <span class="meta-tag">✂️ Edit Deadline: <strong>${formatDate(item.editDate)}</strong></span>
+      </div>
+      ${item.pdfUrl ? `<a href="${escapeHtml(item.pdfUrl)}" target="_blank" class="pdf-link">📄 Open Script PDF / Document</a>` : ''}
+      ${item.note ? `<div class="client-note" style="margin-top:10px; font-size:13px; color:#D8C9A8;">${escapeHtml(item.note)}</div>` : ''}
+    `;
+
+    container.appendChild(card);
+  });
+}
+
 /* SHARE LINK FOR CLIENT PORTAL PAGE */
 function shareClientLink(clientName) {
   const cleanUrl = window.location.origin + window.location.pathname;
@@ -965,6 +1186,7 @@ function shareClientLink(clientName) {
 
 function renderClientsPortals() {
   const container = document.getElementById('clientsPortalsList');
+  if(!container) return;
   container.innerHTML = '';
 
   let filteredClients = clients;
@@ -1149,12 +1371,17 @@ function render(){
   updateNotificationButton();
 }
 
-// Client View Mode Check
+// Check View Modes (Client or Team Share Links)
 if (targetClient) {
   document.body.classList.add('client-mode');
   switchTab('clients', null);
   document.getElementById('clientHeaderTitle').textContent = `${targetClient} Client Portal`;
   document.getElementById('clientHeaderTagline').textContent = 'Your live project schedules, deadlines & script documents';
+} else if (targetView === 'team') {
+  document.body.classList.add('team-mode');
+  switchTab('team', null);
+  document.getElementById('teamHeaderTitle').textContent = `Team Production Schedule`;
+  document.getElementById('teamHeaderTagline').textContent = 'Live shoot schedules & active project deadlines';
 }
 
 load();
