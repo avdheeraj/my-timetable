@@ -4,12 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<!-- Link Preview Tags for WhatsApp / Social Media -->
+<title id="pageTitle">Client Portal | @cinebydheeraj</title>
+<meta property="og:title" content="Client Portal | @cinebydheeraj">
+<meta property="og:description" content="View shoot schedules, edit deadlines, and script documents.">
+
 <!-- iOS Web App Tags -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Desk Pad">
+<meta name="apple-mobile-web-app-title" content="Client Portal">
 
-<title id="pageTitle">Desk Pad Workspace</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Inter:wght@400;500;600&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -494,9 +498,9 @@ let notifiedTasks = new Set();
 const urlParams = new URLSearchParams(window.location.search);
 const targetClient = urlParams.get('client');
 
-/* Update Browser Title immediately for Link Previews (WhatsApp, Telegram, iMessage) */
+/* Update Browser Title immediately for Browser Tabs & Desktop Views */
 if (targetClient) {
-  document.title = `${targetClient} Portal`;
+  document.title = `${targetClient} Portal | @cinebydheeraj`;
 }
 
 function uid(){ return 'e' + Math.random().toString(36).slice(2, 9); }
@@ -821,7 +825,7 @@ function shareClientLink(clientName) {
   
   if (navigator.share) {
     navigator.share({
-      title: `${clientName} Portal`,
+      title: `${clientName} Portal | @cinebydheeraj`,
       text: `All shoot schedules, deadlines & scripts for ${clientName}`,
       url: shareUrl
     }).catch(() => {});
