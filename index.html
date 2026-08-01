@@ -280,6 +280,29 @@
   .dropdown-item:hover { background: rgba(0,0,0,0.08); }
   .dropdown-item.delete { color: #A93226; }
 
+  /* Action Buttons inside Items */
+  .item-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-item-action {
+    background: rgba(247, 241, 225, 0.12);
+    border: 1px solid rgba(247, 241, 225, 0.25);
+    color: var(--cream);
+    border-radius: 4px;
+    padding: 3px 8px;
+    font-size: 11px;
+    cursor: pointer;
+  }
+  .btn-item-action:hover {
+    background: rgba(247, 241, 225, 0.25);
+  }
+  .btn-item-action.delete {
+    color: var(--paper-coral);
+    border-color: rgba(231, 174, 151, 0.4);
+  }
+
   /* Client Portal Mode (Hides Admin UI for Shared Client Links) */
   body.client-mode .sidebar { display: none !important; }
   body.client-mode .notify-btn { display: none !important; }
@@ -352,7 +375,7 @@
         </div>
       </div>
 
-      <!-- Add Schedule / Script Form -->
+      <!-- Add / Edit Schedule / Script Form -->
       <div id="scheduleForm" class="form-note" style="display:none; margin-bottom:20px;">
         <div class="form-row">
           <div>
@@ -381,7 +404,7 @@
         <div class="form-row">
           <div>
             <label style="font-size:12px; font-weight:bold;">Script PDF / Google Drive URL 📄</label>
-            <input type="text" id="schPdfInput" placeholder="https://drive.google.com/file/d/... or any PDF link">
+            <input type="text" id="schPdfInput" placeholder="https://drive.google.com/file/d/.../preview">
           </div>
         </div>
         <div class="form-row">
@@ -392,7 +415,7 @@
         </div>
         <div class="form-actions">
           <button class="btn-cancel" onclick="closeScheduleForm()">Cancel</button>
-          <button class="btn-save" onclick="saveSchedule()">Add To Client Portal</button>
+          <button class="btn-save" id="schFormSaveBtn" onclick="saveSchedule()">Save Item</button>
         </div>
       </div>
 
@@ -431,6 +454,7 @@ let formOpen = false;
 let editingId = null;
 let editingClientId = null;
 let activeScheduleClientId = null;
+let editingItemId = null;
 let notifiedTasks = new Set();
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -623,6 +647,17 @@ function openClientForm() {
   document.getElementById('clientForm').style.display = 'block';
 }
 
+function startEditClientPortal(clientId) {
+  const client = clients.find(c => c.id === clientId);
+  if(!client) return;
+  editingClientId = clientId;
+  document.getElementById('clientNameInput').value = client.name || '';
+  document.getElementById('clientNoteInput').value = client.note || '';
+  document.getElementById('clientFormSaveBtn').textContent = 'Update Client Portal';
+  document.getElementById('clientForm').style.display = 'block';
+  closeAllDropdowns();
+}
+
 function closeClientForm() {
   document.getElementById('clientForm').style.display = 'none';
   editingClientId = null;
@@ -652,21 +687,42 @@ function deleteClient(id) {
   closeAllDropdowns();
 }
 
-/* ADD ITEM/SCHEDULE TO CLIENT PORTAL */
+/* ADD / EDIT ITEM TO CLIENT PORTAL */
 function openScheduleForm(clientId) {
   activeScheduleClientId = clientId;
+  editingItemId = null;
   document.getElementById('schTitleInput').value = '';
   document.getElementById('schShootDateInput').value = '';
   document.getElementById('schEditDateInput').value = '';
   document.getElementById('schPdfInput').value = '';
   document.getElementById('schNoteInput').value = '';
   document.getElementById('schStatusInput').value = 'Upcoming';
+  document.getElementById('schFormSaveBtn').textContent = 'Add To Client Portal';
+  document.getElementById('scheduleForm').style.display = 'block';
+}
+
+function startEditScheduleItem(clientId, itemId) {
+  const client = clients.find(c => c.id === clientId);
+  if(!client || !client.items) return;
+  const item = client.items.find(i => i.id === itemId);
+  if(!item) return;
+
+  activeScheduleClientId = clientId;
+  editingItemId = itemId;
+  document.getElementById('schTitleInput').value = item.title || '';
+  document.getElementById('schShootDateInput').value = item.shootDate || '';
+  document.getElementById('schEditDateInput').value = item.editDate || '';
+  document.getElementById('schPdfInput').value = item.pdfUrl || '';
+  document.getElementById('schNoteInput').value = item.note || '';
+  document.getElementById('schStatusInput').value = item.status || 'Upcoming';
+  document.getElementById('schFormSaveBtn').textContent = 'Update Item Changes';
   document.getElementById('scheduleForm').style.display = 'block';
 }
 
 function closeScheduleForm() {
   document.getElementById('scheduleForm').style.display = 'none';
   activeScheduleClientId = null;
+  editingItemId = null;
 }
 
 function saveSchedule() {
@@ -683,15 +739,27 @@ function saveSchedule() {
 
   if(!client.items) client.items = [];
 
-  client.items.push({
-    id: uid(),
-    title,
-    shootDate,
-    editDate,
-    note,
-    status,
-    pdfUrl: pdfUrl || null
-  });
+  if (editingItemId) {
+    const item = client.items.find(i => i.id === editingItemId);
+    if (item) {
+      item.title = title;
+      item.shootDate = shootDate;
+      item.editDate = editDate;
+      item.pdfUrl = pdfUrl || null;
+      item.note = note;
+      item.status = status;
+    }
+  } else {
+    client.items.push({
+      id: uid(),
+      title,
+      shootDate,
+      editDate,
+      note,
+      status,
+      pdfUrl: pdfUrl || null
+    });
+  }
 
   saveClientsToFirebase();
   closeScheduleForm();
@@ -707,7 +775,7 @@ function removeItemFromClient(clientId, itemId) {
   }
 }
 
-/* SHARE LINK FOR 1 TOTAL CLIENT PORTAL PAGE */
+/* SHARE LINK FOR CLIENT PORTAL PAGE */
 function shareClientLink(clientName) {
   const cleanUrl = window.location.origin + window.location.pathname;
   const shareUrl = `${cleanUrl}?client=${encodeURIComponent(clientName)}`;
@@ -754,7 +822,10 @@ function renderClientsPortals() {
               <strong>${escapeHtml(item.title)}</strong>
               <div style="display:flex; align-items:center; gap:8px;">
                 <span class="status-badge status-${item.status}">${item.status}</span>
-                <button class="admin-only" style="background:transparent; border:none; color:var(--paper-coral); cursor:pointer; font-size:12px;" onclick="removeItemFromClient('${c.id}', '${item.id}')">✕</button>
+                <div class="admin-only item-actions">
+                  <button class="btn-item-action" onclick="startEditScheduleItem('${c.id}', '${item.id}')">✏️ Edit</button>
+                  <button class="btn-item-action delete" onclick="removeItemFromClient('${c.id}', '${item.id}')">✕ Delete</button>
+                </div>
               </div>
             </div>
             <div class="schedule-meta">
@@ -780,6 +851,7 @@ function renderClientsPortals() {
           <button class="dropdown-trigger" onclick="toggleDropdown('${c.id}', event)">⋮</button>
           <div class="dropdown-menu" id="dropdown-${c.id}">
             <button class="dropdown-item" onclick="shareClientLink('${escapeHtml(c.name)}')">🔗 Share Client Portal</button>
+            <button class="dropdown-item" onclick="startEditClientPortal('${c.id}')">✏️ Edit Client Portal</button>
             <button class="dropdown-item delete" onclick="deleteClient('${c.id}')">🗑️ Delete Portal</button>
           </div>
         </div>
