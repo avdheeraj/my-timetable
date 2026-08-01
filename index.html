@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Desk Pad">
 
-<title>Desk Pad Workspace</title>
+<title id="pageTitle">Desk Pad Workspace</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Inter:wght@400;500;600&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -493,6 +493,11 @@ let notifiedTasks = new Set();
 
 const urlParams = new URLSearchParams(window.location.search);
 const targetClient = urlParams.get('client');
+
+/* Update Browser Title immediately for Link Previews (WhatsApp, Telegram, iMessage) */
+if (targetClient) {
+  document.title = `${targetClient} Portal`;
+}
 
 function uid(){ return 'e' + Math.random().toString(36).slice(2, 9); }
 
