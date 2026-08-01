@@ -103,19 +103,26 @@
   h1{ font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:24px; margin:0; }
   .tagline{ font-family:'Caveat',cursive; font-size:18px; color:#D8C9A8; margin-top:2px; }
 
-  /* Watermark Badge */
+  /* Clickable Watermark Badge */
   .brand-watermark {
     font-family: 'Space Grotesk', sans-serif;
     font-size: 11px;
     font-weight: 500;
     letter-spacing: 0.5px;
-    color: rgba(247, 241, 225, 0.45);
-    background: rgba(247, 241, 225, 0.05);
-    border: 1px solid rgba(247, 241, 225, 0.12);
+    color: rgba(247, 241, 225, 0.7);
+    background: rgba(247, 241, 225, 0.08);
+    border: 1px solid rgba(247, 241, 225, 0.2);
     padding: 4px 10px;
     border-radius: 999px;
-    user-select: none;
+    text-decoration: none;
+    transition: all 0.2s ease;
     white-space: nowrap;
+    display: inline-block;
+  }
+  .brand-watermark:hover {
+    color: var(--paper-yellow);
+    background: rgba(243, 222, 132, 0.15);
+    border-color: var(--paper-yellow);
   }
 
   .header-actions {
@@ -360,7 +367,7 @@
           <div class="tagline">pin it, peek later</div>
         </div>
         <div class="header-actions">
-          <span class="brand-watermark">@cinebydheeraj</span>
+          <a href="https://www.instagram.com/cineby.dheeraj?igsh=cTM1cXRrZW00dXpy&utm_source=qr" target="_blank" class="brand-watermark">@cinebydheeraj</a>
           <button class="notify-btn" id="notifyBtn" onclick="requestNotificationPermission()">🔔 Enable Alerts</button>
         </div>
       </header>
@@ -377,7 +384,7 @@
           <div class="tagline" id="clientHeaderTagline">manage all client schedules, deliverables & script PDFs</div>
         </div>
         <div class="header-actions">
-          <span class="brand-watermark">@cinebydheeraj</span>
+          <a href="https://www.instagram.com/cineby.dheeraj?igsh=cTM1cXRrZW00dXpy&utm_source=qr" target="_blank" class="brand-watermark">@cinebydheeraj</a>
           <button class="btn-save" id="addClientBtn" onclick="openClientForm()">+ Add New Client</button>
         </div>
       </header>
@@ -873,7 +880,7 @@ function renderClientsPortals() {
         <div>
           <div style="display:flex; align-items:center; gap:10px;">
             <div class="portal-title">${escapeHtml(c.name)}</div>
-            <span class="brand-watermark">@cinebydheeraj</span>
+            <a href="https://www.instagram.com/cineby.dheeraj?igsh=cTM1cXRrZW00dXpy&utm_source=qr" target="_blank" class="brand-watermark">@cinebydheeraj</a>
           </div>
           ${c.note ? `<div class="client-note">${escapeHtml(c.note)}</div>` : ''}
         </div>
