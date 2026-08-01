@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Desk Pad — Timetable</title>
+<title>Desk Pad & Clients</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Inter:wght@400;500;600&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -14,13 +14,9 @@
     --ink: #2B2118;
     --ink-soft: #4A3B2C;
     --paper-yellow: #F3DE84;
-    --paper-yellow-shadow: #D8C264;
     --paper-mint: #B6D3AC;
-    --paper-mint-shadow: #96B78C;
     --paper-coral: #E7AE97;
-    --paper-coral-shadow: #CC907A;
     --paper-blue: #A6C6D8;
-    --paper-blue-shadow: #85A6B8;
     --cream: #F7F1E1;
   }
   *{box-sizing:border-box;}
@@ -36,9 +32,73 @@
       var(--mat);
     font-family:'Inter', sans-serif;
     color:var(--cream);
-    padding:32px 20px 80px;
   }
-  .wrap{max-width:640px;margin:0 auto;}
+
+  /* App Layout: Sidebar + Main Content */
+  .app-container {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 220px;
+    background: rgba(0, 0, 0, 0.25);
+    border-right: 1px dashed rgba(247,241,225,0.2);
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  .sidebar-brand {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding-left: 8px;
+    color: var(--paper-yellow);
+  }
+  .nav-btn {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: #D8C9A8;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .nav-btn:hover {
+    border-color: rgba(247,241,225,0.3);
+    color: var(--cream);
+  }
+  .nav-btn.active {
+    background: var(--cream);
+    color: var(--mat-dark);
+    font-weight: 600;
+  }
+
+  /* Main Area */
+  .main-content {
+    flex: 1;
+    padding: 32px 24px 80px;
+    max-width: 720px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* View Panels */
+  .view-panel { display: none; }
+  .view-panel.active { display: block; }
+
+  /* Timetable & Header Elements */
   header{
     display:flex;
     align-items:center;
@@ -50,13 +110,12 @@
   h1{
     font-family:'Space Grotesk',sans-serif;
     font-weight:600;
-    font-size:26px;
+    font-size:24px;
     margin:0;
-    letter-spacing:-0.01em;
   }
   .tagline{
     font-family:'Caveat',cursive;
-    font-size:20px;
+    font-size:18px;
     color:#D8C9A8;
     margin-top:2px;
   }
@@ -70,10 +129,6 @@
     background:rgba(247,241,225,0.1);
     color:var(--cream);
     cursor:pointer;
-    transition:all .15s ease;
-  }
-  .notify-btn:hover{
-    background:rgba(247,241,225,0.2);
   }
   .day-tabs{
     display:flex;
@@ -91,19 +146,12 @@
     background:transparent;
     color:#D8C9A8;
     cursor:pointer;
-    transition:all .15s ease;
   }
-  .day-tab:hover{border-color:rgba(247,241,225,0.5);}
   .day-tab.active{
     background:var(--cream);
     color:var(--mat-dark);
-    border-color:var(--cream);
   }
-  .notes{
-    display:flex;
-    flex-direction:column;
-    gap:16px;
-  }
+  .notes{display:flex;flex-direction:column;gap:16px;}
   .empty{
     font-family:'Caveat',cursive;
     font-size:22px;
@@ -118,14 +166,9 @@
     border-radius:3px;
     padding:14px 18px 16px;
     cursor:pointer;
-    box-shadow:0 5px 12px rgba(0,0,0,0.28), 0 1px 0 rgba(255,255,255,0.15) inset;
+    box-shadow:0 5px 12px rgba(0,0,0,0.28);
     transform:rotate(var(--tilt));
-    transition:transform .15s ease, box-shadow .15s ease;
     color:var(--ink);
-  }
-  .note:hover{
-    transform:rotate(var(--tilt)) translateY(-2px);
-    box-shadow:0 9px 18px rgba(0,0,0,0.34), 0 1px 0 rgba(255,255,255,0.15) inset;
   }
   .note::before{
     content:'';
@@ -137,160 +180,158 @@
     height:20px;
     background:rgba(255,255,255,0.55);
     border:1px solid rgba(255,255,255,0.3);
-    box-shadow:0 2px 3px rgba(0,0,0,0.15);
   }
   .note.yellow{background:var(--paper-yellow);}
   .note.mint{background:var(--paper-mint);}
   .note.coral{background:var(--paper-coral);}
   .note.blue{background:var(--paper-blue);}
-  .note-row{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-  }
-  .note-time{
-    font-family:'Space Grotesk',sans-serif;
-    font-weight:600;
-    font-size:13px;
-    letter-spacing:0.02em;
-    opacity:0.75;
-    white-space:nowrap;
-  }
-  .note-title{
-    font-family:'Inter',sans-serif;
-    font-weight:600;
-    font-size:16px;
-    flex:1;
-    margin:0 4px;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-  }
-  .chevron{
-    font-size:15px;
-    opacity:0.6;
-    transition:transform .2s ease;
-    flex-shrink:0;
-  }
+  .note-row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .note-time{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;}
+  .note-title{font-weight:600;font-size:16px;flex:1;margin:0 4px;}
+  .chevron{transition:transform .2s ease;}
   .note.open .chevron{transform:rotate(180deg);}
-  .note-body{
-    max-height:0;
-    overflow:hidden;
-    transition:max-height .25s ease, margin-top .25s ease;
-  }
-  .note.open .note-body{
-    max-height:260px;
-    margin-top:12px;
-  }
-  .note-detail{
-    font-size:14px;
-    line-height:1.5;
-    white-space:pre-wrap;
-    opacity:0.9;
-    margin:0 0 10px;
-  }
-  .note-actions{
-    display:flex;
-    gap:8px;
-  }
+  .note-body{max-height:0;overflow:hidden;transition:max-height .25s ease;}
+  .note.open .note-body{max-height:260px;margin-top:12px;}
+  .note-detail{font-size:14px;line-height:1.5;margin:0 0 10px;}
   .note-actions button{
-    font-family:'Inter',sans-serif;
-    font-size:12px;
-    font-weight:500;
-    padding:6px 12px;
-    border-radius:5px;
-    border:1px solid rgba(0,0,0,0.15);
-    background:rgba(255,255,255,0.35);
-    color:var(--ink);
-    cursor:pointer;
+    font-size:12px;padding:6px 12px;border-radius:5px;
+    border:1px solid rgba(0,0,0,0.15);background:rgba(255,255,255,0.35);cursor:pointer;
   }
-  .note-actions button:hover{background:rgba(255,255,255,0.6);}
-  .note-actions button.danger{color:#7A2E1E;}
-
   .add-note{
-    border-radius:3px;
-    border:2px dashed rgba(247,241,225,0.35);
-    background:transparent;
-    color:#D8C9A8;
-    padding:16px 18px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:8px;
-    font-family:'Space Grotesk',sans-serif;
-    font-size:14px;
-    font-weight:500;
-    cursor:pointer;
-    transition:all .15s ease;
+    border-radius:3px;border:2px dashed rgba(247,241,225,0.35);
+    background:transparent;color:#D8C9A8;padding:16px;display:flex;
+    justify-content:center;font-family:'Space Grotesk',sans-serif;cursor:pointer;
   }
-  .add-note:hover{border-color:rgba(247,241,225,0.7);color:var(--cream);}
-
   .form-note{
-    background:var(--cream);
-    border-radius:5px;
-    padding:18px;
-    box-shadow:0 6px 16px rgba(0,0,0,0.3);
-    color:var(--ink);
+    background:var(--cream);border-radius:5px;padding:18px;color:var(--ink);
   }
   .form-row{display:flex;gap:10px;margin-bottom:10px;}
-  .form-row label{
-    font-size:11px;
-    text-transform:uppercase;
-    letter-spacing:0.04em;
-    color:var(--ink-soft);
-    display:block;
-    margin-bottom:4px;
-    font-weight:600;
-  }
   .form-row > div{flex:1;}
-  input, textarea, select{
-    width:100%;
-    font-family:'Inter',sans-serif;
-    font-size:14px;
-    padding:8px 10px;
-    border-radius:5px;
-    border:1px solid #D8C9A8;
-    background:#fff;
-    color:var(--ink);
-  }
-  textarea{resize:vertical;min-height:56px;font-family:'Inter',sans-serif;}
+  input, textarea{width:100%;padding:8px;border-radius:5px;border:1px solid #D8C9A8;}
   .color-picker{display:flex;gap:8px;margin-bottom:14px;}
-  .swatch{
-    width:26px;height:26px;border-radius:50%;
-    cursor:pointer;border:2px solid transparent;
-  }
-  .swatch.selected{border-color:var(--ink);}
+  .swatch{width:26px;height:26px;border-radius:50%;cursor:pointer;}
+  .swatch.selected{border:2px solid var(--ink);}
   .swatch.yellow{background:var(--paper-yellow);}
   .swatch.mint{background:var(--paper-mint);}
   .swatch.coral{background:var(--paper-coral);}
   .swatch.blue{background:var(--paper-blue);}
   .form-actions{display:flex;gap:8px;justify-content:flex-end;}
-  .form-actions button{
-    font-family:'Space Grotesk',sans-serif;
-    font-size:13px;
-    font-weight:600;
-    padding:8px 16px;
-    border-radius:5px;
-    border:none;
-    cursor:pointer;
+  .btn-save{background:var(--ink);color:var(--cream);border:none;padding:8px 16px;border-radius:5px;cursor:pointer;}
+  .btn-cancel{background:transparent;color:var(--ink-soft);border:1px solid #D8C9A8;padding:8px 16px;border-radius:5px;cursor:pointer;}
+
+  /* Clients Styles */
+  .client-card {
+    background: rgba(247, 241, 225, 0.08);
+    border: 1px solid rgba(247,241,225,0.15);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
-  .btn-save{background:var(--ink);color:var(--cream);}
-  .btn-cancel{background:transparent;color:var(--ink-soft);border:1px solid #D8C9A8 !important;}
+  .client-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .client-note {
+    font-size: 13px;
+    color: #D8C9A8;
+    margin-top: 4px;
+  }
+  .client-actions button {
+    background: rgba(231, 174, 151, 0.2);
+    border: 1px solid var(--paper-coral);
+    color: var(--paper-coral);
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  /* Responsive for mobile screens */
+  @media (max-width: 600px) {
+    .app-container { flex-direction: column; }
+    .sidebar { width: 100%; border-right: none; border-bottom: 1px dashed rgba(247,241,225,0.2); flex-direction: row; }
+    .sidebar-brand { display: none; }
+    .nav-btn { flex: 1; text-align: center; justify-content: center; }
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <div>
-      <h1>Desk pad</h1>
-      <div class="tagline">pin it, peek later</div>
-    </div>
-    <button class="notify-btn" id="notifyBtn" onclick="requestNotificationPermission()">🔔 Enable Alerts</button>
-  </header>
 
-  <div class="day-tabs" id="dayTabs"></div>
-  <div class="notes" id="notesList"></div>
+<div class="app-container">
+  <!-- Sidebar with 3 Buttons -->
+  <div class="sidebar">
+    <div class="sidebar-brand">📌 Workspace</div>
+    <button class="nav-btn active" onclick="switchTab('deskpad', this)">📌 Desk Pad</button>
+    <button class="nav-btn" onclick="switchTab('clients', this)">👤 Clients</button>
+    <button class="nav-btn" onclick="switchTab('tab3', this)">📁 Tab 3</button>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="main-content">
+    
+    <!-- PANEL 1: Desk Pad -->
+    <div id="deskpad" class="view-panel active">
+      <header>
+        <div>
+          <h1>Desk pad</h1>
+          <div class="tagline">pin it, peek later</div>
+        </div>
+        <button class="notify-btn" id="notifyBtn" onclick="requestNotificationPermission()">🔔 Enable Alerts</button>
+      </header>
+
+      <div class="day-tabs" id="dayTabs"></div>
+      <div class="notes" id="notesList"></div>
+    </div>
+
+    <!-- PANEL 2: Clients -->
+    <div id="clients" class="view-panel">
+      <header>
+        <div>
+          <h1>Clients</h1>
+          <div class="tagline">manage your active client roster</div>
+        </div>
+        <button class="btn-save" onclick="openClientForm()">+ Add Client</button>
+      </header>
+
+      <!-- Client Form -->
+      <div id="clientForm" class="form-note" style="display:none; margin-bottom:20px;">
+        <div class="form-row">
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Client Name</label>
+            <input type="text" id="clientNameInput" placeholder="e.g. John Doe / Procafe">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Details / Notes (Optional)</label>
+            <textarea id="clientNoteInput" placeholder="Project details, contact info..."></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-cancel" onclick="closeClientForm()">Cancel</button>
+          <button class="btn-save" onclick="saveClient()">Save Client</button>
+        </div>
+      </div>
+
+      <!-- Clients List -->
+      <div id="clientsList"></div>
+    </div>
+
+    <!-- PANEL 3: Extra Tab -->
+    <div id="tab3" class="view-panel">
+      <header>
+        <div>
+          <h1>Tab 3</h1>
+          <div class="tagline">custom tab space</div>
+        </div>
+      </header>
+      <div class="empty">This is your 3rd space ready for any new features!</div>
+    </div>
+
+  </div>
 </div>
 
 <!-- Firebase SDKs -->
@@ -298,7 +339,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
 <script>
-// Your specific Firebase configuration
+// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyBdtfVQVFkA1-48ZJczmIHgLxirf9byHMQ",
   authDomain: "sync-8b93f.firebaseapp.com",
@@ -310,13 +351,13 @@ const firebaseConfig = {
   databaseURL: "https://sync-8b93f-default-rtdb.firebaseio.com"
 };
 
-// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const COLORS = ['yellow','mint','coral','blue'];
 let entries = [];
+let clients = [];
 let activeDay = DAYS[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
 let openId = null;
 let formOpen = false;
@@ -331,7 +372,15 @@ function tiltFor(id){
   return ((h % 5) - 2) * 0.6 + 'deg';
 }
 
-// Request Notification Permission
+/* Sidebar Tab Switcher */
+function switchTab(panelId, btn) {
+  document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(panelId).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* Notifications */
 function requestNotificationPermission() {
   if (!("Notification" in window)) {
     alert("This browser does not support desktop notifications.");
@@ -347,10 +396,7 @@ function requestNotificationPermission() {
 
 function updateNotificationButton() {
   const btn = document.getElementById("notifyBtn");
-  if (!("Notification" in window)) {
-    btn.style.display = "none";
-    return;
-  }
+  if (!btn || !("Notification" in window)) return;
   if (Notification.permission === "granted") {
     btn.textContent = "🔔 Alerts Active";
     btn.style.opacity = "0.7";
@@ -360,10 +406,7 @@ function updateNotificationButton() {
   }
 }
 
-// Check schedule and send notification at start time
 function checkStartTimes() {
-  if (!("Notification" in window) || Notification.permission !== "granted") return;
-
   const now = new Date();
   const currentDayIndex = now.getDay() === 0 ? 6 : now.getDay() - 1;
   const currentDay = DAYS[currentDayIndex];
@@ -377,29 +420,45 @@ function checkStartTimes() {
       const notificationKey = `${entry.id}-${entry.start}`;
       if (!notifiedTasks.has(notificationKey)) {
         notifiedTasks.add(notificationKey);
-        new Notification(`Task Starting: ${entry.title}`, {
-          body: entry.details ? entry.details : `It's ${to12h(entry.start)}! Time to start your task.`,
-          icon: 'https://cdn-icons-png.flaticon.com/512/2693/2693507.png'
-        });
+        if ("Notification" in window && Notification.permission === "granted") {
+          new Notification(`Task Starting: ${entry.title}`, {
+            body: entry.details ? entry.details : `It's ${to12h(entry.start)}! Time to start your task.`
+          });
+        } else {
+          alert(`⏰ TASK STARTING!\n\nTask: ${entry.title}\nTime: ${to12h(entry.start)}`);
+        }
       }
     }
   });
 }
 
-// Realtime Firebase Listener across all devices
+/* Load Firebase Data */
 function load(){
+  // Load Timetable
   db.ref('timetable-entries').on('value', (snapshot) => {
     const data = snapshot.val();
     entries = data ? Object.values(data) : [];
     render();
   });
+
+  // Load Clients
+  db.ref('clients-entries').on('value', (snapshot) => {
+    const data = snapshot.val();
+    clients = data ? Object.values(data) : [];
+    renderClients();
+  });
 }
 
-// Save directly to Firebase Database
 function save(){
   const entriesObj = {};
   entries.forEach(item => entriesObj[item.id] = item);
   db.ref('timetable-entries').set(entriesObj);
+}
+
+function saveClientsToFirebase(){
+  const clientsObj = {};
+  clients.forEach(c => clientsObj[c.id] = c);
+  db.ref('clients-entries').set(clientsObj);
 }
 
 function to12h(t){
@@ -466,7 +525,7 @@ function renderNotes(){
     editBtn.textContent = 'Edit';
     editBtn.onclick = (e) => { e.stopPropagation(); startEdit(entry.id); };
     const delBtn = document.createElement('button');
-    delBtn.className = 'danger';
+    delBtn.style.color = "#7A2E1E";
     delBtn.textContent = 'Remove';
     delBtn.onclick = (e) => { e.stopPropagation(); deleteEntry(entry.id); };
     actions.appendChild(editBtn);
@@ -488,6 +547,55 @@ function renderNotes(){
   }
 }
 
+/* CLIENTS LOGIC */
+function openClientForm() {
+  document.getElementById('clientForm').style.display = 'block';
+}
+function closeClientForm() {
+  document.getElementById('clientForm').style.display = 'none';
+  document.getElementById('clientNameInput').value = '';
+  document.getElementById('clientNoteInput').value = '';
+}
+function saveClient() {
+  const name = document.getElementById('clientNameInput').value.trim();
+  const note = document.getElementById('clientNoteInput').value.trim();
+  if(!name) { alert('Please enter a client name.'); return; }
+  
+  clients.push({ id: uid(), name, note });
+  saveClientsToFirebase();
+  closeClientForm();
+  renderClients();
+}
+function deleteClient(id) {
+  clients = clients.filter(c => c.id !== id);
+  saveClientsToFirebase();
+  renderClients();
+}
+function renderClients() {
+  const container = document.getElementById('clientsList');
+  container.innerHTML = '';
+  
+  if(clients.length === 0) {
+    container.innerHTML = '<div class="empty">no clients added yet</div>';
+    return;
+  }
+
+  clients.forEach(c => {
+    const card = document.createElement('div');
+    card.className = 'client-card';
+    card.innerHTML = `
+      <div>
+        <div class="client-name">${escapeHtml(c.name)}</div>
+        ${c.note ? `<div class="client-note">${escapeHtml(c.note)}</div>` : ''}
+      </div>
+      <div class="client-actions">
+        <button onclick="deleteClient('${c.id}')">Remove</button>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
 function escapeHtml(str){
   const d = document.createElement('div');
   d.textContent = str;
@@ -495,16 +603,12 @@ function escapeHtml(str){
 }
 
 function startEdit(id){
-  editingId = id;
-  formOpen = true;
-  openId = null;
-  render();
+  editingId = id; formOpen = true; openId = null; render();
 }
 
 function deleteEntry(id){
   entries = entries.filter(e => e.id !== id);
-  save();
-  render();
+  save(); render();
 }
 
 function buildForm(){
@@ -514,26 +618,14 @@ function buildForm(){
 
   wrap.innerHTML = `
     <div class="form-row">
-      <div>
-        <label>Start</label>
-        <input type="time" id="fStart" value="${editing ? editing.start : ''}">
-      </div>
-      <div>
-        <label>End (optional)</label>
-        <input type="time" id="fEnd" value="${editing && editing.end ? editing.end : ''}">
-      </div>
+      <div><label>Start</label><input type="time" id="fStart" value="${editing ? editing.start : ''}"></div>
+      <div><label>End (optional)</label><input type="time" id="fEnd" value="${editing && editing.end ? editing.end : ''}"></div>
     </div>
     <div class="form-row">
-      <div>
-        <label>Task</label>
-        <input type="text" id="fTitle" placeholder="e.g. Chemistry revision" value="${editing ? escapeHtml(editing.title) : ''}">
-      </div>
+      <div><label>Task</label><input type="text" id="fTitle" placeholder="e.g. Chemistry revision" value="${editing ? escapeHtml(editing.title) : ''}"></div>
     </div>
     <div class="form-row">
-      <div>
-        <label>Notes (optional)</label>
-        <textarea id="fDetails" placeholder="Any extra detail...">${editing ? escapeHtml(editing.details || '') : ''}</textarea>
-      </div>
+      <div><label>Notes (optional)</label><textarea id="fDetails">${editing ? escapeHtml(editing.details || '') : ''}</textarea></div>
     </div>
     <div class="color-picker" id="colorPicker"></div>
     <div class="form-actions">
@@ -561,19 +653,14 @@ function buildForm(){
     const end = wrap.querySelector('#fEnd').value;
     const title = wrap.querySelector('#fTitle').value.trim();
     const details = wrap.querySelector('#fDetails').value.trim();
-    if(!start || !title){
-      alert('Please add at least a start time and a task name.');
-      return;
-    }
+    if(!start || !title){ alert('Please add a start time and task name.'); return; }
     if(editing){
       editing.start = start; editing.end = end; editing.title = title;
       editing.details = details; editing.color = selectedColor;
     } else {
       entries.push({ id: uid(), day: activeDay, start, end, title, details, color: selectedColor });
     }
-    formOpen = false; editingId = null;
-    save();
-    render();
+    formOpen = false; editingId = null; save(); render();
   };
 
   return wrap;
@@ -586,8 +673,6 @@ function render(){
 }
 
 load();
-
-// Periodically check for start-time alerts every 10 seconds
 setInterval(checkStartTimes, 10000);
 </script>
 </body>
