@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Desk Pad">
 
-<title>Desk Pad & Clients</title>
+<title>Desk Pad & Clients Workspace</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Inter:wght@400;500;600&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -48,7 +48,7 @@
 
   /* Sidebar */
   .sidebar {
-    width: 220px;
+    width: 230px;
     background: rgba(0, 0, 0, 0.25);
     border-right: 1px dashed rgba(247,241,225,0.2);
     padding: 24px 16px;
@@ -67,9 +67,9 @@
   }
   .nav-btn {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
-    padding: 12px 16px;
+    padding: 12px 14px;
     border-radius: 8px;
     border: 1px solid transparent;
     background: transparent;
@@ -79,7 +79,7 @@
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
   }
   .nav-btn:hover {
     border-color: rgba(247,241,225,0.3);
@@ -95,7 +95,7 @@
   .main-content {
     flex: 1;
     padding: 32px 24px 80px;
-    max-width: 720px;
+    max-width: 760px;
     margin: 0 auto;
     width: 100%;
   }
@@ -212,7 +212,7 @@
   }
   .form-row{display:flex;gap:10px;margin-bottom:10px;}
   .form-row > div{flex:1;}
-  input, textarea{width:100%;padding:8px;border-radius:5px;border:1px solid #D8C9A8;}
+  input, textarea, select{width:100%;padding:8px;border-radius:5px;border:1px solid #D8C9A8;}
   .color-picker{display:flex;gap:8px;margin-bottom:14px;}
   .swatch{width:26px;height:26px;border-radius:50%;cursor:pointer;}
   .swatch.selected{border:2px solid var(--ink);}
@@ -224,7 +224,7 @@
   .btn-save{background:var(--ink);color:var(--cream);border:none;padding:8px 16px;border-radius:5px;cursor:pointer;}
   .btn-cancel{background:transparent;color:var(--ink-soft);border:1px solid #D8C9A8;padding:8px 16px;border-radius:5px;cursor:pointer;}
 
-  /* Clients Styles & Dropdown Menu */
+  /* Cards & Dropdown Menu */
   .client-card {
     background: rgba(247, 241, 225, 0.08);
     border: 1px solid rgba(247,241,225,0.15);
@@ -233,7 +233,7 @@
     margin-bottom: 12px;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     position: relative;
   }
   .client-name {
@@ -246,11 +246,34 @@
     color: #D8C9A8;
     margin-top: 4px;
   }
-  
-  /* Dropdown Menu Styles */
-  .dropdown-container {
-    position: relative;
+
+  /* Schedule Cards Info */
+  .schedule-meta {
+    margin-top: 8px;
+    display: flex;
+    gap: 16px;
+    font-size: 13px;
+    flex-wrap: wrap;
   }
+  .meta-tag {
+    background: rgba(247, 241, 225, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(247, 241, 225, 0.2);
+  }
+  .status-badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .status-Upcoming { background: rgba(243, 222, 132, 0.2); color: var(--paper-yellow); border: 1px solid var(--paper-yellow); }
+  .status-InProgress { background: rgba(166, 198, 216, 0.2); color: var(--paper-blue); border: 1px solid var(--paper-blue); }
+  .status-Completed { background: rgba(182, 211, 172, 0.2); color: var(--paper-mint); border: 1px solid var(--paper-mint); }
+
+  /* Dropdown Menu Styles */
+  .dropdown-container { position: relative; }
   .dropdown-trigger {
     background: transparent;
     border: none;
@@ -260,9 +283,7 @@
     border-radius: 4px;
     cursor: pointer;
   }
-  .dropdown-trigger:hover {
-    background: rgba(247,241,225,0.15);
-  }
+  .dropdown-trigger:hover { background: rgba(247,241,225,0.15); }
   .dropdown-menu {
     display: none;
     position: absolute;
@@ -275,9 +296,7 @@
     overflow: hidden;
     min-width: 110px;
   }
-  .dropdown-menu.show {
-    display: block;
-  }
+  .dropdown-menu.show { display: block; }
   .dropdown-item {
     width: 100%;
     padding: 8px 14px;
@@ -290,34 +309,31 @@
     color: var(--ink);
     display: block;
   }
-  .dropdown-item:hover {
-    background: rgba(0,0,0,0.08);
-  }
-  .dropdown-item.delete {
-    color: #A93226;
-  }
+  .dropdown-item:hover { background: rgba(0,0,0,0.08); }
+  .dropdown-item.delete { color: #A93226; }
 
   @media (max-width: 600px) {
     .app-container { flex-direction: column; }
-    .sidebar { width: 100%; border-right: none; border-bottom: 1px dashed rgba(247,241,225,0.2); flex-direction: row; }
+    .sidebar { width: 100%; border-right: none; border-bottom: 1px dashed rgba(247,241,225,0.2); flex-direction: row; flex-wrap: wrap; }
     .sidebar-brand { display: none; }
-    .nav-btn { flex: 1; text-align: center; justify-content: center; }
+    .nav-btn { flex: 1; text-align: center; justify-content: center; padding: 10px 6px; font-size: 11px; }
   }
 </style>
 </head>
 <body>
 
 <div class="app-container">
-  <!-- Sidebar -->
+  <!-- Sidebar with 3 Tabs -->
   <div class="sidebar">
     <div class="sidebar-brand">📌 Workspace</div>
     <button class="nav-btn active" onclick="switchTab('deskpad', this)">📌 Desk Pad</button>
     <button class="nav-btn" onclick="switchTab('clients', this)">👤 Clients</button>
+    <button class="nav-btn" onclick="switchTab('schedules', this)">📅 Shoot & Edit Dates</button>
   </div>
 
   <div class="main-content">
     
-    <!-- Panel 1: Desk Pad -->
+    <!-- PANEL 1: Desk Pad -->
     <div id="deskpad" class="view-panel active">
       <header>
         <div>
@@ -331,7 +347,7 @@
       <div class="notes" id="notesList"></div>
     </div>
 
-    <!-- Panel 2: Clients -->
+    <!-- PANEL 2: Clients -->
     <div id="clients" class="view-panel">
       <header>
         <div>
@@ -363,6 +379,57 @@
       <div id="clientsList"></div>
     </div>
 
+    <!-- PANEL 3: Shoot & Edit Dates -->
+    <div id="schedules" class="view-panel">
+      <header>
+        <div>
+          <h1>Shoot & Edit Deadlines</h1>
+          <div class="tagline">track shoot dates & editing timelines</div>
+        </div>
+        <button class="btn-save" onclick="openScheduleForm()">+ Add Schedule</button>
+      </header>
+
+      <!-- Schedule Form -->
+      <div id="scheduleForm" class="form-note" style="display:none; margin-bottom:20px;">
+        <div class="form-row">
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Client Name</label>
+            <input type="text" id="schClientInput" placeholder="e.g. Procafe / Nike">
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Status</label>
+            <select id="schStatusInput">
+              <option value="Upcoming">Upcoming</option>
+              <option value="InProgress">In Progress</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Shoot Date 🎬</label>
+            <input type="date" id="schShootDateInput">
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Edit Deadline ✂️</label>
+            <input type="date" id="schEditDateInput">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Project Details / Notes (Optional)</label>
+            <textarea id="schNoteInput" placeholder="Deliverables, drive link, specs..."></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-cancel" onclick="closeScheduleForm()">Cancel</button>
+          <button class="btn-save" id="schFormSaveBtn" onclick="saveSchedule()">Save Schedule</button>
+        </div>
+      </div>
+
+      <div id="schedulesList"></div>
+    </div>
+
   </div>
 </div>
 
@@ -388,11 +455,13 @@ const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const COLORS = ['yellow','mint','coral','blue'];
 let entries = [];
 let clients = [];
+let schedules = [];
 let activeDay = DAYS[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
 let openId = null;
 let formOpen = false;
 let editingId = null;
 let editingClientId = null;
+let editingScheduleId = null;
 let notifiedTasks = new Set();
 
 function uid(){ return 'e' + Math.random().toString(36).slice(2, 9); }
@@ -462,16 +531,25 @@ function checkStartTimes() {
 }
 
 function load(){
+  // Load Timetable
   db.ref('timetable-entries').on('value', (snapshot) => {
     const data = snapshot.val();
     entries = data ? Object.values(data) : [];
     render();
   });
 
+  // Load Clients
   db.ref('clients-entries').on('value', (snapshot) => {
     const data = snapshot.val();
     clients = data ? Object.values(data) : [];
     renderClients();
+  });
+
+  // Load Schedules
+  db.ref('schedules-entries').on('value', (snapshot) => {
+    const data = snapshot.val();
+    schedules = data ? Object.values(data) : [];
+    renderSchedules();
   });
 }
 
@@ -485,6 +563,12 @@ function saveClientsToFirebase(){
   const clientsObj = {};
   clients.forEach(c => clientsObj[c.id] = c);
   db.ref('clients-entries').set(clientsObj);
+}
+
+function saveSchedulesToFirebase(){
+  const schObj = {};
+  schedules.forEach(s => schObj[s.id] = s);
+  db.ref('schedules-entries').set(schObj);
 }
 
 function to12h(t){
@@ -627,13 +711,114 @@ function deleteClient(id) {
   closeAllDropdowns();
 }
 
-/* Toggle Dropdown Menu */
+/* SCHEDULES LOGIC */
+function openScheduleForm() {
+  editingScheduleId = null;
+  document.getElementById('schClientInput').value = '';
+  document.getElementById('schShootDateInput').value = '';
+  document.getElementById('schEditDateInput').value = '';
+  document.getElementById('schNoteInput').value = '';
+  document.getElementById('schStatusInput').value = 'Upcoming';
+  document.getElementById('schFormSaveBtn').textContent = 'Save Schedule';
+  document.getElementById('scheduleForm').style.display = 'block';
+}
+
+function startEditSchedule(id) {
+  const sch = schedules.find(s => s.id === id);
+  if(!sch) return;
+  editingScheduleId = id;
+  document.getElementById('schClientInput').value = sch.client;
+  document.getElementById('schShootDateInput').value = sch.shootDate || '';
+  document.getElementById('schEditDateInput').value = sch.editDate || '';
+  document.getElementById('schNoteInput').value = sch.note || '';
+  document.getElementById('schStatusInput').value = sch.status || 'Upcoming';
+  document.getElementById('schFormSaveBtn').textContent = 'Update Schedule';
+  document.getElementById('scheduleForm').style.display = 'block';
+  closeAllDropdowns();
+}
+
+function closeScheduleForm() {
+  document.getElementById('scheduleForm').style.display = 'none';
+  editingScheduleId = null;
+}
+
+function saveSchedule() {
+  const client = document.getElementById('schClientInput').value.trim();
+  const shootDate = document.getElementById('schShootDateInput').value;
+  const editDate = document.getElementById('schEditDateInput').value;
+  const note = document.getElementById('schNoteInput').value.trim();
+  const status = document.getElementById('schStatusInput').value;
+
+  if(!client) { alert('Please enter a client name.'); return; }
+
+  if(editingScheduleId) {
+    const sch = schedules.find(s => s.id === editingScheduleId);
+    if(sch) {
+      sch.client = client;
+      sch.shootDate = shootDate;
+      sch.editDate = editDate;
+      sch.note = note;
+      sch.status = status;
+    }
+  } else {
+    schedules.push({ id: uid(), client, shootDate, editDate, note, status });
+  }
+
+  saveSchedulesToFirebase();
+  closeScheduleForm();
+  renderSchedules();
+}
+
+function deleteSchedule(id) {
+  schedules = schedules.filter(s => s.id !== id);
+  saveSchedulesToFirebase();
+  renderSchedules();
+  closeAllDropdowns();
+}
+
+function renderSchedules() {
+  const container = document.getElementById('schedulesList');
+  container.innerHTML = '';
+
+  if(schedules.length === 0) {
+    container.innerHTML = '<div class="empty">no shoot or edit dates scheduled yet</div>';
+    return;
+  }
+
+  schedules.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'client-card';
+    card.innerHTML = `
+      <div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="client-name">${escapeHtml(s.client)}</span>
+          <span class="status-badge status-${s.status}">${s.status}</span>
+        </div>
+        <div class="schedule-meta">
+          <span class="meta-tag">🎬 Shoot: <strong>${s.shootDate ? s.shootDate : 'Not set'}</strong></span>
+          <span class="meta-tag">✂️ Edit Deadline: <strong>${s.editDate ? s.editDate : 'Not set'}</strong></span>
+        </div>
+        ${s.note ? `<div class="client-note" style="margin-top:8px;">${escapeHtml(s.note)}</div>` : ''}
+      </div>
+      <div class="dropdown-container">
+        <button class="dropdown-trigger" onclick="toggleDropdown('${s.id}', event)">⋮</button>
+        <div class="dropdown-menu" id="dropdown-${s.id}">
+          <button class="dropdown-item" onclick="startEditSchedule('${s.id}')">✏️ Edit</button>
+          <button class="dropdown-item delete" onclick="deleteSchedule('${s.id}')">🗑️ Remove</button>
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+/* Dropdown Handlers */
 function toggleDropdown(id, event) {
   event.stopPropagation();
   const currentMenu = document.getElementById(`dropdown-${id}`);
   const isShow = currentMenu.classList.contains('show');
   closeAllDropdowns();
-  if (!isShow) {
+  if (!isShow && currentMenu) {
     currentMenu.classList.add('show');
   }
 }
