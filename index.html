@@ -553,6 +553,16 @@ if (targetClient) {
 
 function uid(){ return 'e' + Math.random().toString(36).slice(2, 9); }
 
+/* Converts YYYY-MM-DD date strings into DD/MM/YY format */
+function formatDate(dateStr) {
+  if (!dateStr) return 'TBD';
+  const parts = dateStr.split('-');
+  if (parts.length !== 3) return dateStr;
+  const [yyyy, mm, dd] = parts;
+  const yy = yyyy.slice(-2);
+  return `${dd}/${mm}/${yy}`;
+}
+
 function tiltFor(id){
   let h = 0;
   for(const c of id) h = (h * 31 + c.charCodeAt(0)) % 1000;
@@ -943,8 +953,8 @@ function renderClientsPortals() {
               </div>
             </div>
             <div class="schedule-meta">
-              <span class="meta-tag">🎬 Shoot: <strong>${item.shootDate ? item.shootDate : 'TBD'}</strong></span>
-              <span class="meta-tag">✂️ Edit Deadline: <strong>${item.editDate ? item.editDate : 'TBD'}</strong></span>
+              <span class="meta-tag">🎬 Shoot: <strong>${formatDate(item.shootDate)}</strong></span>
+              <span class="meta-tag">✂️ Edit Deadline: <strong>${formatDate(item.editDate)}</strong></span>
             </div>
             ${item.pdfUrl ? `<a href="${escapeHtml(item.pdfUrl)}" target="_blank" class="pdf-link">📄 Open Script PDF / Document</a>` : ''}
             ${item.note ? `<div class="client-note" style="margin-top:6px;">${escapeHtml(item.note)}</div>` : ''}
