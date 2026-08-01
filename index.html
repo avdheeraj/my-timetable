@@ -48,13 +48,13 @@
 
   /* Sidebar */
   .sidebar {
-    width: 230px;
+    width: 240px;
     background: rgba(0, 0, 0, 0.25);
     border-right: 1px dashed rgba(247,241,225,0.2);
     padding: 24px 16px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
     flex-shrink: 0;
   }
   .sidebar-brand {
@@ -229,8 +229,8 @@
     background: rgba(247, 241, 225, 0.08);
     border: 1px solid rgba(247,241,225,0.15);
     border-radius: 8px;
-    padding: 16px;
-    margin-bottom: 12px;
+    padding: 18px;
+    margin-bottom: 14px;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
@@ -238,26 +238,46 @@
   }
   .client-name {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 16px;
+    font-size: 17px;
     font-weight: 600;
   }
   .client-note {
     font-size: 13px;
     color: #D8C9A8;
-    margin-top: 4px;
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+
+  /* PDF Script Badge */
+  .pdf-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    padding: 6px 12px;
+    background: rgba(231, 174, 151, 0.2);
+    border: 1px solid var(--paper-coral);
+    color: var(--paper-coral);
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .pdf-link:hover {
+    background: rgba(231, 174, 151, 0.35);
   }
 
   /* Schedule Cards Info */
   .schedule-meta {
-    margin-top: 8px;
+    margin-top: 10px;
     display: flex;
-    gap: 16px;
+    gap: 12px;
     font-size: 13px;
     flex-wrap: wrap;
   }
   .meta-tag {
     background: rgba(247, 241, 225, 0.1);
-    padding: 4px 8px;
+    padding: 5px 10px;
     border-radius: 4px;
     border: 1px solid rgba(247, 241, 225, 0.2);
   }
@@ -294,7 +314,7 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     z-index: 10;
     overflow: hidden;
-    min-width: 110px;
+    min-width: 140px;
   }
   .dropdown-menu.show { display: block; }
   .dropdown-item {
@@ -312,23 +332,31 @@
   .dropdown-item:hover { background: rgba(0,0,0,0.08); }
   .dropdown-item.delete { color: #A93226; }
 
+  /* Client Portal Mode (Hides Admin Elements) */
+  body.client-mode .sidebar { display: none !important; }
+  body.client-mode .notify-btn { display: none !important; }
+  body.client-mode #addPortalBtn { display: none !important; }
+  body.client-mode .dropdown-container { display: none !important; }
+  body.client-mode .main-content { max-width: 650px; padding-top: 40px; }
+
   @media (max-width: 600px) {
     .app-container { flex-direction: column; }
     .sidebar { width: 100%; border-right: none; border-bottom: 1px dashed rgba(247,241,225,0.2); flex-direction: row; flex-wrap: wrap; }
     .sidebar-brand { display: none; }
-    .nav-btn { flex: 1; text-align: center; justify-content: center; padding: 10px 6px; font-size: 11px; }
+    .nav-btn { flex: 1; text-align: center; justify-content: center; padding: 10px 4px; font-size: 11px; }
   }
 </style>
 </head>
 <body>
 
 <div class="app-container">
-  <!-- Sidebar with 3 Tabs -->
-  <div class="sidebar">
+  <!-- Sidebar with 4 Tabs -->
+  <div class="sidebar" id="appSidebar">
     <div class="sidebar-brand">📌 Workspace</div>
     <button class="nav-btn active" onclick="switchTab('deskpad', this)">📌 Desk Pad</button>
     <button class="nav-btn" onclick="switchTab('clients', this)">👤 Clients</button>
     <button class="nav-btn" onclick="switchTab('schedules', this)">📅 Shoot & Edit Dates</button>
+    <button class="nav-btn" onclick="switchTab('portals', this)">📁 Client Portals</button>
   </div>
 
   <div class="main-content">
@@ -386,10 +414,9 @@
           <h1>Shoot & Edit Deadlines</h1>
           <div class="tagline">track shoot dates & editing timelines</div>
         </div>
-        <button class="btn-save" onclick="openScheduleForm()">+ Add Schedule</button>
+        <button class="btn-save" id="addScheduleBtn" onclick="openScheduleForm()">+ Add Schedule</button>
       </header>
 
-      <!-- Schedule Form -->
       <div id="scheduleForm" class="form-note" style="display:none; margin-bottom:20px;">
         <div class="form-row">
           <div>
@@ -430,6 +457,63 @@
       <div id="schedulesList"></div>
     </div>
 
+    <!-- PANEL 4: Client Portals & Script PDFs -->
+    <div id="portals" class="view-panel">
+      <header>
+        <div>
+          <h1 id="portalHeaderTitle">Client Portals & Scripts</h1>
+          <div class="tagline" id="portalHeaderTagline">share private schedules, status & script PDFs with clients</div>
+        </div>
+        <button class="btn-save" id="addPortalBtn" onclick="openPortalForm()">+ Add Client Portal</button>
+      </header>
+
+      <!-- Portal Form -->
+      <div id="portalForm" class="form-note" style="display:none; margin-bottom:20px;">
+        <div class="form-row">
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Client / Brand Name</label>
+            <input type="text" id="porClientInput" placeholder="e.g. Procafe">
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Status</label>
+            <select id="porStatusInput">
+              <option value="Upcoming">Upcoming</option>
+              <option value="InProgress">In Progress</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Shoot Date 🎬</label>
+            <input type="date" id="porShootDateInput">
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Edit Deadline ✂️</label>
+            <input type="date" id="porEditDateInput">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Upload Script PDF 📄</label>
+            <input type="file" id="porPdfInput" accept="application/pdf">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Schedule & Script Notes / Link (Optional)</label>
+            <textarea id="porNoteInput" placeholder="Instructions for client, script breakdown, Google Drive link..."></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-cancel" onclick="closePortalForm()">Cancel</button>
+          <button class="btn-save" id="porFormSaveBtn" onclick="savePortal()">Save Portal Entry</button>
+        </div>
+      </div>
+
+      <div id="portalsList"></div>
+    </div>
+
   </div>
 </div>
 
@@ -456,13 +540,19 @@ const COLORS = ['yellow','mint','coral','blue'];
 let entries = [];
 let clients = [];
 let schedules = [];
+let portals = [];
 let activeDay = DAYS[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
 let openId = null;
 let formOpen = false;
 let editingId = null;
 let editingClientId = null;
 let editingScheduleId = null;
+let editingPortalId = null;
 let notifiedTasks = new Set();
+
+// Detect URL client parameter (?client=Procafe)
+const urlParams = new URLSearchParams(window.location.search);
+const targetClient = urlParams.get('client');
 
 function uid(){ return 'e' + Math.random().toString(36).slice(2, 9); }
 
@@ -476,7 +566,7 @@ function switchTab(panelId, btn) {
   document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById(panelId).classList.add('active');
-  btn.classList.add('active');
+  if(btn) btn.classList.add('active');
 }
 
 function requestNotificationPermission() {
@@ -531,25 +621,28 @@ function checkStartTimes() {
 }
 
 function load(){
-  // Load Timetable
   db.ref('timetable-entries').on('value', (snapshot) => {
     const data = snapshot.val();
     entries = data ? Object.values(data) : [];
     render();
   });
 
-  // Load Clients
   db.ref('clients-entries').on('value', (snapshot) => {
     const data = snapshot.val();
     clients = data ? Object.values(data) : [];
     renderClients();
   });
 
-  // Load Schedules
   db.ref('schedules-entries').on('value', (snapshot) => {
     const data = snapshot.val();
     schedules = data ? Object.values(data) : [];
     renderSchedules();
+  });
+
+  db.ref('portals-entries').on('value', (snapshot) => {
+    const data = snapshot.val();
+    portals = data ? Object.values(data) : [];
+    renderPortals();
   });
 }
 
@@ -569,6 +662,12 @@ function saveSchedulesToFirebase(){
   const schObj = {};
   schedules.forEach(s => schObj[s.id] = s);
   db.ref('schedules-entries').set(schObj);
+}
+
+function savePortalsToFirebase(){
+  const porObj = {};
+  portals.forEach(p => porObj[p.id] = p);
+  db.ref('portals-entries').set(porObj);
 }
 
 function to12h(t){
@@ -776,16 +875,165 @@ function deleteSchedule(id) {
   closeAllDropdowns();
 }
 
+/* PORTALS & SCRIPT PDF LOGIC */
+function openPortalForm() {
+  editingPortalId = null;
+  document.getElementById('porClientInput').value = '';
+  document.getElementById('porShootDateInput').value = '';
+  document.getElementById('porEditDateInput').value = '';
+  document.getElementById('porPdfInput').value = '';
+  document.getElementById('porNoteInput').value = '';
+  document.getElementById('porStatusInput').value = 'Upcoming';
+  document.getElementById('porFormSaveBtn').textContent = 'Save Portal Entry';
+  document.getElementById('portalForm').style.display = 'block';
+}
+
+function startEditPortal(id) {
+  const por = portals.find(p => p.id === id);
+  if(!por) return;
+  editingPortalId = id;
+  document.getElementById('porClientInput').value = por.client;
+  document.getElementById('porShootDateInput').value = por.shootDate || '';
+  document.getElementById('porEditDateInput').value = por.editDate || '';
+  document.getElementById('porNoteInput').value = por.note || '';
+  document.getElementById('porStatusInput').value = por.status || 'Upcoming';
+  document.getElementById('porFormSaveBtn').textContent = 'Update Portal Entry';
+  document.getElementById('portalForm').style.display = 'block';
+  closeAllDropdowns();
+}
+
+function closePortalForm() {
+  document.getElementById('portalForm').style.display = 'none';
+  editingPortalId = null;
+}
+
+function savePortal() {
+  const client = document.getElementById('porClientInput').value.trim();
+  const shootDate = document.getElementById('porShootDateInput').value;
+  const editDate = document.getElementById('porEditDateInput').value;
+  const note = document.getElementById('porNoteInput').value.trim();
+  const status = document.getElementById('porStatusInput').value;
+  const pdfFile = document.getElementById('porPdfInput').files[0];
+
+  if(!client) { alert('Please enter a client name.'); return; }
+
+  const finalizeSave = (pdfDataUrl) => {
+    if(editingPortalId) {
+      const por = portals.find(p => p.id === editingPortalId);
+      if(por) {
+        por.client = client;
+        por.shootDate = shootDate;
+        por.editDate = editDate;
+        por.note = note;
+        por.status = status;
+        if(pdfDataUrl) por.pdfUrl = pdfDataUrl;
+      }
+    } else {
+      portals.push({ id: uid(), client, shootDate, editDate, note, status, pdfUrl: pdfDataUrl || null });
+    }
+
+    savePortalsToFirebase();
+    closePortalForm();
+    renderPortals();
+  };
+
+  if (pdfFile) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      finalizeSave(e.target.result);
+    };
+    reader.readAsDataURL(pdfFile);
+  } else {
+    finalizeSave(null);
+  }
+}
+
+function deletePortal(id) {
+  portals = portals.filter(p => p.id !== id);
+  savePortalsToFirebase();
+  renderPortals();
+  closeAllDropdowns();
+}
+
+/* SHARE LINK GENERATOR */
+function shareClientLink(clientName) {
+  const cleanUrl = window.location.origin + window.location.pathname;
+  const shareUrl = `${cleanUrl}?client=${encodeURIComponent(clientName)}`;
+  
+  if (navigator.share) {
+    navigator.share({
+      title: `${clientName} Portal`,
+      text: `Here is the shoot schedule, deadlines & scripts for ${clientName}`,
+      url: shareUrl
+    }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      alert(`🔗 Private link copied for ${clientName}!\n\n${shareUrl}`);
+    });
+  }
+  closeAllDropdowns();
+}
+
+function renderPortals() {
+  const container = document.getElementById('portalsList');
+  container.innerHTML = '';
+
+  let filteredPortals = portals;
+
+  if (targetClient) {
+    filteredPortals = portals.filter(p => p.client.toLowerCase() === targetClient.toLowerCase());
+  }
+
+  if(filteredPortals.length === 0) {
+    container.innerHTML = `<div class="empty">${targetClient ? 'no active portal or scripts found for ' + escapeHtml(targetClient) : 'no client portals created yet'}</div>`;
+    return;
+  }
+
+  filteredPortals.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'client-card';
+    card.innerHTML = `
+      <div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="client-name">${escapeHtml(p.client)}</span>
+          <span class="status-badge status-${p.status}">${p.status}</span>
+        </div>
+        <div class="schedule-meta">
+          <span class="meta-tag">🎬 Shoot: <strong>${p.shootDate ? p.shootDate : 'Not set'}</strong></span>
+          <span class="meta-tag">✂️ Edit Deadline: <strong>${p.editDate ? p.editDate : 'Not set'}</strong></span>
+        </div>
+        ${p.pdfUrl ? `<a href="${p.pdfUrl}" target="_blank" download="${p.client}-Script.pdf" class="pdf-link">📄 Download / View Script PDF</a>` : ''}
+        ${p.note ? `<div class="client-note" style="margin-top:10px;">${escapeHtml(p.note)}</div>` : ''}
+      </div>
+      <div class="dropdown-container">
+        <button class="dropdown-trigger" onclick="toggleDropdown('${p.id}', event)">⋮</button>
+        <div class="dropdown-menu" id="dropdown-${p.id}">
+          <button class="dropdown-item" onclick="shareClientLink('${escapeHtml(p.client)}')">🔗 Share Link</button>
+          <button class="dropdown-item" onclick="startEditPortal('${p.id}')">✏️ Edit</button>
+          <button class="dropdown-item delete" onclick="deletePortal('${p.id}')">🗑️ Remove</button>
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
 function renderSchedules() {
   const container = document.getElementById('schedulesList');
   container.innerHTML = '';
 
-  if(schedules.length === 0) {
-    container.innerHTML = '<div class="empty">no shoot or edit dates scheduled yet</div>';
+  let filteredSchedules = schedules;
+
+  if (targetClient) {
+    filteredSchedules = schedules.filter(s => s.client.toLowerCase() === targetClient.toLowerCase());
+  }
+
+  if(filteredSchedules.length === 0) {
+    container.innerHTML = `<div class="empty">${targetClient ? 'no schedule found for ' + escapeHtml(targetClient) : 'no shoot or edit dates scheduled yet'}</div>`;
     return;
   }
 
-  schedules.forEach(s => {
+  filteredSchedules.forEach(s => {
     const card = document.createElement('div');
     card.className = 'client-card';
     card.innerHTML = `
@@ -803,6 +1051,7 @@ function renderSchedules() {
       <div class="dropdown-container">
         <button class="dropdown-trigger" onclick="toggleDropdown('${s.id}', event)">⋮</button>
         <div class="dropdown-menu" id="dropdown-${s.id}">
+          <button class="dropdown-item" onclick="shareClientLink('${escapeHtml(s.client)}')">🔗 Share Link</button>
           <button class="dropdown-item" onclick="startEditSchedule('${s.id}')">✏️ Edit</button>
           <button class="dropdown-item delete" onclick="deleteSchedule('${s.id}')">🗑️ Remove</button>
         </div>
@@ -851,6 +1100,7 @@ function renderClients() {
       <div class="dropdown-container">
         <button class="dropdown-trigger" onclick="toggleDropdown('${c.id}', event)">⋮</button>
         <div class="dropdown-menu" id="dropdown-${c.id}">
+          <button class="dropdown-item" onclick="shareClientLink('${escapeHtml(c.name)}')">🔗 Share Link</button>
           <button class="dropdown-item" onclick="startEditClient('${c.id}')">✏️ Edit</button>
           <button class="dropdown-item delete" onclick="deleteClient('${c.id}')">🗑️ Remove</button>
         </div>
@@ -934,6 +1184,14 @@ function render(){
   renderTabs();
   renderNotes();
   updateNotificationButton();
+}
+
+// Initialize Client Portal Link View Mode
+if (targetClient) {
+  document.body.classList.add('client-mode');
+  switchTab('portals', null);
+  document.getElementById('portalHeaderTitle').textContent = `${targetClient} Portal`;
+  document.getElementById('portalHeaderTagline').textContent = 'Your official shoot dates, edit deadlines & script documents';
 }
 
 load();
