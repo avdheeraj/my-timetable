@@ -805,6 +805,9 @@ function saveClient() {
 }
 
 function deleteClient(id) {
+  const confirmed = confirm("Are you sure you want to delete this Client Portal?");
+  if (!confirmed) return;
+
   clients = clients.filter(c => c.id !== id);
   saveClientsToFirebase();
   renderClientsPortals();
@@ -891,6 +894,9 @@ function saveSchedule() {
 }
 
 function removeItemFromClient(clientId, itemId) {
+  const confirmed = confirm("Are you sure you want to remove this item?");
+  if (!confirmed) return;
+
   const client = clients.find(c => c.id === clientId);
   if(client && client.items) {
     client.items = client.items.filter(i => i.id !== itemId);
@@ -1027,7 +1033,15 @@ function escapeHtml(str){
 }
 
 function startEdit(id){ editingId = id; formOpen = true; openId = null; render(); }
-function deleteEntry(id){ entries = entries.filter(e => e.id !== id); save(); render(); }
+
+function deleteEntry(id){
+  const confirmed = confirm("Are you sure you want to remove this task?");
+  if (!confirmed) return;
+
+  entries = entries.filter(e => e.id !== id);
+  save();
+  render();
+}
 
 function buildForm(){
   const editing = editingId ? entries.find(e => e.id === editingId) : null;
