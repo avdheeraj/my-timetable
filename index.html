@@ -163,6 +163,20 @@
     line-height: 1;
   }
 
+  /* Assignee Badge */
+  .assignee-badge {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--paper-yellow);
+    background: rgba(243, 222, 132, 0.15);
+    border: 1px solid rgba(243, 222, 132, 0.3);
+    padding: 3px 8px;
+    border-radius: 5px;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+
   .header-actions {
     display: flex;
     align-items: center;
@@ -254,6 +268,25 @@
     font-family: 'Space Grotesk', sans-serif;
     font-size: 18px;
     font-weight: 600;
+  }
+
+  /* Date Section Header for Team View */
+  .date-group-header {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--paper-yellow);
+    background: rgba(243, 222, 132, 0.1);
+    border-left: 3px solid var(--paper-yellow);
+    padding: 6px 12px;
+    border-radius: 0 4px 4px 0;
+    margin: 24px 0 12px 0;
+    display: inline-block;
+  }
+  .date-group-header:first-of-type {
+    margin-top: 8px;
   }
 
   /* Schedule List inside Portal */
@@ -531,8 +564,8 @@
       <div id="teamForm" class="form-note" style="display:none;">
         <div class="form-row">
           <div>
-            <label style="font-size:12px; font-weight:bold;">Client / Project Title</label>
-            <input type="text" id="teamTitleInput" placeholder="e.g. Taluka - Commercial Shoot">
+            <label style="font-size:12px; font-weight:bold;">Assigned To / Member Name 👤</label>
+            <input type="text" id="teamAssigneeInput" placeholder="e.g. Dheeraj, Editor 1">
           </div>
           <div>
             <label style="font-size:12px; font-weight:bold;">Status</label>
@@ -541,6 +574,12 @@
               <option value="InProgress">In Progress</option>
               <option value="Completed">Completed</option>
             </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Client / Project Title</label>
+            <input type="text" id="teamTitleInput" placeholder="e.g. Taluka - Commercial Shoot">
           </div>
         </div>
         <div class="form-row">
@@ -632,6 +671,26 @@ function formatDate(dateStr) {
   const [yyyy, mm, dd] = parts;
   const yy = yyyy.slice(-2);
   return `${dd}/${mm}/${yy}`;
+}
+
+/* Helper to get Today / Tomorrow label */
+function getDateCategoryLabel(dateStr) {
+  if (!dateStr) return 'UNSCHEDULED / TBD';
+  
+  const now = new Date();
+  const todayStr = now.toISOString().split('T')[0];
+  
+  const tomorrow = new Date();
+  tomorrow.setDate(now.getDate() + 1);
+  const tomorrowStr = tomorrow.toISOString().split('T')[0];
+
+  if (dateStr === todayStr) {
+    return `TODAY (${formatDate(dateStr)})`;
+  } else if (dateStr === tomorrowStr) {
+    return `TOMORROW (${formatDate(dateStr)})`;
+  } else {
+    return `SHOOT DATE: ${formatDate(dateStr)}`;
+  }
 }
 
 function tiltFor(id){
@@ -1023,9 +1082,10 @@ function removeItemFromClient(clientId, itemId) {
   }
 }
 
-/* TEAM SCHEDULE LOGIC */
+/* TEAM SCHEDULE LOGIC (WITH ASSIGNEE NAME) */
 function openTeamForm() {
   editingTeamItemId = null;
+  document.getElementById('teamAssigneeInput').value = '';
   document.getElementById('teamTitleInput').value = '';
   document.getElementById('teamShootDateInput').value = '';
   document.getElementById('teamEditDateInput').value = '';
@@ -1041,6 +1101,7 @@ function startEditTeamItem(itemId) {
   if(!item) return;
 
   editingTeamItemId = itemId;
+  document.getElementById('teamAssigneeInput').value = item.assignee || '';
   document.getElementById('teamTitleInput').value = item.title || '';
   document.getElementById('teamShootDateInput').value = item.shootDate || '';
   document.getElementById('teamEditDateInput').value = item.editDate || '';
@@ -1057,6 +1118,7 @@ function closeTeamForm() {
 }
 
 function saveTeamItem() {
+  const assignee = document.getElementById('teamAssigneeInput').value.trim();
   const title = document.getElementById('teamTitleInput').value.trim();
   const shootDate = document.getElementById('teamShootDateInput').value;
   const editDate = document.getElementById('teamEditDateInput').value;
@@ -1069,6 +1131,7 @@ function saveTeamItem() {
   if(editingTeamItemId) {
     const item = teamTasks.find(t => t.id === editingTeamItemId);
     if(item) {
+      item.assignee = assignee || null;
       item.title = title;
       item.shootDate = shootDate;
       item.editDate = editDate;
@@ -1079,6 +1142,7 @@ function saveTeamItem() {
   } else {
     teamTasks.push({
       id: uid(),
+      assignee: assignee || null,
       title,
       shootDate,
       editDate,
@@ -1126,7 +1190,6 @@ function renderTeamSchedules() {
 
   let visibleTasks = teamTasks;
 
-  // For shared Team Link (?view=team), filter out Completed tasks if desired or show current/upcoming
   if (targetView === 'team') {
     visibleTasks = teamTasks.filter(t => t.status !== 'Completed');
   }
@@ -1136,32 +1199,55 @@ function renderTeamSchedules() {
     return;
   }
 
-  visibleTasks.forEach(item => {
-    const card = document.createElement('div');
-    card.className = 'schedule-item';
-    card.style.padding = '16px';
-    card.style.marginBottom = '14px';
+  visibleTasks.sort((a, b) => {
+    if (!a.shootDate) return 1;
+    if (!b.shootDate) return -1;
+    return a.shootDate.localeCompare(b.shootDate);
+  });
 
-    card.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <strong style="font-size:16px;">${escapeHtml(item.title)}</strong>
-        <div style="display:flex; align-items:center; gap:8px;">
-          <span class="status-badge status-${item.status}">${item.status}</span>
-          <div class="admin-only item-actions">
-            <button class="btn-item-action" onclick="startEditTeamItem('${item.id}')">✏️ Edit</button>
-            <button class="btn-item-action delete" onclick="deleteTeamItem('${item.id}')">✕ Delete</button>
+  const groups = {};
+  visibleTasks.forEach(task => {
+    const key = task.shootDate || 'TBD';
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(task);
+  });
+
+  Object.keys(groups).forEach(dateKey => {
+    const headerTitle = getDateCategoryLabel(dateKey === 'TBD' ? '' : dateKey);
+    
+    const groupHeader = document.createElement('div');
+    groupHeader.className = 'date-group-header';
+    groupHeader.textContent = headerTitle;
+    container.appendChild(groupHeader);
+
+    groups[dateKey].forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'schedule-item';
+      card.style.padding = '16px';
+      card.style.marginBottom = '14px';
+
+      card.innerHTML = `
+        ${item.assignee ? `<div class="assignee-badge">👤 Assigned: ${escapeHtml(item.assignee)}</div>` : ''}
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <strong style="font-size:16px;">${escapeHtml(item.title)}</strong>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="status-badge status-${item.status}">${item.status}</span>
+            <div class="admin-only item-actions">
+              <button class="btn-item-action" onclick="startEditTeamItem('${item.id}')">✏️ Edit</button>
+              <button class="btn-item-action delete" onclick="deleteTeamItem('${item.id}')">✕ Delete</button>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="schedule-meta" style="margin-top:10px;">
-        <span class="meta-tag">🎬 Shoot: <strong>${formatDate(item.shootDate)}</strong></span>
-        <span class="meta-tag">✂️ Edit Deadline: <strong>${formatDate(item.editDate)}</strong></span>
-      </div>
-      ${item.pdfUrl ? `<a href="${escapeHtml(item.pdfUrl)}" target="_blank" class="pdf-link">📄 Open Script PDF / Document</a>` : ''}
-      ${item.note ? `<div class="client-note" style="margin-top:10px; font-size:13px; color:#D8C9A8;">${escapeHtml(item.note)}</div>` : ''}
-    `;
+        <div class="schedule-meta" style="margin-top:10px;">
+          <span class="meta-tag">🎬 Shoot: <strong>${formatDate(item.shootDate)}</strong></span>
+          <span class="meta-tag">✂️ Edit Deadline: <strong>${formatDate(item.editDate)}</strong></span>
+        </div>
+        ${item.pdfUrl ? `<a href="${escapeHtml(item.pdfUrl)}" target="_blank" class="pdf-link">📄 Open Script PDF / Document</a>` : ''}
+        ${item.note ? `<div class="client-note" style="margin-top:10px; font-size:13px; color:#D8C9A8;">${escapeHtml(item.note)}</div>` : ''}
+      `;
 
-    container.appendChild(card);
+      container.appendChild(card);
+    });
   });
 }
 
