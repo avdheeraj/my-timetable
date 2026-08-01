@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Desk Pad">
 
-<title>Desk Pad & Clients Workspace</title>
+<title>Desk Pad Workspace</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Inter:wght@400;500;600&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
 <style>
@@ -40,15 +40,11 @@
     color:var(--cream);
   }
 
-  /* App Layout */
-  .app-container {
-    display: flex;
-    min-height: 100vh;
-  }
+  .app-container { display: flex; min-height: 100vh; }
 
   /* Sidebar */
   .sidebar {
-    width: 240px;
+    width: 220px;
     background: rgba(0, 0, 0, 0.25);
     border-right: 1px dashed rgba(247,241,225,0.2);
     padding: 24px 16px;
@@ -81,26 +77,18 @@
     align-items: center;
     gap: 8px;
   }
-  .nav-btn:hover {
-    border-color: rgba(247,241,225,0.3);
-    color: var(--cream);
-  }
-  .nav-btn.active {
-    background: var(--cream);
-    color: var(--mat-dark);
-    font-weight: 600;
-  }
+  .nav-btn:hover { border-color: rgba(247,241,225,0.3); color: var(--cream); }
+  .nav-btn.active { background: var(--cream); color: var(--mat-dark); font-weight: 600; }
 
   /* Main Area */
   .main-content {
     flex: 1;
     padding: 32px 24px 80px;
-    max-width: 760px;
+    max-width: 780px;
     margin: 0 auto;
     width: 100%;
   }
 
-  /* View Panels */
   .view-panel { display: none; }
   .view-panel.active { display: block; }
 
@@ -112,79 +100,37 @@
     padding-bottom:16px;
     border-bottom:1px dashed rgba(247,241,225,0.25);
   }
-  h1{
-    font-family:'Space Grotesk',sans-serif;
-    font-weight:600;
-    font-size:24px;
-    margin:0;
-  }
-  .tagline{
-    font-family:'Caveat',cursive;
-    font-size:18px;
-    color:#D8C9A8;
-    margin-top:2px;
-  }
+  h1{ font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:24px; margin:0; }
+  .tagline{ font-family:'Caveat',cursive; font-size:18px; color:#D8C9A8; margin-top:2px; }
+
   .notify-btn{
-    font-family:'Space Grotesk',sans-serif;
-    font-size:12px;
-    font-weight:500;
-    padding:6px 12px;
-    border-radius:999px;
-    border:1px solid rgba(247,241,225,0.3);
-    background:rgba(247,241,225,0.1);
-    color:var(--cream);
-    cursor:pointer;
+    font-family:'Space Grotesk',sans-serif; font-size:12px; font-weight:500;
+    padding:6px 12px; border-radius:999px; border:1px solid rgba(247,241,225,0.3);
+    background:rgba(247,241,225,0.1); color:var(--cream); cursor:pointer;
   }
-  .day-tabs{
-    display:flex;
-    gap:6px;
-    margin-bottom:26px;
-    flex-wrap:wrap;
-  }
+
+  /* Desk Pad Styles */
+  .day-tabs{ display:flex; gap:6px; margin-bottom:26px; flex-wrap:wrap; }
   .day-tab{
-    font-family:'Space Grotesk',sans-serif;
-    font-size:13px;
-    font-weight:500;
-    padding:7px 13px;
-    border-radius:999px;
-    border:1px solid rgba(247,241,225,0.2);
-    background:transparent;
-    color:#D8C9A8;
-    cursor:pointer;
+    font-family:'Space Grotesk',sans-serif; font-size:13px; font-weight:500;
+    padding:7px 13px; border-radius:999px; border:1px solid rgba(247,241,225,0.2);
+    background:transparent; color:#D8C9A8; cursor:pointer;
   }
-  .day-tab.active{
-    background:var(--cream);
-    color:var(--mat-dark);
-  }
-  .notes{display:flex;flex-direction:column;gap:16px;}
+  .day-tab.active{ background:var(--cream); color:var(--mat-dark); }
+  .notes{ display:flex; flex-direction:column; gap:16px; }
   .empty{
-    font-family:'Caveat',cursive;
-    font-size:22px;
-    color:#B8AB8C;
-    text-align:center;
-    padding:50px 20px;
-    border:2px dashed rgba(247,241,225,0.2);
-    border-radius:10px;
+    font-family:'Caveat',cursive; font-size:22px; color:#B8AB8C;
+    text-align:center; padding:50px 20px; border:2px dashed rgba(247,241,225,0.2); border-radius:10px;
   }
   .note{
-    position:relative;
-    border-radius:3px;
-    padding:14px 18px 16px;
-    cursor:pointer;
-    box-shadow:0 5px 12px rgba(0,0,0,0.28);
-    transform:rotate(var(--tilt));
-    color:var(--ink);
+    position:relative; border-radius:3px; padding:14px 18px 16px;
+    cursor:pointer; box-shadow:0 5px 12px rgba(0,0,0,0.28);
+    transform:rotate(var(--tilt)); color:var(--ink);
   }
   .note::before{
-    content:'';
-    position:absolute;
-    top:-9px;
-    left:50%;
-    transform:translateX(-50%) rotate(-3deg);
-    width:56px;
-    height:20px;
-    background:rgba(255,255,255,0.55);
-    border:1px solid rgba(255,255,255,0.3);
+    content:''; position:absolute; top:-9px; left:50%;
+    transform:translateX(-50%) rotate(-3deg); width:56px; height:20px;
+    background:rgba(255,255,255,0.55); border:1px solid rgba(255,255,255,0.3);
   }
   .note.yellow{background:var(--paper-yellow);}
   .note.mint{background:var(--paper-mint);}
@@ -207,80 +153,66 @@
     background:transparent;color:#D8C9A8;padding:16px;display:flex;
     justify-content:center;font-family:'Space Grotesk',sans-serif;cursor:pointer;
   }
-  .form-note{
-    background:var(--cream);border-radius:5px;padding:18px;color:var(--ink);
-  }
-  .form-row{display:flex;gap:10px;margin-bottom:10px;}
-  .form-row > div{flex:1;}
-  input, textarea, select{width:100%;padding:8px;border-radius:5px;border:1px solid #D8C9A8;}
-  .color-picker{display:flex;gap:8px;margin-bottom:14px;}
-  .swatch{width:26px;height:26px;border-radius:50%;cursor:pointer;}
-  .swatch.selected{border:2px solid var(--ink);}
+  .form-note{ background:var(--cream); border-radius:5px; padding:18px; color:var(--ink); }
+  .form-row{ display:flex; gap:10px; margin-bottom:10px; }
+  .form-row > div{ flex:1; }
+  input, textarea, select{ width:100%; padding:8px; border-radius:5px; border:1px solid #D8C9A8; }
+  .color-picker{ display:flex; gap:8px; margin-bottom:14px; }
+  .swatch{ width:26px; height:26px; border-radius:50%; cursor:pointer; }
+  .swatch.selected{ border:2px solid var(--ink); }
   .swatch.yellow{background:var(--paper-yellow);}
   .swatch.mint{background:var(--paper-mint);}
   .swatch.coral{background:var(--paper-coral);}
   .swatch.blue{background:var(--paper-blue);}
-  .form-actions{display:flex;gap:8px;justify-content:flex-end;}
-  .btn-save{background:var(--ink);color:var(--cream);border:none;padding:8px 16px;border-radius:5px;cursor:pointer;}
-  .btn-cancel{background:transparent;color:var(--ink-soft);border:1px solid #D8C9A8;padding:8px 16px;border-radius:5px;cursor:pointer;}
+  .form-actions{ display:flex; gap:8px; justify-content:flex-end; }
+  .btn-save{ background:var(--ink); color:var(--cream); border:none; padding:8px 16px; border-radius:5px; cursor:pointer; }
+  .btn-cancel{ background:transparent; color:var(--ink-soft); border:1px solid #D8C9A8; padding:8px 16px; border-radius:5px; cursor:pointer; }
 
-  /* Cards & Dropdown Menu */
-  .client-card {
+  /* Client Portal Dashboard Box */
+  .portal-box {
     background: rgba(247, 241, 225, 0.08);
-    border: 1px solid rgba(247,241,225,0.15);
-    border-radius: 8px;
-    padding: 18px;
-    margin-bottom: 14px;
+    border: 1px solid rgba(247,241,225,0.18);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .portal-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    position: relative;
-  }
-  .client-name {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 17px;
-    font-weight: 600;
-  }
-  .client-note {
-    font-size: 13px;
-    color: #D8C9A8;
-    margin-top: 6px;
-    line-height: 1.4;
-  }
-
-  /* PDF Script Badge */
-  .pdf-link {
-    display: inline-flex;
     align-items: center;
-    gap: 6px;
-    margin-top: 10px;
-    padding: 6px 12px;
-    background: rgba(231, 174, 151, 0.2);
-    border: 1px solid var(--paper-coral);
-    color: var(--paper-coral);
-    border-radius: 6px;
-    text-decoration: none;
-    font-size: 12px;
+    border-bottom: 1px dashed rgba(247, 241, 225, 0.15);
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+  }
+  .portal-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
     font-weight: 600;
   }
-  .pdf-link:hover {
-    background: rgba(231, 174, 151, 0.35);
-  }
 
-  /* Schedule Cards Info */
+  /* Schedule List inside Portal */
+  .schedule-item {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(247, 241, 225, 0.1);
+    border-radius: 6px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+  }
   .schedule-meta {
-    margin-top: 10px;
     display: flex;
     gap: 12px;
     font-size: 13px;
     flex-wrap: wrap;
+    margin-top: 6px;
   }
   .meta-tag {
     background: rgba(247, 241, 225, 0.1);
-    padding: 5px 10px;
+    padding: 4px 8px;
     border-radius: 4px;
-    border: 1px solid rgba(247, 241, 225, 0.2);
+    border: 1px solid rgba(247, 241, 225, 0.15);
   }
+
+  /* Status Badges */
   .status-badge {
     padding: 2px 8px;
     border-radius: 4px;
@@ -292,7 +224,22 @@
   .status-InProgress { background: rgba(166, 198, 216, 0.2); color: var(--paper-blue); border: 1px solid var(--paper-blue); }
   .status-Completed { background: rgba(182, 211, 172, 0.2); color: var(--paper-mint); border: 1px solid var(--paper-mint); }
 
-  /* Dropdown Menu Styles */
+  .pdf-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    padding: 5px 10px;
+    background: rgba(231, 174, 151, 0.2);
+    border: 1px solid var(--paper-coral);
+    color: var(--paper-coral);
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  /* Dropdown Menu */
   .dropdown-container { position: relative; }
   .dropdown-trigger {
     background: transparent;
@@ -314,7 +261,7 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     z-index: 10;
     overflow: hidden;
-    min-width: 140px;
+    min-width: 170px;
   }
   .dropdown-menu.show { display: block; }
   .dropdown-item {
@@ -332,31 +279,30 @@
   .dropdown-item:hover { background: rgba(0,0,0,0.08); }
   .dropdown-item.delete { color: #A93226; }
 
-  /* Client Portal Mode (Hides Admin Elements) */
+  /* Client Portal Mode (Hides Admin UI for Shared Client Links) */
   body.client-mode .sidebar { display: none !important; }
   body.client-mode .notify-btn { display: none !important; }
-  body.client-mode #addPortalBtn { display: none !important; }
+  body.client-mode #addClientBtn { display: none !important; }
   body.client-mode .dropdown-container { display: none !important; }
-  body.client-mode .main-content { max-width: 650px; padding-top: 40px; }
+  body.client-mode .admin-only { display: none !important; }
+  body.client-mode .main-content { max-width: 680px; padding-top: 40px; }
 
   @media (max-width: 600px) {
     .app-container { flex-direction: column; }
-    .sidebar { width: 100%; border-right: none; border-bottom: 1px dashed rgba(247,241,225,0.2); flex-direction: row; flex-wrap: wrap; }
+    .sidebar { width: 100%; border-right: none; border-bottom: 1px dashed rgba(247,241,225,0.2); flex-direction: row; }
     .sidebar-brand { display: none; }
-    .nav-btn { flex: 1; text-align: center; justify-content: center; padding: 10px 4px; font-size: 11px; }
+    .nav-btn { flex: 1; text-align: center; justify-content: center; }
   }
 </style>
 </head>
 <body>
 
 <div class="app-container">
-  <!-- Sidebar with 4 Tabs -->
+  <!-- Sidebar -->
   <div class="sidebar" id="appSidebar">
     <div class="sidebar-brand">📌 Workspace</div>
     <button class="nav-btn active" onclick="switchTab('deskpad', this)">📌 Desk Pad</button>
-    <button class="nav-btn" onclick="switchTab('clients', this)">👤 Clients</button>
-    <button class="nav-btn" onclick="switchTab('schedules', this)">📅 Shoot & Edit Dates</button>
-    <button class="nav-btn" onclick="switchTab('portals', this)">📁 Client Portals</button>
+    <button class="nav-btn" onclick="switchTab('clients', this)">👤 Client Portals</button>
   </div>
 
   <div class="main-content">
@@ -375,27 +321,28 @@
       <div class="notes" id="notesList"></div>
     </div>
 
-    <!-- PANEL 2: Clients -->
+    <!-- PANEL 2: Client Portals -->
     <div id="clients" class="view-panel">
       <header>
         <div>
-          <h1>Clients</h1>
-          <div class="tagline">manage your active client roster</div>
+          <h1 id="clientHeaderTitle">Client Portals</h1>
+          <div class="tagline" id="clientHeaderTagline">manage all client schedules, deliverables & script PDFs</div>
         </div>
-        <button class="btn-save" onclick="openClientForm()">+ Add Client</button>
+        <button class="btn-save" id="addClientBtn" onclick="openClientForm()">+ Add New Client</button>
       </header>
 
+      <!-- Client Form -->
       <div id="clientForm" class="form-note" style="display:none; margin-bottom:20px;">
         <div class="form-row">
           <div>
             <label style="font-size:12px; font-weight:bold;">Client Name</label>
-            <input type="text" id="clientNameInput" placeholder="e.g. John Doe / Procafe">
+            <input type="text" id="clientNameInput" placeholder="e.g. Procafe">
           </div>
         </div>
         <div class="form-row">
           <div>
-            <label style="font-size:12px; font-weight:bold;">Details / Notes (Optional)</label>
-            <textarea id="clientNoteInput" placeholder="Project details, contact info..."></textarea>
+            <label style="font-size:12px; font-weight:bold;">General Notes / Details (Optional)</label>
+            <textarea id="clientNoteInput" placeholder="Contact info, brand specs..."></textarea>
           </div>
         </div>
         <div class="form-actions">
@@ -404,24 +351,12 @@
         </div>
       </div>
 
-      <div id="clientsList"></div>
-    </div>
-
-    <!-- PANEL 3: Shoot & Edit Dates -->
-    <div id="schedules" class="view-panel">
-      <header>
-        <div>
-          <h1>Shoot & Edit Deadlines</h1>
-          <div class="tagline">track shoot dates & editing timelines</div>
-        </div>
-        <button class="btn-save" id="addScheduleBtn" onclick="openScheduleForm()">+ Add Schedule</button>
-      </header>
-
+      <!-- Add Schedule / Script Form -->
       <div id="scheduleForm" class="form-note" style="display:none; margin-bottom:20px;">
         <div class="form-row">
           <div>
-            <label style="font-size:12px; font-weight:bold;">Client Name</label>
-            <input type="text" id="schClientInput" placeholder="e.g. Procafe / Nike">
+            <label style="font-size:12px; font-weight:bold;">Project / Item Name</label>
+            <input type="text" id="schTitleInput" placeholder="e.g. Promo Reel 1">
           </div>
           <div>
             <label style="font-size:12px; font-weight:bold;">Status</label>
@@ -444,74 +379,24 @@
         </div>
         <div class="form-row">
           <div>
-            <label style="font-size:12px; font-weight:bold;">Project Details / Notes (Optional)</label>
-            <textarea id="schNoteInput" placeholder="Deliverables, drive link, specs..."></textarea>
+            <label style="font-size:12px; font-weight:bold;">Upload Script PDF 📄 (Optional)</label>
+            <input type="file" id="schPdfInput" accept="application/pdf">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Notes / Instructions (Optional)</label>
+            <textarea id="schNoteInput" placeholder="Drive links, revision specs..."></textarea>
           </div>
         </div>
         <div class="form-actions">
           <button class="btn-cancel" onclick="closeScheduleForm()">Cancel</button>
-          <button class="btn-save" id="schFormSaveBtn" onclick="saveSchedule()">Save Schedule</button>
+          <button class="btn-save" onclick="saveSchedule()">Add To Client Portal</button>
         </div>
       </div>
 
-      <div id="schedulesList"></div>
-    </div>
-
-    <!-- PANEL 4: Client Portals & Script PDFs -->
-    <div id="portals" class="view-panel">
-      <header>
-        <div>
-          <h1 id="portalHeaderTitle">Client Portals & Scripts</h1>
-          <div class="tagline" id="portalHeaderTagline">share private schedules, status & script PDFs with clients</div>
-        </div>
-        <button class="btn-save" id="addPortalBtn" onclick="openPortalForm()">+ Add Client Portal</button>
-      </header>
-
-      <!-- Portal Form -->
-      <div id="portalForm" class="form-note" style="display:none; margin-bottom:20px;">
-        <div class="form-row">
-          <div>
-            <label style="font-size:12px; font-weight:bold;">Client / Brand Name</label>
-            <input type="text" id="porClientInput" placeholder="e.g. Procafe">
-          </div>
-          <div>
-            <label style="font-size:12px; font-weight:bold;">Status</label>
-            <select id="porStatusInput">
-              <option value="Upcoming">Upcoming</option>
-              <option value="InProgress">In Progress</option>
-              <option value="Completed">Completed</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-row">
-          <div>
-            <label style="font-size:12px; font-weight:bold;">Shoot Date 🎬</label>
-            <input type="date" id="porShootDateInput">
-          </div>
-          <div>
-            <label style="font-size:12px; font-weight:bold;">Edit Deadline ✂️</label>
-            <input type="date" id="porEditDateInput">
-          </div>
-        </div>
-        <div class="form-row">
-          <div>
-            <label style="font-size:12px; font-weight:bold;">Upload Script PDF 📄</label>
-            <input type="file" id="porPdfInput" accept="application/pdf">
-          </div>
-        </div>
-        <div class="form-row">
-          <div>
-            <label style="font-size:12px; font-weight:bold;">Schedule & Script Notes / Link (Optional)</label>
-            <textarea id="porNoteInput" placeholder="Instructions for client, script breakdown, Google Drive link..."></textarea>
-          </div>
-        </div>
-        <div class="form-actions">
-          <button class="btn-cancel" onclick="closePortalForm()">Cancel</button>
-          <button class="btn-save" id="porFormSaveBtn" onclick="savePortal()">Save Portal Entry</button>
-        </div>
-      </div>
-
-      <div id="portalsList"></div>
+      <!-- Portals List Container -->
+      <div id="clientsPortalsList"></div>
     </div>
 
   </div>
@@ -539,18 +424,14 @@ const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const COLORS = ['yellow','mint','coral','blue'];
 let entries = [];
 let clients = [];
-let schedules = [];
-let portals = [];
 let activeDay = DAYS[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
 let openId = null;
 let formOpen = false;
 let editingId = null;
 let editingClientId = null;
-let editingScheduleId = null;
-let editingPortalId = null;
+let activeScheduleClientId = null;
 let notifiedTasks = new Set();
 
-// Detect URL client parameter (?client=Procafe)
 const urlParams = new URLSearchParams(window.location.search);
 const targetClient = urlParams.get('client');
 
@@ -627,22 +508,10 @@ function load(){
     render();
   });
 
-  db.ref('clients-entries').on('value', (snapshot) => {
+  db.ref('clients-portals').on('value', (snapshot) => {
     const data = snapshot.val();
     clients = data ? Object.values(data) : [];
-    renderClients();
-  });
-
-  db.ref('schedules-entries').on('value', (snapshot) => {
-    const data = snapshot.val();
-    schedules = data ? Object.values(data) : [];
-    renderSchedules();
-  });
-
-  db.ref('portals-entries').on('value', (snapshot) => {
-    const data = snapshot.val();
-    portals = data ? Object.values(data) : [];
-    renderPortals();
+    renderClientsPortals();
   });
 }
 
@@ -655,19 +524,7 @@ function save(){
 function saveClientsToFirebase(){
   const clientsObj = {};
   clients.forEach(c => clientsObj[c.id] = c);
-  db.ref('clients-entries').set(clientsObj);
-}
-
-function saveSchedulesToFirebase(){
-  const schObj = {};
-  schedules.forEach(s => schObj[s.id] = s);
-  db.ref('schedules-entries').set(schObj);
-}
-
-function savePortalsToFirebase(){
-  const porObj = {};
-  portals.forEach(p => porObj[p.id] = p);
-  db.ref('portals-entries').set(porObj);
+  db.ref('clients-portals').set(clientsObj);
 }
 
 function to12h(t){
@@ -756,30 +613,17 @@ function renderNotes(){
   }
 }
 
-/* CLIENTS LOGIC */
+/* CLIENT PORTAL LOGIC */
 function openClientForm() {
   editingClientId = null;
   document.getElementById('clientNameInput').value = '';
   document.getElementById('clientNoteInput').value = '';
-  document.getElementById('clientFormSaveBtn').textContent = 'Save Client';
+  document.getElementById('clientFormSaveBtn').textContent = 'Save Client Portal';
   document.getElementById('clientForm').style.display = 'block';
-}
-
-function startEditClient(id) {
-  const client = clients.find(c => c.id === id);
-  if(!client) return;
-  editingClientId = id;
-  document.getElementById('clientNameInput').value = client.name;
-  document.getElementById('clientNoteInput').value = client.note || '';
-  document.getElementById('clientFormSaveBtn').textContent = 'Update Changes';
-  document.getElementById('clientForm').style.display = 'block';
-  closeAllDropdowns();
 }
 
 function closeClientForm() {
   document.getElementById('clientForm').style.display = 'none';
-  document.getElementById('clientNameInput').value = '';
-  document.getElementById('clientNoteInput').value = '';
   editingClientId = null;
 }
 
@@ -790,172 +634,89 @@ function saveClient() {
   
   if(editingClientId) {
     const client = clients.find(c => c.id === editingClientId);
-    if(client) {
-      client.name = name;
-      client.note = note;
-    }
+    if(client) { client.name = name; client.note = note; }
   } else {
-    clients.push({ id: uid(), name, note });
+    clients.push({ id: uid(), name, note, items: [] });
   }
   
   saveClientsToFirebase();
   closeClientForm();
-  renderClients();
+  renderClientsPortals();
 }
 
 function deleteClient(id) {
   clients = clients.filter(c => c.id !== id);
   saveClientsToFirebase();
-  renderClients();
+  renderClientsPortals();
   closeAllDropdowns();
 }
 
-/* SCHEDULES LOGIC */
-function openScheduleForm() {
-  editingScheduleId = null;
-  document.getElementById('schClientInput').value = '';
+/* ADD ITEM/SCHEDULE TO CLIENT PORTAL */
+function openScheduleForm(clientId) {
+  activeScheduleClientId = clientId;
+  document.getElementById('schTitleInput').value = '';
   document.getElementById('schShootDateInput').value = '';
   document.getElementById('schEditDateInput').value = '';
+  document.getElementById('schPdfInput').value = '';
   document.getElementById('schNoteInput').value = '';
   document.getElementById('schStatusInput').value = 'Upcoming';
-  document.getElementById('schFormSaveBtn').textContent = 'Save Schedule';
   document.getElementById('scheduleForm').style.display = 'block';
-}
-
-function startEditSchedule(id) {
-  const sch = schedules.find(s => s.id === id);
-  if(!sch) return;
-  editingScheduleId = id;
-  document.getElementById('schClientInput').value = sch.client;
-  document.getElementById('schShootDateInput').value = sch.shootDate || '';
-  document.getElementById('schEditDateInput').value = sch.editDate || '';
-  document.getElementById('schNoteInput').value = sch.note || '';
-  document.getElementById('schStatusInput').value = sch.status || 'Upcoming';
-  document.getElementById('schFormSaveBtn').textContent = 'Update Schedule';
-  document.getElementById('scheduleForm').style.display = 'block';
-  closeAllDropdowns();
 }
 
 function closeScheduleForm() {
   document.getElementById('scheduleForm').style.display = 'none';
-  editingScheduleId = null;
+  activeScheduleClientId = null;
 }
 
 function saveSchedule() {
-  const client = document.getElementById('schClientInput').value.trim();
+  const title = document.getElementById('schTitleInput').value.trim();
   const shootDate = document.getElementById('schShootDateInput').value;
   const editDate = document.getElementById('schEditDateInput').value;
   const note = document.getElementById('schNoteInput').value.trim();
   const status = document.getElementById('schStatusInput').value;
+  const pdfFile = document.getElementById('schPdfInput').files[0];
 
-  if(!client) { alert('Please enter a client name.'); return; }
+  if(!title) { alert('Please enter an item/project title.'); return; }
+  const client = clients.find(c => c.id === activeScheduleClientId);
+  if(!client) return;
 
-  if(editingScheduleId) {
-    const sch = schedules.find(s => s.id === editingScheduleId);
-    if(sch) {
-      sch.client = client;
-      sch.shootDate = shootDate;
-      sch.editDate = editDate;
-      sch.note = note;
-      sch.status = status;
-    }
-  } else {
-    schedules.push({ id: uid(), client, shootDate, editDate, note, status });
-  }
-
-  saveSchedulesToFirebase();
-  closeScheduleForm();
-  renderSchedules();
-}
-
-function deleteSchedule(id) {
-  schedules = schedules.filter(s => s.id !== id);
-  saveSchedulesToFirebase();
-  renderSchedules();
-  closeAllDropdowns();
-}
-
-/* PORTALS & SCRIPT PDF LOGIC */
-function openPortalForm() {
-  editingPortalId = null;
-  document.getElementById('porClientInput').value = '';
-  document.getElementById('porShootDateInput').value = '';
-  document.getElementById('porEditDateInput').value = '';
-  document.getElementById('porPdfInput').value = '';
-  document.getElementById('porNoteInput').value = '';
-  document.getElementById('porStatusInput').value = 'Upcoming';
-  document.getElementById('porFormSaveBtn').textContent = 'Save Portal Entry';
-  document.getElementById('portalForm').style.display = 'block';
-}
-
-function startEditPortal(id) {
-  const por = portals.find(p => p.id === id);
-  if(!por) return;
-  editingPortalId = id;
-  document.getElementById('porClientInput').value = por.client;
-  document.getElementById('porShootDateInput').value = por.shootDate || '';
-  document.getElementById('porEditDateInput').value = por.editDate || '';
-  document.getElementById('porNoteInput').value = por.note || '';
-  document.getElementById('porStatusInput').value = por.status || 'Upcoming';
-  document.getElementById('porFormSaveBtn').textContent = 'Update Portal Entry';
-  document.getElementById('portalForm').style.display = 'block';
-  closeAllDropdowns();
-}
-
-function closePortalForm() {
-  document.getElementById('portalForm').style.display = 'none';
-  editingPortalId = null;
-}
-
-function savePortal() {
-  const client = document.getElementById('porClientInput').value.trim();
-  const shootDate = document.getElementById('porShootDateInput').value;
-  const editDate = document.getElementById('porEditDateInput').value;
-  const note = document.getElementById('porNoteInput').value.trim();
-  const status = document.getElementById('porStatusInput').value;
-  const pdfFile = document.getElementById('porPdfInput').files[0];
-
-  if(!client) { alert('Please enter a client name.'); return; }
+  if(!client.items) client.items = [];
 
   const finalizeSave = (pdfDataUrl) => {
-    if(editingPortalId) {
-      const por = portals.find(p => p.id === editingPortalId);
-      if(por) {
-        por.client = client;
-        por.shootDate = shootDate;
-        por.editDate = editDate;
-        por.note = note;
-        por.status = status;
-        if(pdfDataUrl) por.pdfUrl = pdfDataUrl;
-      }
-    } else {
-      portals.push({ id: uid(), client, shootDate, editDate, note, status, pdfUrl: pdfDataUrl || null });
-    }
+    client.items.push({
+      id: uid(),
+      title,
+      shootDate,
+      editDate,
+      note,
+      status,
+      pdfUrl: pdfDataUrl || null
+    });
 
-    savePortalsToFirebase();
-    closePortalForm();
-    renderPortals();
+    saveClientsToFirebase();
+    closeScheduleForm();
+    renderClientsPortals();
   };
 
   if (pdfFile) {
     const reader = new FileReader();
-    reader.onload = function(e) {
-      finalizeSave(e.target.result);
-    };
+    reader.onload = function(e) { finalizeSave(e.target.result); };
     reader.readAsDataURL(pdfFile);
   } else {
     finalizeSave(null);
   }
 }
 
-function deletePortal(id) {
-  portals = portals.filter(p => p.id !== id);
-  savePortalsToFirebase();
-  renderPortals();
-  closeAllDropdowns();
+function removeItemFromClient(clientId, itemId) {
+  const client = clients.find(c => c.id === clientId);
+  if(client && client.items) {
+    client.items = client.items.filter(i => i.id !== itemId);
+    saveClientsToFirebase();
+    renderClientsPortals();
+  }
 }
 
-/* SHARE LINK GENERATOR */
+/* SHARE LINK FOR 1 TOTAL CLIENT PORTAL PAGE */
 function shareClientLink(clientName) {
   const cleanUrl = window.location.origin + window.location.pathname;
   const shareUrl = `${cleanUrl}?client=${encodeURIComponent(clientName)}`;
@@ -963,101 +724,85 @@ function shareClientLink(clientName) {
   if (navigator.share) {
     navigator.share({
       title: `${clientName} Portal`,
-      text: `Here is the shoot schedule, deadlines & scripts for ${clientName}`,
+      text: `All shoot schedules, deadlines & scripts for ${clientName}`,
       url: shareUrl
     }).catch(() => {});
   } else {
     navigator.clipboard.writeText(shareUrl).then(() => {
-      alert(`🔗 Private link copied for ${clientName}!\n\n${shareUrl}`);
+      alert(`🔗 Private Portal Link copied for ${clientName}!\n\n${shareUrl}`);
     });
   }
   closeAllDropdowns();
 }
 
-function renderPortals() {
-  const container = document.getElementById('portalsList');
+function renderClientsPortals() {
+  const container = document.getElementById('clientsPortalsList');
   container.innerHTML = '';
 
-  let filteredPortals = portals;
+  let filteredClients = clients;
 
   if (targetClient) {
-    filteredPortals = portals.filter(p => p.client.toLowerCase() === targetClient.toLowerCase());
+    filteredClients = clients.filter(c => c.name.toLowerCase() === targetClient.toLowerCase());
   }
 
-  if(filteredPortals.length === 0) {
-    container.innerHTML = `<div class="empty">${targetClient ? 'no active portal or scripts found for ' + escapeHtml(targetClient) : 'no client portals created yet'}</div>`;
+  if(filteredClients.length === 0) {
+    container.innerHTML = `<div class="empty">${targetClient ? 'no portal found for ' + escapeHtml(targetClient) : 'no client portals added yet'}</div>`;
     return;
   }
 
-  filteredPortals.forEach(p => {
-    const card = document.createElement('div');
-    card.className = 'client-card';
-    card.innerHTML = `
-      <div>
-        <div style="display:flex; align-items:center; gap:8px;">
-          <span class="client-name">${escapeHtml(p.client)}</span>
-          <span class="status-badge status-${p.status}">${p.status}</span>
+  filteredClients.forEach(c => {
+    const box = document.createElement('div');
+    box.className = 'portal-box';
+    
+    let itemsHtml = '';
+    if (c.items && c.items.length > 0) {
+      c.items.forEach(item => {
+        itemsHtml += `
+          <div class="schedule-item">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong>${escapeHtml(item.title)}</strong>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="status-badge status-${item.status}">${item.status}</span>
+                <button class="admin-only" style="background:transparent; border:none; color:var(--paper-coral); cursor:pointer; font-size:12px;" onclick="removeItemFromClient('${c.id}', '${item.id}')">✕</button>
+              </div>
+            </div>
+            <div class="schedule-meta">
+              <span class="meta-tag">🎬 Shoot: <strong>${item.shootDate ? item.shootDate : 'TBD'}</strong></span>
+              <span class="meta-tag">✂️ Edit Deadline: <strong>${item.editDate ? item.editDate : 'TBD'}</strong></span>
+            </div>
+            ${item.pdfUrl ? `<a href="${item.pdfUrl}" target="_blank" download="${item.title}-Script.pdf" class="pdf-link">📄 Download / View Script PDF</a>` : ''}
+            ${item.note ? `<div class="client-note" style="margin-top:6px;">${escapeHtml(item.note)}</div>` : ''}
+          </div>
+        `;
+      });
+    } else {
+      itemsHtml = '<div style="font-size:13px; color:#D8C9A8; font-style:italic;">No schedules or scripts added to this portal yet.</div>';
+    }
+
+    box.innerHTML = `
+      <div class="portal-header">
+        <div>
+          <div class="portal-title">${escapeHtml(c.name)}</div>
+          ${c.note ? `<div class="client-note">${escapeHtml(c.note)}</div>` : ''}
         </div>
-        <div class="schedule-meta">
-          <span class="meta-tag">🎬 Shoot: <strong>${p.shootDate ? p.shootDate : 'Not set'}</strong></span>
-          <span class="meta-tag">✂️ Edit Deadline: <strong>${p.editDate ? p.editDate : 'Not set'}</strong></span>
+        <div class="dropdown-container">
+          <button class="dropdown-trigger" onclick="toggleDropdown('${c.id}', event)">⋮</button>
+          <div class="dropdown-menu" id="dropdown-${c.id}">
+            <button class="dropdown-item" onclick="shareClientLink('${escapeHtml(c.name)}')">🔗 Share Client Portal</button>
+            <button class="dropdown-item delete" onclick="deleteClient('${c.id}')">🗑️ Delete Portal</button>
+          </div>
         </div>
-        ${p.pdfUrl ? `<a href="${p.pdfUrl}" target="_blank" download="${p.client}-Script.pdf" class="pdf-link">📄 Download / View Script PDF</a>` : ''}
-        ${p.note ? `<div class="client-note" style="margin-top:10px;">${escapeHtml(p.note)}</div>` : ''}
       </div>
-      <div class="dropdown-container">
-        <button class="dropdown-trigger" onclick="toggleDropdown('${p.id}', event)">⋮</button>
-        <div class="dropdown-menu" id="dropdown-${p.id}">
-          <button class="dropdown-item" onclick="shareClientLink('${escapeHtml(p.client)}')">🔗 Share Link</button>
-          <button class="dropdown-item" onclick="startEditPortal('${p.id}')">✏️ Edit</button>
-          <button class="dropdown-item delete" onclick="deletePortal('${p.id}')">🗑️ Remove</button>
-        </div>
+
+      <div style="margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:12px; font-weight:bold; letter-spacing:0.5px; text-transform:uppercase; color:var(--paper-yellow);">Schedules & Script PDFs</span>
+        <button class="admin-only btn-save" style="font-size:11px; padding:4px 10px;" onclick="openScheduleForm('${c.id}')">+ Add Schedule/Script</button>
       </div>
+
+      ${itemsHtml}
     `;
-    container.appendChild(card);
-  });
-}
 
-function renderSchedules() {
-  const container = document.getElementById('schedulesList');
-  container.innerHTML = '';
-
-  let filteredSchedules = schedules;
-
-  if (targetClient) {
-    filteredSchedules = schedules.filter(s => s.client.toLowerCase() === targetClient.toLowerCase());
-  }
-
-  if(filteredSchedules.length === 0) {
-    container.innerHTML = `<div class="empty">${targetClient ? 'no schedule found for ' + escapeHtml(targetClient) : 'no shoot or edit dates scheduled yet'}</div>`;
-    return;
-  }
-
-  filteredSchedules.forEach(s => {
-    const card = document.createElement('div');
-    card.className = 'client-card';
-    card.innerHTML = `
-      <div>
-        <div style="display:flex; align-items:center; gap:8px;">
-          <span class="client-name">${escapeHtml(s.client)}</span>
-          <span class="status-badge status-${s.status}">${s.status}</span>
-        </div>
-        <div class="schedule-meta">
-          <span class="meta-tag">🎬 Shoot: <strong>${s.shootDate ? s.shootDate : 'Not set'}</strong></span>
-          <span class="meta-tag">✂️ Edit Deadline: <strong>${s.editDate ? s.editDate : 'Not set'}</strong></span>
-        </div>
-        ${s.note ? `<div class="client-note" style="margin-top:8px;">${escapeHtml(s.note)}</div>` : ''}
-      </div>
-      <div class="dropdown-container">
-        <button class="dropdown-trigger" onclick="toggleDropdown('${s.id}', event)">⋮</button>
-        <div class="dropdown-menu" id="dropdown-${s.id}">
-          <button class="dropdown-item" onclick="shareClientLink('${escapeHtml(s.client)}')">🔗 Share Link</button>
-          <button class="dropdown-item" onclick="startEditSchedule('${s.id}')">✏️ Edit</button>
-          <button class="dropdown-item delete" onclick="deleteSchedule('${s.id}')">🗑️ Remove</button>
-        </div>
-      </div>
-    `;
-    container.appendChild(card);
+    container.appendChild(box);
   });
 }
 
@@ -1067,48 +812,14 @@ function toggleDropdown(id, event) {
   const currentMenu = document.getElementById(`dropdown-${id}`);
   const isShow = currentMenu.classList.contains('show');
   closeAllDropdowns();
-  if (!isShow && currentMenu) {
-    currentMenu.classList.add('show');
-  }
+  if (!isShow && currentMenu) { currentMenu.classList.add('show'); }
 }
 
 function closeAllDropdowns() {
   document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('show'));
 }
 
-window.onclick = function() {
-  closeAllDropdowns();
-};
-
-function renderClients() {
-  const container = document.getElementById('clientsList');
-  container.innerHTML = '';
-  
-  if(clients.length === 0) {
-    container.innerHTML = '<div class="empty">no clients added yet</div>';
-    return;
-  }
-
-  clients.forEach(c => {
-    const card = document.createElement('div');
-    card.className = 'client-card';
-    card.innerHTML = `
-      <div>
-        <div class="client-name">${escapeHtml(c.name)}</div>
-        ${c.note ? `<div class="client-note">${escapeHtml(c.note)}</div>` : ''}
-      </div>
-      <div class="dropdown-container">
-        <button class="dropdown-trigger" onclick="toggleDropdown('${c.id}', event)">⋮</button>
-        <div class="dropdown-menu" id="dropdown-${c.id}">
-          <button class="dropdown-item" onclick="shareClientLink('${escapeHtml(c.name)}')">🔗 Share Link</button>
-          <button class="dropdown-item" onclick="startEditClient('${c.id}')">✏️ Edit</button>
-          <button class="dropdown-item delete" onclick="deleteClient('${c.id}')">🗑️ Remove</button>
-        </div>
-      </div>
-    `;
-    container.appendChild(card);
-  });
-}
+window.onclick = function() { closeAllDropdowns(); };
 
 function escapeHtml(str){
   const d = document.createElement('div');
@@ -1116,14 +827,8 @@ function escapeHtml(str){
   return d.innerHTML;
 }
 
-function startEdit(id){
-  editingId = id; formOpen = true; openId = null; render();
-}
-
-function deleteEntry(id){
-  entries = entries.filter(e => e.id !== id);
-  save(); render();
-}
+function startEdit(id){ editingId = id; formOpen = true; openId = null; render(); }
+function deleteEntry(id){ entries = entries.filter(e => e.id !== id); save(); render(); }
 
 function buildForm(){
   const editing = editingId ? entries.find(e => e.id === editingId) : null;
@@ -1186,12 +891,12 @@ function render(){
   updateNotificationButton();
 }
 
-// Initialize Client Portal Link View Mode
+// Client View Mode Check
 if (targetClient) {
   document.body.classList.add('client-mode');
-  switchTab('portals', null);
-  document.getElementById('portalHeaderTitle').textContent = `${targetClient} Portal`;
-  document.getElementById('portalHeaderTagline').textContent = 'Your official shoot dates, edit deadlines & script documents';
+  switchTab('clients', null);
+  document.getElementById('clientHeaderTitle').textContent = `${targetClient} Client Portal`;
+  document.getElementById('clientHeaderTagline').textContent = 'Your live project schedules, deadlines & script PDFs';
 }
 
 load();
