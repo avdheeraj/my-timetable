@@ -466,87 +466,6 @@
         </div>
       </header>
 
-      <!-- Default Slot for Creating a New Client -->
-      <div id="defaultClientFormSlot"></div>
-
-      <!-- Shared Dynamic Client Edit Form -->
-      <div id="clientForm" class="form-note" style="display:none;">
-        <div class="form-row">
-          <div>
-            <label style="font-size:12px; font-weight:bold;">Client Name</label>
-            <input type="text" id="clientNameInput" placeholder="e.g. Procafe">
-          </div>
-          <div>
-            <label style="font-size:12px; font-weight:bold;">Badge Label Title (Top Line)</label>
-            <input type="text" id="clientBadgeLabelInput" placeholder="e.g. REELS / VIDEOS DONE">
-          </div>
-        </div>
-        <div class="form-row">
-          <div>
-            <label style="font-size:12px; font-weight:bold;">Completed Edits / Deliverables (Bottom Line)</label>
-            <input type="number" id="clientEditsDoneInput" placeholder="e.g. 1" min="0">
-          </div>
-          <div>
-            <label style="font-size:12px; font-weight:bold;">Total Monthly Limit / Quota</label>
-            <input type="number" id="clientEditLimitInput" placeholder="e.g. 40" min="0">
-          </div>
-        </div>
-        <div class="form-row">
-          <div>
-            <label style="font-size:12px; font-weight:bold;">General Notes / Details (Optional)</label>
-            <textarea id="clientNoteInput" placeholder="Contact info, brand specs..."></textarea>
-          </div>
-        </div>
-        <div class="form-actions">
-          <button class="btn-cancel" onclick="closeClientForm()">Cancel</button>
-          <button class="btn-save" id="clientFormSaveBtn" onclick="saveClient()">Save Client</button>
-        </div>
-      </div>
-
-      <!-- Shared Dynamic Add / Edit Schedule / Script Form -->
-      <div id="scheduleForm" class="form-note" style="display:none;">
-        <div class="form-row">
-          <div>
-            <label style="font-size:12px; font-weight:bold;">Project / Item Name</label>
-            <input type="text" id="schTitleInput" placeholder="e.g. Promo Reel 1">
-          </div>
-          <div>
-            <label style="font-size:12px; font-weight:bold;">Status</label>
-            <select id="schStatusInput">
-              <option value="Upcoming">Upcoming</option>
-              <option value="InProgress">In Progress</option>
-              <option value="Completed">Completed</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-row">
-          <div>
-            <label style="font-size:12px; font-weight:bold;">Shoot Date 🎬</label>
-            <input type="date" id="schShootDateInput">
-          </div>
-          <div>
-            <label style="font-size:12px; font-weight:bold;">Edit Deadline ✂️</label>
-            <input type="date" id="schEditDateInput">
-          </div>
-        </div>
-        <div class="form-row">
-          <div>
-            <label style="font-size:12px; font-weight:bold;">Script PDF / Google Drive URL 📄</label>
-            <input type="text" id="schPdfInput" placeholder="https://drive.google.com/file/d/.../preview">
-          </div>
-        </div>
-        <div class="form-row">
-          <div>
-            <label style="font-size:12px; font-weight:bold;">Notes / Instructions (Optional)</label>
-            <textarea id="schNoteInput" placeholder="Instructions, drive links, specs..."></textarea>
-          </div>
-        </div>
-        <div class="form-actions">
-          <button class="btn-cancel" onclick="closeScheduleForm()">Cancel</button>
-          <button class="btn-save" id="schFormSaveBtn" onclick="saveSchedule()">Save Item</button>
-        </div>
-      </div>
-
       <!-- Portals List Container -->
       <div id="clientsPortalsList"></div>
     </div>
@@ -699,9 +618,13 @@ let activeDay = DAYS[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
 let openId = null;
 let formOpen = false;
 let editingId = null;
-let editingClientId = null;
+
+// State management for active form slots to prevent DOM destruction across Firebase syncs
 let activeScheduleClientId = null;
-let editingItemId = null;
+let activeScheduleItemId = null;
+let activeClientFormId = null; 
+let isNewClientFormOpen = false;
+
 let editingTeamItemId = null;
 let editingLearningId = null;
 let notifiedTasks = new Set();
@@ -771,7 +694,7 @@ function requestNotificationPermission() {
     alert("This browser does not support desktop notifications.");
     return;
   }
-  Notification.requestPermission().then(permission => {
+  Notification.permission && Notification.requestPermission().then(permission => {
     updateNotificationButton();
     if (permission === "granted") {
       new Notification("Desk Pad Alerts On!", { body: "You will be notified when your task start times arrive." });
@@ -955,54 +878,22 @@ function renderNotes(){
 
 /* CLIENT PORTAL LOGIC */
 function openClientForm() {
-  closeClientForm();
-  editingClientId = null;
-  document.getElementById('clientNameInput').value = '';
-  document.getElementById('clientBadgeLabelInput').value = 'REELS / VIDEOS DONE';
-  document.getElementById('clientEditsDoneInput').value = '';
-  document.getElementById('clientEditLimitInput').value = '';
-  document.getElementById('clientNoteInput').value = '';
-  document.getElementById('clientFormSaveBtn').textContent = 'Save Client Portal';
-  
-  const formEl = document.getElementById('clientForm');
-  const defaultSlot = document.getElementById('defaultClientFormSlot');
-  if (defaultSlot && formEl) {
-    defaultSlot.appendChild(formEl);
-    formEl.style.display = 'block';
-    formEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
+  isNewClientFormOpen = true;
+  activeClientFormId = null;
+  renderClientsPortals();
 }
 
 function startEditClientPortal(clientId) {
-  closeClientForm();
-  const client = clients.find(c => c.id === clientId);
-  if(!client) return;
-  editingClientId = clientId;
-  document.getElementById('clientNameInput').value = client.name || '';
-  document.getElementById('clientBadgeLabelInput').value = client.badgeLabel || 'REELS / VIDEOS DONE';
-  document.getElementById('clientEditsDoneInput').value = client.editsDone !== undefined ? client.editsDone : '';
-  document.getElementById('clientEditLimitInput').value = client.editLimit !== undefined ? client.editLimit : '';
-  document.getElementById('clientNoteInput').value = client.note || '';
-  document.getElementById('clientFormSaveBtn').textContent = 'Update Client Portal';
-  
-  const formEl = document.getElementById('clientForm');
-  const clientCardSlot = document.getElementById(`clientFormSlot-${clientId}`);
-  if (clientCardSlot && formEl) {
-    clientCardSlot.appendChild(formEl);
-    formEl.style.display = 'block';
-    formEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
-  
+  isNewClientFormOpen = false;
+  activeClientFormId = clientId;
+  renderClientsPortals();
   closeAllDropdowns();
 }
 
 function closeClientForm() {
-  const formEl = document.getElementById('clientForm');
-  if (formEl) {
-    document.body.appendChild(formEl);
-    formEl.style.display = 'none';
-  }
-  editingClientId = null;
+  isNewClientFormOpen = false;
+  activeClientFormId = null;
+  renderClientsPortals();
 }
 
 function saveClient() {
@@ -1013,8 +904,8 @@ function saveClient() {
   const note = document.getElementById('clientNoteInput').value.trim();
   if(!name) { alert('Please enter a client name.'); return; }
   
-  if(editingClientId) {
-    const client = clients.find(c => c.id === editingClientId);
+  if(activeClientFormId) {
+    const client = clients.find(c => c.id === activeClientFormId);
     if(client) {
       client.name = name;
       client.badgeLabel = badgeLabel || 'REELS / VIDEOS DONE';
@@ -1034,8 +925,9 @@ function saveClient() {
     });
   }
   
+  isNewClientFormOpen = false;
+  activeClientFormId = null;
   saveClientsToFirebase();
-  closeClientForm();
   renderClientsPortals();
 }
 
@@ -1051,60 +943,21 @@ function deleteClient(id) {
 
 /* ADD / EDIT ITEM TO CLIENT PORTAL */
 function openScheduleForm(clientId) {
-  closeScheduleForm();
   activeScheduleClientId = clientId;
-  editingItemId = null;
-  document.getElementById('schTitleInput').value = '';
-  document.getElementById('schShootDateInput').value = '';
-  document.getElementById('schEditDateInput').value = '';
-  document.getElementById('schPdfInput').value = '';
-  document.getElementById('schNoteInput').value = '';
-  document.getElementById('schStatusInput').value = 'Upcoming';
-  document.getElementById('schFormSaveBtn').textContent = 'Add To Client Portal';
-  
-  const formEl = document.getElementById('scheduleForm');
-  const formSlot = document.getElementById(`formSlot-${clientId}`);
-  if (formSlot && formEl) {
-    formSlot.appendChild(formEl);
-    formEl.style.display = 'block';
-    formEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
+  activeScheduleItemId = null;
+  renderClientsPortals();
 }
 
 function startEditScheduleItem(clientId, itemId) {
-  closeScheduleForm();
-  const client = clients.find(c => c.id === clientId);
-  if(!client || !client.items) return;
-  const item = client.items.find(i => i.id === itemId);
-  if(!item) return;
-
   activeScheduleClientId = clientId;
-  editingItemId = itemId;
-  document.getElementById('schTitleInput').value = item.title || '';
-  document.getElementById('schShootDateInput').value = item.shootDate || '';
-  document.getElementById('schEditDateInput').value = item.editDate || '';
-  document.getElementById('schPdfInput').value = item.pdfUrl || '';
-  document.getElementById('schNoteInput').value = item.note || '';
-  document.getElementById('schStatusInput').value = item.status || 'Upcoming';
-  document.getElementById('schFormSaveBtn').textContent = 'Update Item Changes';
-
-  const formEl = document.getElementById('scheduleForm');
-  const formSlot = document.getElementById(`formSlot-${clientId}`);
-  if (formSlot && formEl) {
-    formSlot.appendChild(formEl);
-    formEl.style.display = 'block';
-    formEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
+  activeScheduleItemId = itemId;
+  renderClientsPortals();
 }
 
 function closeScheduleForm() {
-  const formEl = document.getElementById('scheduleForm');
-  if (formEl) {
-    document.body.appendChild(formEl);
-    formEl.style.display = 'none';
-  }
   activeScheduleClientId = null;
-  editingItemId = null;
+  activeScheduleItemId = null;
+  renderClientsPortals();
 }
 
 function saveSchedule() {
@@ -1121,8 +974,8 @@ function saveSchedule() {
 
   if(!client.items) client.items = [];
 
-  if (editingItemId) {
-    const item = client.items.find(i => i.id === editingItemId);
+  if (activeScheduleItemId) {
+    const item = client.items.find(i => i.id === activeScheduleItemId);
     if (item) {
       item.title = title;
       item.shootDate = shootDate;
@@ -1143,8 +996,9 @@ function saveSchedule() {
     });
   }
 
+  activeScheduleClientId = null;
+  activeScheduleItemId = null;
   saveClientsToFirebase();
-  closeScheduleForm();
   renderClientsPortals();
 }
 
@@ -1152,7 +1006,6 @@ function removeItemFromClient(clientId, itemId) {
   const confirmed = confirm("Are you sure you want to remove this item?");
   if (!confirmed) return;
 
-  closeScheduleForm();
   const client = clients.find(c => c.id === clientId);
   if(client && client.items) {
     client.items = client.items.filter(i => i.id !== itemId);
@@ -1161,7 +1014,7 @@ function removeItemFromClient(clientId, itemId) {
   }
 }
 
-/* TEAM SCHEDULE LOGIC (DYNAMIC SHOOT / EDIT CONTEXT) */
+/* TEAM SCHEDULE LOGIC */
 function openTeamForm() {
   editingTeamItemId = null;
   document.getElementById('teamAssigneeInput').value = '';
@@ -1497,7 +1350,107 @@ function shareClientLink(clientName) {
   closeAllDropdowns();
 }
 
-/* RENDER CLIENT PORTALS (WITH DYNAMIC SHOOT / EDIT DATE HEADERS) */
+/* HELPER HTML BUILDERS FOR DYNAMIC INLINE FORMS */
+function buildClientFormHtml(clientObj = null) {
+  const name = clientObj ? escapeHtml(clientObj.name) : '';
+  const badgeLabel = clientObj ? escapeHtml(clientObj.badgeLabel || 'REELS / VIDEOS DONE') : 'REELS / VIDEOS DONE';
+  const editsDone = (clientObj && clientObj.editsDone !== undefined && clientObj.editsDone !== null) ? clientObj.editsDone : '';
+  const editLimit = (clientObj && clientObj.editLimit !== undefined && clientObj.editLimit !== null) ? clientObj.editLimit : '';
+  const note = clientObj ? escapeHtml(clientObj.note || '') : '';
+  const btnText = clientObj ? 'Update Client Portal' : 'Save Client Portal';
+
+  return `
+    <div id="clientForm" class="form-note">
+      <div class="form-row">
+        <div>
+          <label style="font-size:12px; font-weight:bold;">Client Name</label>
+          <input type="text" id="clientNameInput" placeholder="e.g. Procafe" value="${name}">
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:bold;">Badge Label Title (Top Line)</label>
+          <input type="text" id="clientBadgeLabelInput" placeholder="e.g. REELS / VIDEOS DONE" value="${badgeLabel}">
+        </div>
+      </div>
+      <div class="form-row">
+        <div>
+          <label style="font-size:12px; font-weight:bold;">Completed Edits / Deliverables (Bottom Line)</label>
+          <input type="number" id="clientEditsDoneInput" placeholder="e.g. 1" min="0" value="${editsDone}">
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:bold;">Total Monthly Limit / Quota</label>
+          <input type="number" id="clientEditLimitInput" placeholder="e.g. 40" min="0" value="${editLimit}">
+        </div>
+      </div>
+      <div class="form-row">
+        <div>
+          <label style="font-size:12px; font-weight:bold;">General Notes / Details (Optional)</label>
+          <textarea id="clientNoteInput" placeholder="Contact info, brand specs...">${note}</textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-cancel" onclick="closeClientForm()">Cancel</button>
+        <button class="btn-save" onclick="saveClient()">${btnText}</button>
+      </div>
+    </div>
+  `;
+}
+
+function buildScheduleFormHtml(itemObj = null) {
+  const title = itemObj ? escapeHtml(itemObj.title) : '';
+  const shootDate = itemObj ? (itemObj.shootDate || '') : '';
+  const editDate = itemObj ? (itemObj.editDate || '') : '';
+  const pdfUrl = itemObj ? escapeHtml(itemObj.pdfUrl || '') : '';
+  const note = itemObj ? escapeHtml(itemObj.note || '') : '';
+  const status = itemObj ? itemObj.status : 'Upcoming';
+  const btnText = itemObj ? 'Update Item Changes' : 'Add To Client Portal';
+
+  return `
+    <div id="scheduleForm" class="form-note">
+      <div class="form-row">
+        <div>
+          <label style="font-size:12px; font-weight:bold;">Project / Item Name</label>
+          <input type="text" id="schTitleInput" placeholder="e.g. Promo Reel 1" value="${title}">
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:bold;">Status</label>
+          <select id="schStatusInput">
+            <option value="Upcoming" ${status === 'Upcoming' ? 'selected' : ''}>Upcoming</option>
+            <option value="InProgress" ${status === 'InProgress' ? 'selected' : ''}>In Progress</option>
+            <option value="Completed" ${status === 'Completed' ? 'selected' : ''}>Completed</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div>
+          <label style="font-size:12px; font-weight:bold;">Shoot Date 🎬</label>
+          <input type="date" id="schShootDateInput" value="${shootDate}">
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:bold;">Edit Deadline ✂️</label>
+          <input type="date" id="schEditDateInput" value="${editDate}">
+        </div>
+      </div>
+      <div class="form-row">
+        <div>
+          <label style="font-size:12px; font-weight:bold;">Script PDF / Google Drive URL 📄</label>
+          <input type="text" id="schPdfInput" placeholder="https://drive.google.com/file/d/.../preview" value="${pdfUrl}">
+        </div>
+      </div>
+      <div class="form-row">
+        <div>
+          <label style="font-size:12px; font-weight:bold;">Notes / Instructions (Optional)</label>
+          <textarea id="schNoteInput" placeholder="Instructions, drive links, specs...">${note}</textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-cancel" onclick="closeScheduleForm()">Cancel</button>
+        <button class="btn-save" onclick="saveSchedule()">${btnText}</button>
+      </div>
+    </div>
+  `;
+}
+
+/* RENDER CLIENT PORTALS (INLINE FORM REGISTRATION & ACCURATE DATE HEADERS) */
 function renderClientsPortals() {
   const container = document.getElementById('clientsPortalsList');
   if(!container) return;
@@ -1509,15 +1462,19 @@ function renderClientsPortals() {
     filteredClients = clients.filter(c => c.name.toLowerCase() === targetClient.toLowerCase());
   }
 
-  if(filteredClients.length === 0) {
+  let topSlotHtml = isNewClientFormOpen ? buildClientFormHtml(null) : '';
+
+  if(filteredClients.length === 0 && !isNewClientFormOpen) {
     container.innerHTML = `<div class="empty">${targetClient ? 'no portal found for ' + escapeHtml(targetClient) : 'no client portals added yet'}</div>`;
     return;
   }
 
+  let htmlContent = topSlotHtml;
+
   filteredClients.forEach(c => {
-    const box = document.createElement('div');
-    box.className = 'portal-box';
-    
+    let clientCardFormHtml = (activeClientFormId === c.id) ? buildClientFormHtml(c) : '';
+    let scheduleFormHtml = '';
+
     let itemsHtml = '';
     if (c.items && c.items.length > 0) {
       // Sort client items by primary date (shootDate preferred, fallback to editDate)
@@ -1540,11 +1497,13 @@ function renderClientsPortals() {
       });
 
       Object.keys(itemGroups).forEach(dateKey => {
-        const sample = itemGroups[dateKey][0];
-        // Dynamic detection: check if dateKey is shootDate or editDate to set header prefix correctly
+        const sampleGroup = itemGroups[dateKey];
+        
+        // ACCURATE CONTEXT CHECK: Determine if this date group represents a Shoot or an Edit Deadline
         let taskType = 'Shoot';
-        if (sample) {
-          if (!sample.shootDate && sample.editDate) {
+        if (sampleGroup && sampleGroup.length > 0) {
+          const hasShootDates = sampleGroup.some(i => i.shootDate && i.shootDate === dateKey);
+          if (!hasShootDates) {
             taskType = 'Edit';
           }
         }
@@ -1553,7 +1512,7 @@ function renderClientsPortals() {
 
         itemsHtml += `<div class="date-group-header">${headerTitle}</div>`;
 
-        itemGroups[dateKey].forEach(item => {
+        sampleGroup.forEach(item => {
           itemsHtml += `
             <div class="schedule-item">
               <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -1580,57 +1539,62 @@ function renderClientsPortals() {
       itemsHtml = '<div style="font-size:13px; color:#D8C9A8; font-style:italic;">No schedules or scripts added to this portal yet.</div>';
     }
 
+    if (activeScheduleClientId === c.id) {
+      const activeItem = c.items ? c.items.find(i => i.id === activeScheduleItemId) : null;
+      scheduleFormHtml = buildScheduleFormHtml(activeItem);
+    }
+
     const hasNumbers = (c.editsDone !== undefined && c.editsDone !== null && c.editLimit !== undefined && c.editLimit !== null);
     const badgeLabelText = c.badgeLabel || 'REELS / VIDEOS DONE';
 
-    box.innerHTML = `
-      <div class="portal-header">
-        <div>
-          <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-            <div class="portal-title">${escapeHtml(c.name)}</div>
-            ${hasNumbers ? `
-              <div class="red-edit-badge">
-                <span class="red-edit-label">${escapeHtml(badgeLabelText)}</span>
-                <span class="red-edit-number">${c.editsDone}/${c.editLimit}</span>
-              </div>
-            ` : ''}
-            <a href="https://www.instagram.com/cineby.dheeraj?igsh=cTM1cXRrZW00dXpy&utm_source=qr" target="_blank" class="brand-watermark">@cinebydheeraj</a>
+    htmlContent += `
+      <div class="portal-box">
+        <div class="portal-header">
+          <div>
+            <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+              <div class="portal-title">${escapeHtml(c.name)}</div>
+              ${hasNumbers ? `
+                <div class="red-edit-badge">
+                  <span class="red-edit-label">${escapeHtml(badgeLabelText)}</span>
+                  <span class="red-edit-number">${c.editsDone}/${c.editLimit}</span>
+                </div>
+              ` : ''}
+              <a href="https://www.instagram.com/cineby.dheeraj?igsh=cTM1cXRrZW00dXpy&utm_source=qr" target="_blank" class="brand-watermark">@cinebydheeraj</a>
+            </div>
+            ${c.note ? `<div class="client-note">${escapeHtml(c.note)}</div>` : ''}
           </div>
-          ${c.note ? `<div class="client-note">${escapeHtml(c.note)}</div>` : ''}
-        </div>
-        <div class="dropdown-container">
-          <button class="dropdown-trigger" onclick="toggleDropdown('${c.id}', event)">⋮</button>
-          <div class="dropdown-menu" id="dropdown-${c.id}">
-            <button class="dropdown-item" onclick="shareClientLink('${escapeHtml(c.name)}')">🔗 Share Client Portal</button>
-            <button class="dropdown-item" onclick="startEditClientPortal('${c.id}')">✏️ Edit Client Portal</button>
-            <button class="dropdown-item delete" onclick="deleteClient('${c.id}')">🗑️ Delete Portal</button>
+          <div class="dropdown-container">
+            <button class="dropdown-trigger" onclick="toggleDropdown('${c.id}', event)">⋮</button>
+            <div class="dropdown-menu" id="dropdown-${c.id}">
+              <button class="dropdown-item" onclick="shareClientLink('${escapeHtml(c.name)}')">🔗 Share Client Portal</button>
+              <button class="dropdown-item" onclick="startEditClientPortal('${c.id}')">✏️ Edit Client Portal</button>
+              <button class="dropdown-item delete" onclick="deleteClient('${c.id}')">🗑️ Delete Portal</button>
+            </div>
           </div>
         </div>
+
+        ${clientCardFormHtml}
+
+        <div style="margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:12px; font-weight:bold; letter-spacing:0.5px; text-transform:uppercase; color:var(--paper-yellow);">Schedules & Script Documents</span>
+          <button class="admin-only btn-save" style="font-size:11px; padding:4px 10px;" onclick="openScheduleForm('${c.id}')">+ Add Schedule/Script</button>
+        </div>
+
+        ${scheduleFormHtml}
+
+        ${itemsHtml}
       </div>
-
-      <!-- Container Slot for Client Edit Form Insertion -->
-      <div id="clientFormSlot-${c.id}"></div>
-
-      <div style="margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
-        <span style="font-size:12px; font-weight:bold; letter-spacing:0.5px; text-transform:uppercase; color:var(--paper-yellow);">Schedules & Script Documents</span>
-        <button class="admin-only btn-save" style="font-size:11px; padding:4px 10px;" onclick="openScheduleForm('${c.id}')">+ Add Schedule/Script</button>
-      </div>
-
-      <!-- Container Slot for Schedule Item Form Insertion -->
-      <div id="formSlot-${c.id}"></div>
-
-      ${itemsHtml}
     `;
-
-    container.appendChild(box);
   });
+
+  container.innerHTML = htmlContent;
 }
 
 /* Dropdown Handlers */
 function toggleDropdown(id, event) {
   event.stopPropagation();
   const currentMenu = document.getElementById(`dropdown-${id}`);
-  const isShow = currentMenu.classList.contains('show');
+  const isShow = currentMenu ? currentMenu.classList.contains('show') : false;
   closeAllDropdowns();
   if (!isShow && currentMenu) { currentMenu.classList.add('show'); }
 }
@@ -1642,6 +1606,7 @@ function closeAllDropdowns() {
 window.onclick = function() { closeAllDropdowns(); };
 
 function escapeHtml(str){
+  if (!str) return '';
   const d = document.createElement('div');
   d.textContent = str;
   return d.innerHTML;
