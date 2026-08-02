@@ -955,6 +955,7 @@ function renderNotes(){
 
 /* CLIENT PORTAL LOGIC */
 function openClientForm() {
+  closeClientForm();
   editingClientId = null;
   document.getElementById('clientNameInput').value = '';
   document.getElementById('clientBadgeLabelInput').value = 'REELS / VIDEOS DONE';
@@ -973,6 +974,7 @@ function openClientForm() {
 }
 
 function startEditClientPortal(clientId) {
+  closeClientForm();
   const client = clients.find(c => c.id === clientId);
   if(!client) return;
   editingClientId = clientId;
@@ -1049,6 +1051,7 @@ function deleteClient(id) {
 
 /* ADD / EDIT ITEM TO CLIENT PORTAL */
 function openScheduleForm(clientId) {
+  closeScheduleForm();
   activeScheduleClientId = clientId;
   editingItemId = null;
   document.getElementById('schTitleInput').value = '';
@@ -1069,6 +1072,7 @@ function openScheduleForm(clientId) {
 }
 
 function startEditScheduleItem(clientId, itemId) {
+  closeScheduleForm();
   const client = clients.find(c => c.id === clientId);
   if(!client || !client.items) return;
   const item = client.items.find(i => i.id === itemId);
@@ -1148,6 +1152,7 @@ function removeItemFromClient(clientId, itemId) {
   const confirmed = confirm("Are you sure you want to remove this item?");
   if (!confirmed) return;
 
+  closeScheduleForm();
   const client = clients.find(c => c.id === clientId);
   if(client && client.items) {
     client.items = client.items.filter(i => i.id !== itemId);
@@ -1492,7 +1497,7 @@ function shareClientLink(clientName) {
   closeAllDropdowns();
 }
 
-/* RENDER CLIENT PORTALS (WITH TODAY/TOMORROW/DATE GROUPINGS) */
+/* RENDER CLIENT PORTALS (WITH DYNAMIC SHOOT / EDIT DATE HEADERS) */
 function renderClientsPortals() {
   const container = document.getElementById('clientsPortalsList');
   if(!container) return;
@@ -1515,7 +1520,7 @@ function renderClientsPortals() {
     
     let itemsHtml = '';
     if (c.items && c.items.length > 0) {
-      // Sort client items by date
+      // Sort client items by primary date (shootDate preferred, fallback to editDate)
       const sortedItems = [...c.items];
       sortedItems.forEach(item => {
         item._primaryDate = item.shootDate || item.editDate || '';
@@ -1536,7 +1541,14 @@ function renderClientsPortals() {
 
       Object.keys(itemGroups).forEach(dateKey => {
         const sample = itemGroups[dateKey][0];
-        const taskType = (sample && sample.shootDate) ? 'Shoot' : ((sample && sample.editDate) ? 'Edit' : 'Both');
+        // Dynamic detection: check if dateKey is shootDate or editDate to set header prefix correctly
+        let taskType = 'Shoot';
+        if (sample) {
+          if (!sample.shootDate && sample.editDate) {
+            taskType = 'Edit';
+          }
+        }
+        
         const headerTitle = getDateCategoryLabel(dateKey === 'TBD' ? '' : dateKey, taskType);
 
         itemsHtml += `<div class="date-group-header">${headerTitle}</div>`;
