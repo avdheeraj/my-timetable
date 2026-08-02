@@ -958,6 +958,7 @@ function closeScheduleForm() {
 
 function saveSchedule() {
   const title = document.getElementById('schTitleInput').value.trim();
+  const itemType = document.getElementById('schTypeInput').value;
   const shootDate = document.getElementById('schShootDateInput').value;
   const editDate = document.getElementById('schEditDateInput').value;
   const pdfUrl = document.getElementById('schPdfInput').value.trim();
@@ -974,6 +975,7 @@ function saveSchedule() {
     const item = client.items.find(i => i.id === activeScheduleItemId);
     if (item) {
       item.title = title;
+      item.itemType = itemType;
       item.shootDate = shootDate;
       item.editDate = editDate;
       item.pdfUrl = pdfUrl || null;
@@ -984,6 +986,7 @@ function saveSchedule() {
     client.items.push({
       id: uid(),
       title,
+      itemType: itemType || 'Both',
       shootDate,
       editDate,
       note,
@@ -1392,6 +1395,7 @@ function buildClientFormHtml(clientObj = null) {
 
 function buildScheduleFormHtml(itemObj = null) {
   const title = itemObj ? escapeHtml(itemObj.title) : '';
+  const itemType = itemObj ? (itemObj.itemType || 'Both') : 'Both';
   const shootDate = itemObj ? (itemObj.shootDate || '') : '';
   const editDate = itemObj ? (itemObj.editDate || '') : '';
   const pdfUrl = itemObj ? escapeHtml(itemObj.pdfUrl || '') : '';
@@ -1405,6 +1409,14 @@ function buildScheduleFormHtml(itemObj = null) {
         <div>
           <label style="font-size:12px; font-weight:bold;">Project / Item Name</label>
           <input type="text" id="schTitleInput" placeholder="e.g. Promo Reel 1" value="${title}">
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:bold;">Task Type 📌</label>
+          <select id="schTypeInput">
+            <option value="Both" ${itemType === 'Both' ? 'selected' : ''}>Both (Shoot & Edit) 🎬✂️</option>
+            <option value="Shoot" ${itemType === 'Shoot' ? 'selected' : ''}>Shoot Only 🎬</option>
+            <option value="Edit" ${itemType === 'Edit' ? 'selected' : ''}>Edit Only ✂️</option>
+          </select>
         </div>
         <div>
           <label style="font-size:12px; font-weight:bold;">Status</label>
@@ -1445,7 +1457,7 @@ function buildScheduleFormHtml(itemObj = null) {
   `;
 }
 
-/* RENDER CLIENT PORTALS (DYNAMIC INLINE FORM REGISTRATION & CLEAN "DATE:" HEADERS) */
+/* RENDER CLIENT PORTALS (WITH DYNAMIC TASK TYPE VISIBILITY FOR SHOOT vs EDIT) */
 function renderClientsPortals() {
   const container = document.getElementById('clientsPortalsList');
   if(!container) return;
@@ -1498,6 +1510,10 @@ function renderClientsPortals() {
         itemsHtml += `<div class="date-group-header">${headerTitle}</div>`;
 
         sampleGroup.forEach(item => {
+          const type = item.itemType || 'Both';
+          let showShoot = (type === 'Both' || type === 'Shoot');
+          let showEdit = (type === 'Both' || type === 'Edit');
+
           itemsHtml += `
             <div class="schedule-item">
               <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -1511,8 +1527,8 @@ function renderClientsPortals() {
                 </div>
               </div>
               <div class="schedule-meta">
-                <span class="meta-tag">🎬 Shoot: <strong>${formatDate(item.shootDate)}</strong></span>
-                <span class="meta-tag">✂️ Edit Deadline: <strong>${formatDate(item.editDate)}</strong></span>
+                ${showShoot ? `<span class="meta-tag">🎬 Shoot: <strong>${formatDate(item.shootDate)}</strong></span>` : ''}
+                ${showEdit ? `<span class="meta-tag">✂️ Edit Deadline: <strong>${formatDate(item.editDate)}</strong></span>` : ''}
               </div>
               ${item.pdfUrl ? `<a href="${escapeHtml(item.pdfUrl)}" target="_blank" class="pdf-link">📄 Open Script PDF / Document</a>` : ''}
               ${item.note ? `<div class="client-note" style="margin-top:6px;">${escapeHtml(item.note)}</div>` : ''}
