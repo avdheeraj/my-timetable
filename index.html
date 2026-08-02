@@ -431,7 +431,6 @@
     <button class="nav-btn active" onclick="switchTab('deskpad', this)">📌 Desk Pad</button>
     <button class="nav-btn" onclick="switchTab('clients', this)">👤 Client Portals</button>
     <button class="nav-btn" onclick="switchTab('team', this)">👥 Team Schedule</button>
-    <!-- NEW TAB FOR TEAM LEARNINGS -->
     <button class="nav-btn" onclick="switchTab('learnings', this)">💡 Team Learnings</button>
   </div>
 
@@ -998,6 +997,7 @@ function startEditClientPortal(clientId) {
 function closeClientForm() {
   const formEl = document.getElementById('clientForm');
   if (formEl) {
+    document.body.appendChild(formEl);
     formEl.style.display = 'none';
   }
   editingClientId = null;
@@ -1096,6 +1096,7 @@ function startEditScheduleItem(clientId, itemId) {
 function closeScheduleForm() {
   const formEl = document.getElementById('scheduleForm');
   if (formEl) {
+    document.body.appendChild(formEl);
     formEl.style.display = 'none';
   }
   activeScheduleClientId = null;
