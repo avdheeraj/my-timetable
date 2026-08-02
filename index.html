@@ -1457,7 +1457,7 @@ function buildScheduleFormHtml(itemObj = null) {
   `;
 }
 
-/* RENDER CLIENT PORTALS (WITH DYNAMIC TASK TYPE VISIBILITY FOR SHOOT vs EDIT) */
+/* RENDER CLIENT PORTALS (SAFE DEFAULTING FOR EXISTING & NEW TASKS) */
 function renderClientsPortals() {
   const container = document.getElementById('clientsPortalsList');
   if(!container) return;
@@ -1510,6 +1510,7 @@ function renderClientsPortals() {
         itemsHtml += `<div class="date-group-header">${headerTitle}</div>`;
 
         sampleGroup.forEach(item => {
+          // Default to 'Both' for any existing database items without itemType explicitly set
           const type = item.itemType || 'Both';
           let showShoot = (type === 'Both' || type === 'Shoot');
           let showEdit = (type === 'Both' || type === 'Edit');
