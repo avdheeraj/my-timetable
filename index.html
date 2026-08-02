@@ -516,7 +516,7 @@
         </div>
         <div class="form-row">
           <div>
-            <label style="font-size:12px; font-weight:bold;">Shoot Date 🎬</label>
+            <label style="font-size:12px; font-weight:bold;">Shoot / Start Date 🎬</label>
             <input type="date" id="teamShootDateInput">
           </div>
           <div>
@@ -1429,7 +1429,7 @@ function buildScheduleFormHtml(itemObj = null) {
       </div>
       <div class="form-row">
         <div>
-          <label style="font-size:12px; font-weight:bold;">Shoot Date 🎬</label>
+          <label style="font-size:12px; font-weight:bold;">Shoot / Start Date 🎬</label>
           <input type="date" id="schShootDateInput" value="${shootDate}">
         </div>
         <div>
@@ -1457,7 +1457,7 @@ function buildScheduleFormHtml(itemObj = null) {
   `;
 }
 
-/* RENDER CLIENT PORTALS (SAFE DEFAULTING FOR EXISTING & NEW TASKS) */
+/* RENDER CLIENT PORTALS (DYNAMIC DISPLAY FOR SHOOT, EDIT, OR BOTH) */
 function renderClientsPortals() {
   const container = document.getElementById('clientsPortalsList');
   if(!container) return;
@@ -1510,10 +1510,14 @@ function renderClientsPortals() {
         itemsHtml += `<div class="date-group-header">${headerTitle}</div>`;
 
         sampleGroup.forEach(item => {
-          // Default to 'Both' for any existing database items without itemType explicitly set
           const type = item.itemType || 'Both';
-          let showShoot = (type === 'Both' || type === 'Shoot');
-          let showEdit = (type === 'Both' || type === 'Edit');
+          
+          let resolvedShootDate = item.shootDate || (dateKey !== 'TBD' ? dateKey : '');
+
+          // Dynamic label and display configuration:
+          let shootLabel = (type === 'Edit') ? '🎬 Start Date' : '🎬 Shoot';
+          let showShootTag = (type === 'Both' || type === 'Shoot' || type === 'Edit');
+          let showEditTag = (type === 'Both' || type === 'Edit');
 
           itemsHtml += `
             <div class="schedule-item">
@@ -1528,8 +1532,8 @@ function renderClientsPortals() {
                 </div>
               </div>
               <div class="schedule-meta">
-                ${showShoot ? `<span class="meta-tag">🎬 Shoot: <strong>${formatDate(item.shootDate)}</strong></span>` : ''}
-                ${showEdit ? `<span class="meta-tag">✂️ Edit Deadline: <strong>${formatDate(item.editDate)}</strong></span>` : ''}
+                ${showShootTag ? `<span class="meta-tag">${shootLabel}: <strong>${formatDate(resolvedShootDate)}</strong></span>` : ''}
+                ${showEditTag ? `<span class="meta-tag">✂️ Edit Deadline: <strong>${formatDate(item.editDate)}</strong></span>` : ''}
               </div>
               ${item.pdfUrl ? `<a href="${escapeHtml(item.pdfUrl)}" target="_blank" class="pdf-link">📄 Open Script PDF / Document</a>` : ''}
               ${item.note ? `<div class="client-note" style="margin-top:6px;">${escapeHtml(item.note)}</div>` : ''}
