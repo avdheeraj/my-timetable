@@ -652,8 +652,8 @@ function formatDate(dateStr) {
   return `${dd}/${mm}/${yy}`;
 }
 
-/* Helper to get Today / Tomorrow label with dynamic Shoot vs Edit context */
-function getDateCategoryLabel(dateStr, taskType) {
+/* Helper to get Today / Tomorrow / Clean Date label */
+function getDateCategoryLabel(dateStr) {
   if (!dateStr) return 'UNSCHEDULED / TBD';
   
   const now = new Date();
@@ -663,16 +663,12 @@ function getDateCategoryLabel(dateStr, taskType) {
   tomorrow.setDate(now.getDate() + 1);
   const tomorrowStr = tomorrow.toISOString().split('T')[0];
 
-  let prefix = 'DATE';
-  if (taskType === 'Shoot') prefix = 'SHOOT DATE';
-  else if (taskType === 'Edit') prefix = 'EDIT DEADLINE';
-
   if (dateStr === todayStr) {
     return `TODAY (${formatDate(dateStr)})`;
   } else if (dateStr === tomorrowStr) {
     return `TOMORROW (${formatDate(dateStr)})`;
   } else {
-    return `${prefix}: ${formatDate(dateStr)}`;
+    return `DATE: ${formatDate(dateStr)}`;
   }
 }
 
@@ -1158,8 +1154,7 @@ function renderTeamSchedules() {
   });
 
   Object.keys(groups).forEach(dateKey => {
-    const sampleTask = groups[dateKey][0];
-    const headerTitle = getDateCategoryLabel(dateKey === 'TBD' ? '' : dateKey, sampleTask ? sampleTask.taskType : 'Shoot');
+    const headerTitle = getDateCategoryLabel(dateKey === 'TBD' ? '' : dateKey);
     
     const groupHeader = document.createElement('div');
     groupHeader.className = 'date-group-header';
@@ -1450,7 +1445,7 @@ function buildScheduleFormHtml(itemObj = null) {
   `;
 }
 
-/* RENDER CLIENT PORTALS (INLINE FORM REGISTRATION & ACCURATE DATE HEADERS) */
+/* RENDER CLIENT PORTALS (DYNAMIC INLINE FORM REGISTRATION & CLEAN "DATE:" HEADERS) */
 function renderClientsPortals() {
   const container = document.getElementById('clientsPortalsList');
   if(!container) return;
@@ -1498,17 +1493,7 @@ function renderClientsPortals() {
 
       Object.keys(itemGroups).forEach(dateKey => {
         const sampleGroup = itemGroups[dateKey];
-        
-        // ACCURATE CONTEXT CHECK: Determine if this date group represents a Shoot or an Edit Deadline
-        let taskType = 'Shoot';
-        if (sampleGroup && sampleGroup.length > 0) {
-          const hasShootDates = sampleGroup.some(i => i.shootDate && i.shootDate === dateKey);
-          if (!hasShootDates) {
-            taskType = 'Edit';
-          }
-        }
-        
-        const headerTitle = getDateCategoryLabel(dateKey === 'TBD' ? '' : dateKey, taskType);
+        const headerTitle = getDateCategoryLabel(dateKey === 'TBD' ? '' : dateKey);
 
         itemsHtml += `<div class="date-group-header">${headerTitle}</div>`;
 
