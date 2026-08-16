@@ -1149,29 +1149,33 @@ function renderTeamSchedules() {
     return a._primaryDate.localeCompare(b._primaryDate);
   });
 
-  const groups = {};
+  // Group tasks by Assignee / Member Name
+  const assigneeGroups = {};
   visibleTasks.forEach(task => {
-    const key = task._primaryDate || 'TBD';
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(task);
+    const assigneeName = task.assignee && task.assignee.trim() ? task.assignee.trim() : 'Unassigned';
+    if (!assigneeGroups[assigneeName]) assigneeGroups[assigneeName] = [];
+    assigneeGroups[assigneeName].push(task);
   });
 
-  Object.keys(groups).forEach(dateKey => {
-    const headerTitle = getDateCategoryLabel(dateKey === 'TBD' ? '' : dateKey);
-    
-    const groupHeader = document.createElement('div');
-    groupHeader.className = 'date-group-header';
-    groupHeader.textContent = headerTitle;
-    container.appendChild(groupHeader);
+  // Render each person's section with their assigned tasks underneath
+  Object.keys(assigneeGroups).forEach(assigneeName => {
+    const personHeader = document.createElement('div');
+    personHeader.className = 'date-group-header';
+    personHeader.style.background = 'rgba(166, 198, 216, 0.15)';
+    personHeader.style.borderLeftColor = 'var(--paper-blue)';
+    personHeader.style.color = 'var(--paper-blue)';
+    personHeader.style.fontSize = '13px';
+    personHeader.style.marginTop = '20px';
+    personHeader.textContent = `👤 ${assigneeName.toUpperCase()}`;
+    container.appendChild(personHeader);
 
-    groups[dateKey].forEach(item => {
+    assigneeGroups[assigneeName].forEach(item => {
       const card = document.createElement('div');
       card.className = 'schedule-item';
       card.style.padding = '16px';
       card.style.marginBottom = '14px';
 
       card.innerHTML = `
-        ${item.assignee ? `<div class="assignee-badge">👤 Assigned: ${escapeHtml(item.assignee)}</div>` : ''}
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <strong style="font-size:16px;">${escapeHtml(item.title)}</strong>
           <div style="display:flex; align-items:center; gap:8px;">
