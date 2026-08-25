@@ -611,17 +611,7 @@ const db = firebase.database();
 const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const COLORS = ['yellow','mint','coral','blue'];
 let entries = [];
-let clients = [
-  {
-    id: 'procafe-client-id',
-    name: 'Procafe',
-    badgeLabel: 'REELS / VIDEOS DONE',
-    editsDone: 1,
-    editLimit: 40,
-    note: 'Instagram outro video featuring Cupid character and Procafe logo',
-    items: []
-  }
-];
+let clients = [];
 let teamTasks = [];
 let learnings = [];
 let activeDay = DAYS[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
@@ -755,7 +745,7 @@ function load(){
 
   db.ref('clients-portals').on('value', (snapshot) => {
     const data = snapshot.val();
-    clients = data ? Object.values(data) : clients;
+    clients = data ? Object.values(data) : [];
     renderClientsPortals();
   });
 
@@ -1483,24 +1473,38 @@ function renderClientsPortals() {
 
   let htmlContent = topSlotHtml;
 
+  // Status Priority Order for Client Items sorting
+  const STATUS_ORDER = {
+    'InProgress': 1,
+    'Upcoming': 2,
+    'Completed': 3
+  };
+
   filteredClients.forEach(c => {
     let clientCardFormHtml = (activeClientFormId === c.id) ? buildClientFormHtml(c) : '';
     let scheduleFormHtml = '';
 
     let itemsHtml = '';
     if (c.items && c.items.length > 0) {
-      // Sort client items by primary date (shootDate preferred, fallback to editDate)
+      // Priority sorting: InProgress -> Upcoming -> Completed, then by date
       const sortedItems = [...c.items];
       sortedItems.forEach(item => {
         item._primaryDate = item.shootDate || item.editDate || '';
       });
       sortedItems.sort((a, b) => {
+        const priorityA = STATUS_ORDER[a.status] || 99;
+        const priorityB = STATUS_ORDER[b.status] || 99;
+
+        if (priorityA !== priorityB) {
+          return priorityA - priorityB;
+        }
+
         if (!a._primaryDate) return 1;
         if (!b._primaryDate) return -1;
         return a._primaryDate.localeCompare(b._primaryDate);
       });
 
-      // Group items by Date
+      // Group items by Status/Date priority
       const itemGroups = {};
       sortedItems.forEach(item => {
         const key = item._primaryDate || 'TBD';
