@@ -611,7 +611,17 @@ const db = firebase.database();
 const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const COLORS = ['yellow','mint','coral','blue'];
 let entries = [];
-let clients = [];
+let clients = [
+  {
+    id: 'procafe-client-id',
+    name: 'Procafe',
+    badgeLabel: 'REELS / VIDEOS DONE',
+    editsDone: 1,
+    editLimit: 40,
+    note: 'Instagram outro video featuring Cupid character and Procafe logo',
+    items: []
+  }
+];
 let teamTasks = [];
 let learnings = [];
 let activeDay = DAYS[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
@@ -745,7 +755,7 @@ function load(){
 
   db.ref('clients-portals').on('value', (snapshot) => {
     const data = snapshot.val();
-    clients = data ? Object.values(data) : [];
+    clients = data ? Object.values(data) : clients;
     renderClientsPortals();
   });
 
