@@ -312,6 +312,9 @@
 
   /* Date Section Header */
   .date-group-header {
+    position: relative;
+    max-width: 100%;
+    word-break: break-word;
     font-family: 'Space Grotesk', sans-serif;
     font-size: 12px;
     font-weight: 700;
@@ -395,15 +398,16 @@
     display: none;
     position: absolute;
     right: 0;
-    top: 30px;
+    top: 100%;
     background: var(--cream);
     border-radius: 6px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    z-index: 10;
+    z-index: 100;
     overflow: hidden;
     min-width: 170px;
+    max-width: 90vw;
   }
-  .dropdown-menu.show { display: block; }
+  .dropdown-menu.show, .dropdown-menu.active { display: block; }
   .dropdown-item {
     width: 100%;
     padding: 8px 14px;
@@ -472,7 +476,16 @@
     .header-actions { width: 100%; justify-content: space-between; margin-top: 8px; }
     .form-row > div { flex: 100%; }
     .portal-box { padding: 14px; }
-    .portal-header { flex-wrap: wrap; }
+    .portal-header, 
+    .schedule-item, 
+    .header-actions {
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+    .portal-header > div > div {
+      flex-wrap: wrap;
+      gap: 6px !important;
+    }
     .schedule-item { padding: 10px; }
   }
 </style>
@@ -1700,13 +1713,16 @@ function renderClientsPortals() {
 function toggleDropdown(id, event) {
   event.stopPropagation();
   const currentMenu = document.getElementById(`dropdown-${id}`);
-  const isShow = currentMenu ? currentMenu.classList.contains('show') : false;
+  const isShow = currentMenu ? (currentMenu.classList.contains('show') || currentMenu.classList.contains('active')) : false;
   closeAllDropdowns();
-  if (!isShow && currentMenu) { currentMenu.classList.add('show'); }
+  if (!isShow && currentMenu) { currentMenu.classList.add('show', 'active'); }
 }
 
 function closeAllDropdowns() {
-  document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('show'));
+  document.querySelectorAll('.dropdown-menu').forEach(menu => {
+    menu.classList.remove('show');
+    menu.classList.remove('active');
+  });
 }
 
 window.onclick = function() { closeAllDropdowns(); };
