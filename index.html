@@ -7,7 +7,7 @@
 <!-- Link Preview Tags for WhatsApp & Social Media -->
 <title id="pageTitle">Client Workspace | @cinebydheeraj</title>
 <meta property="og:title" content="Client Workspace | @cinebydheeraj">
-<meta property="og:description" content="Access live shoot schedules, edit deadlines, and script documents.">
+<meta property="og:description" content="Access live shoot schedules, edit deadlines, script documents, and payment tracking.">
 
 <!-- iOS Web App Tags -->
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -31,6 +31,9 @@
     --badge-red: #FF4D4D;
     --badge-red-bg: rgba(255, 77, 77, 0.12);
     --badge-red-border: rgba(255, 77, 77, 0.35);
+    --badge-green: #4EAD6A;
+    --badge-green-bg: rgba(78, 173, 106, 0.15);
+    --badge-green-border: rgba(78, 173, 106, 0.4);
   }
   *{box-sizing:border-box;}
   body{
@@ -110,6 +113,8 @@
     margin-bottom:22px;
     padding-bottom:16px;
     border-bottom:1px dashed rgba(247,241,225,0.25);
+    flex-wrap: wrap;
+    gap: 12px;
   }
   h1{ font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:24px; margin:0; }
   .tagline{ font-family:'Caveat',cursive; font-size:18px; color:#D8C9A8; margin-top:2px; }
@@ -167,6 +172,35 @@
     line-height: 1;
   }
 
+  /* Payment Badges */
+  .payment-badge {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .payment-paid {
+    background: var(--badge-green-bg);
+    color: var(--badge-green);
+    border: 1px solid var(--badge-green-border);
+  }
+  .payment-notpaid {
+    background: var(--badge-red-bg);
+    color: var(--badge-red);
+    border: 1px solid var(--badge-red-border);
+  }
+  .payment-pending {
+    background: rgba(243, 222, 132, 0.15);
+    color: var(--paper-yellow);
+    border: 1px solid rgba(243, 222, 132, 0.35);
+  }
+
   /* Assignee Badge */
   .assignee-badge {
     font-family: 'Space Grotesk', sans-serif;
@@ -185,6 +219,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-wrap: wrap;
   }
 
   .notify-btn{
@@ -238,8 +273,8 @@
     justify-content:center;font-family:'Space Grotesk',sans-serif;cursor:pointer;
   }
   .form-note{ background:var(--cream); border-radius:5px; padding:18px; color:var(--ink); margin-bottom: 16px; }
-  .form-row{ display:flex; gap:10px; margin-bottom:10px; }
-  .form-row > div{ flex:1; }
+  .form-row{ display:flex; gap:10px; margin-bottom:10px; flex-wrap: wrap; }
+  .form-row > div{ flex:1; min-width: 140px; }
   input, textarea, select{ width:100%; padding:8px; border-radius:5px; border:1px solid #D8C9A8; }
   .color-picker{ display:flex; gap:8px; margin-bottom:14px; }
   .swatch{ width:26px; height:26px; border-radius:50%; cursor:pointer; }
@@ -248,7 +283,7 @@
   .swatch.mint{background:var(--paper-mint);}
   .swatch.coral{background:var(--paper-coral);}
   .swatch.blue{background:var(--paper-blue);}
-  .form-actions{ display:flex; gap:8px; justify-content:flex-end; }
+  .form-actions{ display:flex; gap:8px; justify-content:flex-end; flex-wrap: wrap; }
   .btn-save{ background:var(--ink); color:var(--cream); border:none; padding:8px 16px; border-radius:5px; cursor:pointer; }
   .btn-cancel{ background:transparent; color:var(--ink-soft); border:1px solid #D8C9A8; padding:8px 16px; border-radius:5px; cursor:pointer; }
 
@@ -267,6 +302,7 @@
     border-bottom: 1px dashed rgba(247, 241, 225, 0.15);
     padding-bottom: 12px;
     margin-bottom: 16px;
+    gap: 10px;
   }
   .portal-title {
     font-family: 'Space Grotesk', sans-serif;
@@ -388,6 +424,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    flex-wrap: wrap;
   }
   .btn-item-action {
     background: rgba(247, 241, 225, 0.12);
@@ -412,13 +449,31 @@
   body.client-mode #addClientBtn, body.team-mode #addTeamItemBtn, body.learnings-mode #addLearningBtn { display: none !important; }
   body.client-mode .dropdown-container, body.team-mode .dropdown-container { display: none !important; }
   body.client-mode .admin-only, body.team-mode .admin-only, body.learnings-mode .admin-only { display: none !important; }
-  body.client-mode .main-content, body.team-mode .main-content { max-width: 680px; padding-top: 40px; }
+  body.client-mode .main-content, body.team-mode .main-content { max-width: 680px; padding-top: 20px; }
 
-  @media (max-width: 600px) {
+  /* MOBILE RESPONSIVE FIXES */
+  @media (max-width: 650px) {
     .app-container { flex-direction: column; }
-    .sidebar { width: 100%; position: static; height: auto; border-right: none; border-bottom: 1px dashed rgba(247,241,225,0.2); flex-direction: row; }
+    .sidebar { 
+      width: 100%; 
+      position: relative; 
+      height: auto; 
+      border-right: none; 
+      border-bottom: 1px dashed rgba(247,241,225,0.2); 
+      flex-direction: row; 
+      overflow-x: auto;
+      padding: 12px;
+      gap: 6px;
+    }
     .sidebar-brand { display: none; }
-    .nav-btn { flex: 1; text-align: center; justify-content: center; }
+    .nav-btn { flex: 1; text-align: center; justify-content: center; font-size: 12px; padding: 10px 8px; white-space: nowrap; }
+    .main-content { padding: 16px 14px 60px; }
+    header { flex-direction: column; align-items: flex-start; }
+    .header-actions { width: 100%; justify-content: space-between; margin-top: 8px; }
+    .form-row > div { flex: 100%; }
+    .portal-box { padding: 14px; }
+    .portal-header { flex-wrap: wrap; }
+    .schedule-item { padding: 10px; }
   }
 </style>
 </head>
@@ -458,7 +513,7 @@
       <header>
         <div>
           <h1 id="clientHeaderTitle">Client Portals</h1>
-          <div class="tagline" id="clientHeaderTagline">manage all client schedules, deliverables & script PDFs</div>
+          <div class="tagline" id="clientHeaderTagline">manage client schedules, payment status & script PDFs</div>
         </div>
         <div class="header-actions">
           <a href="https://www.instagram.com/cineby.dheeraj?igsh=cTM1cXRrZW00dXpy&utm_source=qr" target="_blank" class="brand-watermark">@cinebydheeraj</a>
@@ -475,7 +530,7 @@
       <header>
         <div>
           <h1 id="teamHeaderTitle">Team Schedule</h1>
-          <div class="tagline" id="teamHeaderTagline">live shoot schedule & task deadlines for the team</div>
+          <div class="tagline" id="teamHeaderTagline">live shoot schedule, payment tracking & task deadlines for the team</div>
         </div>
         <div class="header-actions">
           <a href="https://www.instagram.com/cineby.dheeraj?igsh=cTM1cXRrZW00dXpy&utm_source=qr" target="_blank" class="brand-watermark">@cinebydheeraj</a>
@@ -511,6 +566,14 @@
               <option value="Upcoming">Upcoming</option>
               <option value="InProgress">In Progress</option>
               <option value="Completed">Completed</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Payment Status 💳</label>
+            <select id="teamPaymentStatusInput">
+              <option value="Not Paid">Not Paid ❌</option>
+              <option value="Paid">Paid ✅</option>
+              <option value="Pending">Pending ⏳</option>
             </select>
           </div>
         </div>
@@ -897,6 +960,7 @@ function saveClient() {
   const badgeLabel = document.getElementById('clientBadgeLabelInput').value.trim();
   const editsDone = document.getElementById('clientEditsDoneInput').value.trim();
   const editLimit = document.getElementById('clientEditLimitInput').value.trim();
+  const paymentStatus = document.getElementById('clientPaymentStatusInput').value;
   const note = document.getElementById('clientNoteInput').value.trim();
   if(!name) { alert('Please enter a client name.'); return; }
   
@@ -907,6 +971,7 @@ function saveClient() {
       client.badgeLabel = badgeLabel || 'REELS / VIDEOS DONE';
       client.editsDone = editsDone !== '' ? editsDone : null;
       client.editLimit = editLimit !== '' ? editLimit : null;
+      client.paymentStatus = paymentStatus || 'Not Paid';
       client.note = note;
     }
   } else {
@@ -916,6 +981,7 @@ function saveClient() {
       badgeLabel: badgeLabel || 'REELS / VIDEOS DONE',
       editsDone: editsDone !== '' ? editsDone : null,
       editLimit: editLimit !== '' ? editLimit : null,
+      paymentStatus: paymentStatus || 'Not Paid',
       note,
       items: []
     });
@@ -964,6 +1030,7 @@ function saveSchedule() {
   const pdfUrl = document.getElementById('schPdfInput').value.trim();
   const note = document.getElementById('schNoteInput').value.trim();
   const status = document.getElementById('schStatusInput').value;
+  const paymentStatus = document.getElementById('schPaymentStatusInput').value;
 
   if(!title) { alert('Please enter an item/project title.'); return; }
   const client = clients.find(c => c.id === activeScheduleClientId);
@@ -981,6 +1048,7 @@ function saveSchedule() {
       item.pdfUrl = pdfUrl || null;
       item.note = note;
       item.status = status;
+      item.paymentStatus = paymentStatus || 'Not Paid';
     }
   } else {
     client.items.push({
@@ -991,6 +1059,7 @@ function saveSchedule() {
       editDate,
       note,
       status,
+      paymentStatus: paymentStatus || 'Not Paid',
       pdfUrl: pdfUrl || null
     });
   }
@@ -1024,6 +1093,7 @@ function openTeamForm() {
   document.getElementById('teamPdfInput').value = '';
   document.getElementById('teamNoteInput').value = '';
   document.getElementById('teamStatusInput').value = 'Upcoming';
+  document.getElementById('teamPaymentStatusInput').value = 'Not Paid';
   document.getElementById('teamFormSaveBtn').textContent = 'Save Team Task';
   document.getElementById('teamForm').style.display = 'block';
 }
@@ -1041,6 +1111,7 @@ function startEditTeamItem(itemId) {
   document.getElementById('teamPdfInput').value = item.pdfUrl || '';
   document.getElementById('teamNoteInput').value = item.note || '';
   document.getElementById('teamStatusInput').value = item.status || 'Upcoming';
+  document.getElementById('teamPaymentStatusInput').value = item.paymentStatus || 'Not Paid';
   document.getElementById('teamFormSaveBtn').textContent = 'Update Team Task';
   document.getElementById('teamForm').style.display = 'block';
 }
@@ -1059,6 +1130,7 @@ function saveTeamItem() {
   const pdfUrl = document.getElementById('teamPdfInput').value.trim();
   const note = document.getElementById('teamNoteInput').value.trim();
   const status = document.getElementById('teamStatusInput').value;
+  const paymentStatus = document.getElementById('teamPaymentStatusInput').value;
 
   if(!title) { alert('Please enter a team task/project title.'); return; }
 
@@ -1073,6 +1145,7 @@ function saveTeamItem() {
       item.pdfUrl = pdfUrl || null;
       item.note = note;
       item.status = status;
+      item.paymentStatus = paymentStatus || 'Not Paid';
     }
   } else {
     teamTasks.push({
@@ -1084,7 +1157,8 @@ function saveTeamItem() {
       editDate,
       pdfUrl: pdfUrl || null,
       note,
-      status
+      status,
+      paymentStatus: paymentStatus || 'Not Paid'
     });
   }
 
@@ -1116,6 +1190,17 @@ function shareTeamLink() {
     navigator.clipboard.writeText(teamUrl).then(() => {
       alert(`🔗 Team Schedule Link copied!\n\n${teamUrl}`);
     });
+  }
+}
+
+function getPaymentBadgeHtml(status) {
+  const cleanStatus = status || 'Not Paid';
+  if (cleanStatus === 'Paid') {
+    return `<span class="payment-badge payment-paid">✓ Paid</span>`;
+  } else if (cleanStatus === 'Pending') {
+    return `<span class="payment-badge payment-pending">⏳ Pending</span>`;
+  } else {
+    return `<span class="payment-badge payment-notpaid">✕ Not Paid</span>`;
   }
 }
 
@@ -1165,9 +1250,10 @@ function renderTeamSchedules() {
       card.style.marginBottom = '14px';
 
       card.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
           <strong style="font-size:16px;">${escapeHtml(item.title)}</strong>
-          <div style="display:flex; align-items:center; gap:8px;">
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            ${getPaymentBadgeHtml(item.paymentStatus)}
             <span class="status-badge status-${item.status}">${item.status}</span>
             <div class="admin-only item-actions">
               <button class="btn-item-action" onclick="startEditTeamItem('${item.id}')">✏️ Edit</button>
@@ -1349,6 +1435,7 @@ function buildClientFormHtml(clientObj = null) {
   const badgeLabel = clientObj ? escapeHtml(clientObj.badgeLabel || 'REELS / VIDEOS DONE') : 'REELS / VIDEOS DONE';
   const editsDone = (clientObj && clientObj.editsDone !== undefined && clientObj.editsDone !== null) ? clientObj.editsDone : '';
   const editLimit = (clientObj && clientObj.editLimit !== undefined && clientObj.editLimit !== null) ? clientObj.editLimit : '';
+  const paymentStatus = clientObj ? (clientObj.paymentStatus || 'Not Paid') : 'Not Paid';
   const note = clientObj ? escapeHtml(clientObj.note || '') : '';
   const btnText = clientObj ? 'Update Client Portal' : 'Save Client Portal';
 
@@ -1373,6 +1460,14 @@ function buildClientFormHtml(clientObj = null) {
           <label style="font-size:12px; font-weight:bold;">Total Monthly Limit / Quota</label>
           <input type="number" id="clientEditLimitInput" placeholder="e.g. 40" min="0" value="${editLimit}">
         </div>
+        <div>
+          <label style="font-size:12px; font-weight:bold;">Overall Payment Status 💳</label>
+          <select id="clientPaymentStatusInput">
+            <option value="Not Paid" ${paymentStatus === 'Not Paid' ? 'selected' : ''}>Not Paid ❌</option>
+            <option value="Paid" ${paymentStatus === 'Paid' ? 'selected' : ''}>Paid ✅</option>
+            <option value="Pending" ${paymentStatus === 'Pending' ? 'selected' : ''}>Pending ⏳</option>
+          </select>
+        </div>
       </div>
       <div class="form-row">
         <div>
@@ -1396,6 +1491,7 @@ function buildScheduleFormHtml(itemObj = null) {
   const pdfUrl = itemObj ? escapeHtml(itemObj.pdfUrl || '') : '';
   const note = itemObj ? escapeHtml(itemObj.note || '') : '';
   const status = itemObj ? itemObj.status : 'Upcoming';
+  const paymentStatus = itemObj ? (itemObj.paymentStatus || 'Not Paid') : 'Not Paid';
   const btnText = itemObj ? 'Update Item Changes' : 'Add To Client Portal';
 
   return `
@@ -1419,6 +1515,14 @@ function buildScheduleFormHtml(itemObj = null) {
             <option value="Upcoming" ${status === 'Upcoming' ? 'selected' : ''}>Upcoming</option>
             <option value="InProgress" ${status === 'InProgress' ? 'selected' : ''}>In Progress</option>
             <option value="Completed" ${status === 'Completed' ? 'selected' : ''}>Completed</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:bold;">Payment Status 💳</label>
+          <select id="schPaymentStatusInput">
+            <option value="Not Paid" ${paymentStatus === 'Not Paid' ? 'selected' : ''}>Not Paid ❌</option>
+            <option value="Paid" ${paymentStatus === 'Paid' ? 'selected' : ''}>Paid ✅</option>
+            <option value="Pending" ${paymentStatus === 'Pending' ? 'selected' : ''}>Pending ⏳</option>
           </select>
         </div>
       </div>
@@ -1530,9 +1634,10 @@ function renderClientsPortals() {
 
           itemsHtml += `
             <div class="schedule-item">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
                 <strong>${escapeHtml(item.title)}</strong>
-                <div style="display:flex; align-items:center; gap:8px;">
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                  ${getPaymentBadgeHtml(item.paymentStatus)}
                   <span class="status-badge status-${item.status}">${item.status}</span>
                   <div class="admin-only item-actions">
                     <button class="btn-item-action" onclick="startEditScheduleItem('${c.id}', '${item.id}')">✏️ Edit</button>
@@ -1568,6 +1673,7 @@ function renderClientsPortals() {
           <div>
             <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
               <div class="portal-title">${escapeHtml(c.name)}</div>
+              ${getPaymentBadgeHtml(c.paymentStatus)}
               ${hasNumbers ? `
                 <div class="red-edit-badge">
                   <span class="red-edit-label">${escapeHtml(badgeLabelText)}</span>
