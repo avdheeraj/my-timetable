@@ -15,48 +15,85 @@
 <meta name="apple-mobile-web-app-title" content="Workspace">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Caveat:wght@600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --mat: #1F2B21;
-    --mat-dark: #172018;
-    --stitch: rgba(245,240,225,0.08);
-    --ink: #2B2118;
+    /* Editing-bay dark base, echoing an NLE viewport rather than a generic near-black */
+    --mat: #16171B;
+    --mat-dark: #0D0E11;
+    --stitch: rgba(230,225,255,0.05);
+    --ink: #241E17;
     --ink-soft: #4A3B2C;
-    --paper-yellow: #F3DE84;
-    --paper-mint: #B6D3AC;
-    --paper-coral: #E7AE97;
-    --paper-blue: #A6C6D8;
-    --cream: #F7F1E1;
-    --badge-red: #FF4D4D;
-    --badge-red-bg: rgba(255, 77, 77, 0.12);
-    --badge-red-border: rgba(255, 77, 77, 0.35);
-    --badge-green: #4EAD6A;
-    --badge-green-bg: rgba(78, 173, 106, 0.15);
-    --badge-green-border: rgba(78, 173, 106, 0.4);
+    /* Clip-label colors — same trick editors use to color-code clips in a bin */
+    --paper-yellow: #EFBE4A;
+    --paper-mint: #4FAF95;
+    --paper-coral: #E2734B;
+    --paper-blue: #4E8DB8;
+    --cream: #F2EEE6;
+    --badge-red: #FF5C43;
+    --badge-red-bg: rgba(255, 92, 67, 0.13);
+    --badge-red-border: rgba(255, 92, 67, 0.38);
+    --badge-green: #3FC490;
+    --badge-green-bg: rgba(63, 196, 144, 0.15);
+    --badge-green-border: rgba(63, 196, 144, 0.4);
+    --cream-dim: #A8A29A;
+    --border-soft: rgba(242,238,230,0.10);
+    --border-strong: rgba(242,238,230,0.22);
+    --shadow-card: 0 8px 20px rgba(0,0,0,0.35), 0 1px 0 rgba(242,238,230,0.04) inset;
+    --shadow-lift: 0 12px 28px rgba(0,0,0,0.45), 0 1px 0 rgba(242,238,230,0.06) inset;
+    --focus-ring: 0 0 0 3px rgba(226,115,75,0.45);
+    /* Record (warm) and scope (cool) — a dual accent pair instead of one flat neon */
+    --accent-record: #E2734B;
+    --accent-scope: #4E8DB8;
+    --font-mono: 'JetBrains Mono', 'SFMono-Regular', monospace;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *{ transition-duration: 0.001ms !important; animation-duration: 0.001ms !important; }
+  }
+  :focus-visible{ outline: 2px solid var(--paper-yellow); outline-offset: 2px; border-radius: 4px; }
+  a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible{
+    box-shadow: var(--focus-ring);
+    outline: 2px solid var(--paper-yellow);
+    outline-offset: 2px;
   }
   *{box-sizing:border-box;}
   body{
     margin:0;
     min-height:100vh;
     background:
-      radial-gradient(ellipse at top, rgba(255,255,255,0.03), transparent 60%),
+      radial-gradient(ellipse 900px 500px at 50% -5%, rgba(226,115,75,0.06), transparent 60%),
+      radial-gradient(ellipse at 100% 100%, rgba(78,141,184,0.05), transparent 55%),
       var(--mat);
     background-image:
-      repeating-linear-gradient(0deg, var(--stitch) 0 1px, transparent 1px 42px),
+      repeating-linear-gradient(0deg, var(--stitch) 0 1px, transparent 1px 8px, transparent 8px 42px),
       repeating-linear-gradient(90deg, var(--stitch) 0 1px, transparent 1px 42px),
       var(--mat);
     font-family:'Inter', sans-serif;
     color:var(--cream);
   }
 
-  .app-container { display: flex; min-height: 100vh; }
+  body::before{
+    content:'';
+    position: fixed;
+    top: 0; left: -35%;
+    width: 35%; height: 100%;
+    background: linear-gradient(100deg, transparent, rgba(226,115,75,0.05) 45%, rgba(78,141,184,0.04) 55%, transparent);
+    pointer-events: none;
+    z-index: 0;
+    animation: playhead-sweep 22s ease-in-out infinite;
+  }
+  @keyframes playhead-sweep{
+    0%   { left: -35%; }
+    50%  { left: 100%; }
+    100% { left: -35%; }
+  }
+  .app-container{ display: flex; min-height: 100vh; position: relative; z-index: 1; }
 
   /* Fixed / Sticky Sidebar */
   .sidebar {
     width: 220px;
     background: rgba(0, 0, 0, 0.25);
-    border-right: 1px dashed rgba(247,241,225,0.2);
+    border-right: 1px dashed var(--border-strong);
     padding: 24px 16px;
     display: flex;
     flex-direction: column;
@@ -66,6 +103,7 @@
     top: 0;
     height: 100vh;
     overflow-y: auto;
+    box-shadow: 4px 0 16px rgba(0,0,0,0.18);
   }
   .sidebar-brand {
     font-family: 'Space Grotesk', sans-serif;
@@ -83,7 +121,7 @@
     border-radius: 8px;
     border: 1px solid transparent;
     background: transparent;
-    color: #D8C9A8;
+    color: var(--cream-dim);
     text-align: left;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -91,8 +129,8 @@
     align-items: center;
     gap: 8px;
   }
-  .nav-btn:hover { border-color: rgba(247,241,225,0.3); color: var(--cream); }
-  .nav-btn.active { background: var(--cream); color: var(--mat-dark); font-weight: 600; }
+  .nav-btn:hover { border-color: var(--border-strong); color: var(--cream); background: rgba(247,241,225,0.06); transform: translateX(2px); }
+  .nav-btn.active { background: rgba(226,115,75,0.14); color: var(--cream); font-weight: 600; border-left: 3px solid var(--accent-record); padding-left: 11px; box-shadow: none; }
 
   /* Main Area */
   .main-content {
@@ -110,14 +148,37 @@
     display:flex;
     align-items:center;
     justify-content:space-between;
-    margin-bottom:22px;
+    margin-bottom:26px;
     padding-bottom:16px;
-    border-bottom:1px dashed rgba(247,241,225,0.25);
+    position: relative;
     flex-wrap: wrap;
     gap: 12px;
   }
+  header::after{
+    content:'';
+    position:absolute;
+    left:0; right:0; bottom:0;
+    height:6px;
+    background-image: repeating-linear-gradient(90deg, var(--border-strong) 0 1px, transparent 1px 10px);
+    background-position: bottom left;
+    background-size: 100% 6px;
+    background-repeat: repeat-x;
+    opacity: 0.9;
+    animation: ruler-crawl 5s linear infinite;
+  }
+  @keyframes ruler-crawl{
+    from { background-position: 0 bottom; }
+    to   { background-position: 100px bottom; }
+  }
+  header::before{
+    content:'';
+    position:absolute;
+    left:0; right:0; bottom:0;
+    height:1px;
+    background: var(--border-strong);
+  }
   h1{ font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:24px; margin:0; }
-  .tagline{ font-family:'Caveat',cursive; font-size:18px; color:#D8C9A8; margin-top:2px; }
+  .tagline{ font-family:'Caveat',cursive; font-size:18px; color:var(--cream-dim); margin-top:2px; }
 
   /* Clickable Watermark Badge */
   .brand-watermark {
@@ -125,9 +186,9 @@
     font-size: 11px;
     font-weight: 500;
     letter-spacing: 0.5px;
-    color: rgba(247, 241, 225, 0.7);
-    background: rgba(247, 241, 225, 0.08);
-    border: 1px solid rgba(247, 241, 225, 0.2);
+    color: rgba(247, 241, 225, 0.55);
+    background: transparent;
+    border: 1px solid rgba(247, 241, 225, 0.14);
     padding: 4px 10px;
     border-radius: 999px;
     text-decoration: none;
@@ -165,7 +226,7 @@
     margin-bottom: 2px;
   }
   .red-edit-number {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: var(--font-mono);
     font-size: 13px;
     font-weight: 700;
     color: var(--badge-red);
@@ -174,10 +235,10 @@
 
   /* Payment Badges (Client Portals Only) */
   .payment-badge {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: var(--font-mono);
     font-size: 10px;
     font-weight: 700;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
     text-transform: uppercase;
     padding: 4px 8px;
     border-radius: 6px;
@@ -233,7 +294,7 @@
   .day-tab{
     font-family:'Space Grotesk',sans-serif; font-size:13px; font-weight:500;
     padding:7px 13px; border-radius:999px; border:1px solid rgba(247,241,225,0.2);
-    background:transparent; color:#D8C9A8; cursor:pointer;
+    background:transparent; color:var(--cream-dim); cursor:pointer;
   }
   .day-tab.active{ background:var(--cream); color:var(--mat-dark); }
   .notes{ display:flex; flex-direction:column; gap:16px; }
@@ -245,6 +306,11 @@
     position:relative; border-radius:3px; padding:14px 18px 16px;
     cursor:pointer; box-shadow:0 5px 12px rgba(0,0,0,0.28);
     transform:rotate(var(--tilt)); color:var(--ink);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .note:hover{
+    box-shadow: var(--shadow-lift);
+    transform: rotate(calc(var(--tilt) * 0.3)) translateY(-2px);
   }
   .note::before{
     content:''; position:absolute; top:-9px; left:50%;
@@ -256,7 +322,7 @@
   .note.coral{background:var(--paper-coral);}
   .note.blue{background:var(--paper-blue);}
   .note-row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
-  .note-time{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;}
+  .note-time{font-family:var(--font-mono);font-weight:700;font-size:13px;letter-spacing:-0.2px;}
   .note-title{font-weight:600;font-size:16px;flex:1;margin:0 4px;}
   .chevron{transition:transform .2s ease;}
   .note.open .chevron{transform:rotate(180deg);}
@@ -269,7 +335,7 @@
   }
   .add-note{
     border-radius:3px;border:2px dashed rgba(247,241,225,0.35);
-    background:transparent;color:#D8C9A8;padding:16px;display:flex;
+    background:transparent;color:var(--cream-dim);padding:16px;display:flex;
     justify-content:center;font-family:'Space Grotesk',sans-serif;cursor:pointer;
   }
   .form-note{ background:var(--cream); border-radius:5px; padding:18px; color:var(--ink); margin-bottom: 16px; }
@@ -284,22 +350,31 @@
   .swatch.coral{background:var(--paper-coral);}
   .swatch.blue{background:var(--paper-blue);}
   .form-actions{ display:flex; gap:8px; justify-content:flex-end; flex-wrap: wrap; }
-  .btn-save{ background:var(--ink); color:var(--cream); border:none; padding:8px 16px; border-radius:5px; cursor:pointer; }
-  .btn-cancel{ background:transparent; color:var(--ink-soft); border:1px solid #D8C9A8; padding:8px 16px; border-radius:5px; cursor:pointer; }
+  .btn-save{ background:var(--accent-record); color:#FFF8F2; border:none; padding:8px 16px; border-radius:5px; cursor:pointer; font-weight:600; box-shadow: 0 3px 10px rgba(226,115,75,0.35); transition: transform 0.15s ease, box-shadow 0.15s ease; }
+  .btn-save:hover{ transform: translateY(-1px); box-shadow: 0 6px 16px rgba(226,115,75,0.45); }
+  .btn-save:active{ transform: translateY(0); }
+  .btn-cancel{ background:transparent; color:var(--ink-soft); border:1px solid #D8C9A8; padding:8px 16px; border-radius:5px; cursor:pointer; transition: background 0.15s ease; }
+  .btn-cancel:hover{ background: rgba(0,0,0,0.06); }
 
   /* Client Portal & Team Dashboard Box */
   .portal-box {
-    background: rgba(247, 241, 225, 0.08);
-    border: 1px solid rgba(247,241,225,0.18);
+    background: rgba(247, 241, 225, 0.06);
+    border: 1px solid var(--border-soft);
+    border-top: 3px solid var(--status-color, var(--border-strong));
     border-radius: 10px;
     padding: 20px;
     margin-bottom: 20px;
+    box-shadow: var(--shadow-card);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .portal-box:hover {
+    box-shadow: var(--shadow-lift);
   }
   .portal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px dashed rgba(247, 241, 225, 0.15);
+    border-bottom: 1px dashed var(--border-soft);
     padding-bottom: 12px;
     margin-bottom: 16px;
     gap: 10px;
@@ -315,13 +390,13 @@
     position: relative;
     max-width: 100%;
     word-break: break-word;
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: var(--font-mono);
     font-size: 12px;
     font-weight: 700;
-    letter-spacing: 0.8px;
+    letter-spacing: 0.4px;
     text-transform: uppercase;
     color: var(--paper-yellow);
-    background: rgba(243, 222, 132, 0.1);
+    background: rgba(239, 190, 74, 0.1);
     border-left: 3px solid var(--paper-yellow);
     padding: 5px 10px;
     border-radius: 0 4px 4px 0;
@@ -334,11 +409,15 @@
 
   /* Schedule List inside Portal */
   .schedule-item {
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(247, 241, 225, 0.1);
+    background: rgba(0, 0, 0, 0.22);
+    border: 1px solid var(--border-soft);
     border-radius: 6px;
     padding: 12px 14px;
     margin-bottom: 10px;
+    transition: border-color 0.15s ease;
+  }
+  .schedule-item:hover {
+    border-color: var(--border-strong);
   }
   .schedule-meta {
     display: flex;
@@ -348,11 +427,15 @@
     margin-top: 6px;
   }
   .meta-tag {
-    background: rgba(247, 241, 225, 0.1);
-    padding: 4px 8px;
+    background: rgba(247, 241, 225, 0.08);
+    padding: 4px 8px 4px 10px;
     border-radius: 4px;
-    border: 1px solid rgba(247, 241, 225, 0.15);
+    border: 1px solid var(--border-soft);
+    border-left: 3px solid var(--border-strong);
   }
+  .meta-tag strong { font-family: var(--font-mono); font-weight: 600; }
+  .meta-tag.tag-shoot { border-left-color: var(--paper-blue); }
+  .meta-tag.tag-edit { border-left-color: var(--paper-coral); }
 
   /* Status Badges */
   .status-badge {
@@ -360,11 +443,37 @@
     border-radius: 4px;
     font-size: 11px;
     font-weight: 600;
+    font-family: var(--font-mono);
+    letter-spacing: 0.3px;
     text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
   }
-  .status-Upcoming { background: rgba(243, 222, 132, 0.2); color: var(--paper-yellow); border: 1px solid var(--paper-yellow); }
-  .status-InProgress { background: rgba(166, 198, 216, 0.2); color: var(--paper-blue); border: 1px solid var(--paper-blue); }
-  .status-Completed { background: rgba(182, 211, 172, 0.2); color: var(--paper-mint); border: 1px solid var(--paper-mint); }
+  .status-Upcoming { background: rgba(239, 190, 74, 0.16); color: var(--paper-yellow); border: 1px solid var(--paper-yellow); }
+  .status-InProgress { background: rgba(78, 141, 184, 0.18); color: var(--paper-blue); border: 1px solid var(--paper-blue); }
+  .status-InProgress::before{
+    content:'';
+    width:6px; height:6px; border-radius:50%;
+    background: var(--paper-blue);
+    animation: tally-pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes tally-pulse{
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+  .status-Completed { background: rgba(79, 175, 149, 0.16); color: var(--paper-mint); border: 1px solid var(--paper-mint); }
+
+  .client-note {
+    background: rgba(247, 241, 225, 0.08);
+    border: 1px solid rgba(247, 241, 225, 0.15);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--cream-dim);
+    white-space: pre-wrap;
+  }
 
   .pdf-link {
     display: inline-flex;
@@ -703,12 +812,20 @@ const targetView = urlParams.get('view');
 
 /* Update Browser Title immediately for Shared Links */
 if (targetClient) {
-  document.title = `${targetClient} Portal | @cinebydheeraj`;
+  document.title = `Client Portal | @cinebydheeraj`;
 } else if (targetView === 'team') {
   document.title = `Team Schedule | @cinebydheeraj`;
 }
 
 function uid(){ return 'e' + Math.random().toString(36).slice(2, 9); }
+
+/* Local calendar date as YYYY-MM-DD (avoids toISOString's UTC shift near midnight) */
+function toLocalDateStr(d) {
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
 
 /* Converts YYYY-MM-DD date strings into DD/MM/YY format */
 function formatDate(dateStr) {
@@ -725,11 +842,11 @@ function getDateCategoryLabel(dateStr) {
   if (!dateStr) return 'UNSCHEDULED / TBD';
   
   const now = new Date();
-  const todayStr = now.toISOString().split('T')[0];
+  const todayStr = toLocalDateStr(now);
   
   const tomorrow = new Date();
   tomorrow.setDate(now.getDate() + 1);
-  const tomorrowStr = tomorrow.toISOString().split('T')[0];
+  const tomorrowStr = toLocalDateStr(tomorrow);
 
   if (dateStr === todayStr) {
     return `TODAY (${formatDate(dateStr)})`;
@@ -1249,6 +1366,11 @@ function renderTeamSchedules() {
       card.style.padding = '16px';
       card.style.marginBottom = '14px';
 
+      const taskType = item.taskType || 'Shoot';
+      const shootLabel = (taskType === 'Edit') ? '🎬 Start Date' : '🎬 Shoot';
+      const showShootTag = (taskType === 'Both' || taskType === 'Shoot' || taskType === 'Edit');
+      const showEditTag = (taskType === 'Both' || taskType === 'Edit');
+
       card.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
           <strong style="font-size:16px;">${escapeHtml(item.title)}</strong>
@@ -1261,11 +1383,11 @@ function renderTeamSchedules() {
           </div>
         </div>
         <div class="schedule-meta" style="margin-top:10px;">
-          <span class="meta-tag">🎬 Shoot: <strong>${formatDate(item.shootDate)}</strong></span>
-          <span class="meta-tag">✂️ Edit Deadline: <strong>${formatDate(item.editDate)}</strong></span>
+          ${showShootTag ? `<span class="meta-tag tag-shoot">${shootLabel}: <strong>${formatDate(item.shootDate)}</strong></span>` : ''}
+          ${showEditTag ? `<span class="meta-tag tag-edit">✂️ Edit Deadline: <strong>${formatDate(item.editDate)}</strong></span>` : ''}
         </div>
         ${item.pdfUrl ? `<a href="${escapeHtml(item.pdfUrl)}" target="_blank" class="pdf-link">📄 Open Script PDF / Document</a>` : ''}
-        ${item.note ? `<div class="client-note" style="margin-top:10px; font-size:13px; color:#D8C9A8;">${escapeHtml(item.note)}</div>` : ''}
+        ${item.note ? `<div class="client-note" style="margin-top:10px;">${escapeHtml(item.note)}</div>` : ''}
       `;
 
       personSection.appendChild(card);
@@ -1309,7 +1431,7 @@ function saveLearningItem() {
 
   if(!title || !content) { alert('Please enter both a topic title and key takeaways.'); return; }
 
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = toLocalDateStr(new Date());
 
   if(editingLearningId) {
     const item = learnings.find(l => l.id === editingLearningId);
@@ -1346,11 +1468,11 @@ function deleteLearningItem(id) {
 function getLearningDateLabel(dateStr) {
   if(!dateStr) return 'RECENT LEARNINGS';
   const now = new Date();
-  const todayStr = now.toISOString().split('T')[0];
+  const todayStr = toLocalDateStr(now);
 
   const yesterday = new Date();
   yesterday.setDate(now.getDate() - 1);
-  const yesterdayStr = yesterday.toISOString().split('T')[0];
+  const yesterdayStr = toLocalDateStr(yesterday);
 
   if (dateStr === todayStr) return `TODAY'S LEARNINGS (${formatDate(dateStr)})`;
   if (dateStr === yesterdayStr) return `YESTERDAY'S LEARNINGS (${formatDate(dateStr)})`;
@@ -1410,9 +1532,10 @@ function renderLearnings() {
 }
 
 /* SHARE LINK FOR CLIENT PORTAL PAGE */
-function shareClientLink(clientName) {
+function shareClientLink(clientId, clientName) {
   const cleanUrl = window.location.origin + window.location.pathname;
-  const shareUrl = `${cleanUrl}?client=${encodeURIComponent(clientName)}`;
+  // Use the stable client ID so the link keeps working even if the client is later renamed.
+  const shareUrl = `${cleanUrl}?client=${encodeURIComponent(clientId)}`;
   
   if (navigator.share) {
     navigator.share({
@@ -1564,14 +1687,26 @@ function renderClientsPortals() {
   let filteredClients = clients;
 
   if (targetClient) {
-    filteredClients = clients.filter(c => c.name.toLowerCase() === targetClient.toLowerCase());
+    filteredClients = clients.filter(c => c.id === targetClient);
+    // Fall back to a name match for older share links that used the client's name instead of their ID.
+    if (filteredClients.length === 0) {
+      filteredClients = clients.filter(c => c.name.toLowerCase() === targetClient.toLowerCase());
+    }
   }
 
   let topSlotHtml = isNewClientFormOpen ? buildClientFormHtml(null) : '';
 
   if(filteredClients.length === 0 && !isNewClientFormOpen) {
-    container.innerHTML = `<div class="empty">${targetClient ? 'no portal found for ' + escapeHtml(targetClient) : 'no client portals added yet'}</div>`;
+    container.innerHTML = `<div class="empty">${targetClient ? 'no portal found for this link' : 'no client portals added yet'}</div>`;
     return;
+  }
+
+  // In client-mode, now that we've resolved the actual client, reflect their real name in the header/title
+  if (targetClient && filteredClients.length > 0) {
+    const resolvedName = filteredClients[0].name;
+    document.title = `${resolvedName} Portal | @cinebydheeraj`;
+    const titleEl = document.getElementById('clientHeaderTitle');
+    if (titleEl) titleEl.textContent = `${resolvedName} Client Portal`;
   }
 
   let htmlContent = topSlotHtml;
@@ -1644,8 +1779,8 @@ function renderClientsPortals() {
                 </div>
               </div>
               <div class="schedule-meta">
-                ${showShootTag ? `<span class="meta-tag">${shootLabel}: <strong>${formatDate(resolvedShootDate)}</strong></span>` : ''}
-                ${showEditTag ? `<span class="meta-tag">✂️ Edit Deadline: <strong>${formatDate(item.editDate)}</strong></span>` : ''}
+                ${showShootTag ? `<span class="meta-tag tag-shoot">${shootLabel}: <strong>${formatDate(resolvedShootDate)}</strong></span>` : ''}
+                ${showEditTag ? `<span class="meta-tag tag-edit">✂️ Edit Deadline: <strong>${formatDate(item.editDate)}</strong></span>` : ''}
               </div>
               ${item.pdfUrl ? `<a href="${escapeHtml(item.pdfUrl)}" target="_blank" class="pdf-link">📄 Open Script PDF / Document</a>` : ''}
               ${item.note ? `<div class="client-note" style="margin-top:6px;">${escapeHtml(item.note)}</div>` : ''}
@@ -1654,7 +1789,7 @@ function renderClientsPortals() {
         });
       });
     } else {
-      itemsHtml = '<div style="font-size:13px; color:#D8C9A8; font-style:italic;">No schedules or scripts added to this portal yet.</div>';
+      itemsHtml = '<div style="font-size:13px; color:var(--cream-dim); font-style:italic;">No schedules or scripts added to this portal yet.</div>';
     }
 
     if (activeScheduleClientId === c.id) {
@@ -1664,9 +1799,11 @@ function renderClientsPortals() {
 
     const hasNumbers = (c.editsDone !== undefined && c.editsDone !== null && c.editLimit !== undefined && c.editLimit !== null);
     const badgeLabelText = c.badgeLabel || 'REELS / VIDEOS DONE';
+    const statusColorMap = { 'Paid': 'var(--badge-green)', 'Pending': 'var(--paper-yellow)', 'Not Paid': 'var(--badge-red)' };
+    const statusColor = statusColorMap[c.paymentStatus || 'Not Paid'];
 
     htmlContent += `
-      <div class="portal-box">
+      <div class="portal-box" style="--status-color:${statusColor};">
         <div class="portal-header">
           <div>
             <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
@@ -1685,7 +1822,7 @@ function renderClientsPortals() {
           <div class="dropdown-container">
             <button class="dropdown-trigger" onclick="toggleDropdown('${c.id}', event)">⋮</button>
             <div class="dropdown-menu" id="dropdown-${c.id}">
-              <button class="dropdown-item" onclick="shareClientLink('${escapeHtml(c.name)}')">🔗 Share Client Portal</button>
+              <button class="dropdown-item" onclick="shareClientLink('${c.id}', '${escapeHtml(c.name)}')">🔗 Share Client Portal</button>
               <button class="dropdown-item" onclick="startEditClientPortal('${c.id}')">✏️ Edit Client Portal</button>
               <button class="dropdown-item delete" onclick="deleteClient('${c.id}')">🗑️ Delete Portal</button>
             </div>
@@ -1810,7 +1947,6 @@ function render(){
 if (targetClient) {
   document.body.classList.add('client-mode');
   switchTab('clients', null);
-  document.getElementById('clientHeaderTitle').textContent = `${targetClient} Client Portal`;
   document.getElementById('clientHeaderTagline').textContent = 'Your live project schedules, deadlines & script documents';
 } else if (targetView === 'team') {
   document.body.classList.add('team-mode');
