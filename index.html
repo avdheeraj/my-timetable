@@ -1,432 +1,1810 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <!-- Essential for proper scaling and mobile responsiveness -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard</title>
-  <style>
-    /* ------------------------------------------------------------------ */
-    /* 1. CORE LAYOUT & RESETS                                           */
-    /* ------------------------------------------------------------------ */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: #1a231e;
-      color: #e2e8f0;
-      padding: 16px;
-      overflow-x: hidden; /* Prevents horizontal scroll glitches */
-    }
+<!-- Link Preview Tags for WhatsApp & Social Media -->
+<title id="pageTitle">Client Workspace | @cinebydheeraj</title>
+<meta property="og:title" content="Client Workspace | @cinebydheeraj">
+<meta property="og:description" content="Access live shoot schedules, edit deadlines, script documents, and payment tracking.">
 
-    .dashboard-container {
-      max-width: 640px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
+<!-- iOS Web App Tags -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Workspace">
 
-    /* ------------------------------------------------------------------ */
-    /* 2. CARD STRUCTURES                                                 */
-    /* ------------------------------------------------------------------ */
-    .card {
-      background-color: #243029;
-      border: 1px solid #324238;
-      border-radius: 12px;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --mat: #1F2B21;
+    --mat-dark: #172018;
+    --stitch: rgba(245,240,225,0.08);
+    --ink: #2B2118;
+    --ink-soft: #4A3B2C;
+    --paper-yellow: #F3DE84;
+    --paper-mint: #B6D3AC;
+    --paper-coral: #E7AE97;
+    --paper-blue: #A6C6D8;
+    --cream: #F7F1E1;
+    --badge-red: #FF4D4D;
+    --badge-red-bg: rgba(255, 77, 77, 0.12);
+    --badge-red-border: rgba(255, 77, 77, 0.35);
+    --badge-green: #4EAD6A;
+    --badge-green-bg: rgba(78, 173, 106, 0.15);
+    --badge-green-border: rgba(78, 173, 106, 0.4);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    background:
+      radial-gradient(ellipse at top, rgba(255,255,255,0.03), transparent 60%),
+      var(--mat);
+    background-image:
+      repeating-linear-gradient(0deg, var(--stitch) 0 1px, transparent 1px 42px),
+      repeating-linear-gradient(90deg, var(--stitch) 0 1px, transparent 1px 42px),
+      var(--mat);
+    font-family:'Inter', sans-serif;
+    color:var(--cream);
+  }
 
-    /* Fix Header Overlaps */
-    .card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 8px;
-      position: relative;
-    }
+  .app-container { display: flex; min-height: 100vh; }
 
-    .card-header-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
+  /* Fixed / Sticky Sidebar */
+  .sidebar {
+    width: 220px;
+    background: rgba(0, 0, 0, 0.25);
+    border-right: 1px dashed rgba(247,241,225,0.2);
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  .sidebar-brand {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding-left: 8px;
+    color: var(--paper-yellow);
+  }
+  .nav-btn {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: #D8C9A8;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .nav-btn:hover { border-color: rgba(247,241,225,0.3); color: var(--cream); }
+  .nav-btn.active { background: var(--cream); color: var(--mat-dark); font-weight: 600; }
 
-    .card-title {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: #ffffff;
-    }
+  /* Main Area */
+  .main-content {
+    flex: 1;
+    padding: 32px 24px 80px;
+    max-width: 780px;
+    margin: 0 auto;
+    width: 100%;
+  }
 
-    /* Nested Card Layout */
-    .nested-card {
-      background-color: #1d2721;
-      border: 1px solid #2e3e34;
-      border-radius: 8px;
+  .view-panel { display: none; }
+  .view-panel.active { display: block; }
+
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:22px;
+    padding-bottom:16px;
+    border-bottom:1px dashed rgba(247,241,225,0.25);
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  h1{ font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:24px; margin:0; }
+  .tagline{ font-family:'Caveat',cursive; font-size:18px; color:#D8C9A8; margin-top:2px; }
+
+  /* Clickable Watermark Badge */
+  .brand-watermark {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    color: rgba(247, 241, 225, 0.7);
+    background: rgba(247, 241, 225, 0.08);
+    border: 1px solid rgba(247, 241, 225, 0.2);
+    padding: 4px 10px;
+    border-radius: 999px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    display: inline-block;
+  }
+  .brand-watermark:hover {
+    color: var(--paper-yellow);
+    background: rgba(243, 222, 132, 0.15);
+    border-color: var(--paper-yellow);
+  }
+
+  /* Red Stacked Edit Badge */
+  .red-edit-badge {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--badge-red-bg);
+    border: 1px solid var(--badge-red-border);
+    border-radius: 8px;
+    padding: 4px 10px;
+    text-align: center;
+    user-select: none;
+  }
+  .red-edit-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--badge-red);
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+  .red-edit-number {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--badge-red);
+    line-height: 1;
+  }
+
+  /* Payment Badges (Client Portals Only) */
+  .payment-badge {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .payment-paid {
+    background: var(--badge-green-bg);
+    color: var(--badge-green);
+    border: 1px solid var(--badge-green-border);
+  }
+  .payment-notpaid {
+    background: var(--badge-red-bg);
+    color: var(--badge-red);
+    border: 1px solid var(--badge-red-border);
+  }
+  .payment-pending {
+    background: rgba(243, 222, 132, 0.15);
+    color: var(--paper-yellow);
+    border: 1px solid rgba(243, 222, 132, 0.35);
+  }
+
+  /* Assignee Badge */
+  .assignee-badge {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--paper-yellow);
+    background: rgba(243, 222, 132, 0.15);
+    border: 1px solid rgba(243, 222, 132, 0.3);
+    padding: 3px 8px;
+    border-radius: 5px;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .notify-btn{
+    font-family:'Space Grotesk',sans-serif; font-size:12px; font-weight:500;
+    padding:6px 12px; border-radius:999px; border:1px solid rgba(247,241,225,0.3);
+    background:rgba(247,241,225,0.1); color:var(--cream); cursor:pointer;
+  }
+
+  /* Desk Pad Styles */
+  .day-tabs{ display:flex; gap:6px; margin-bottom:26px; flex-wrap:wrap; }
+  .day-tab{
+    font-family:'Space Grotesk',sans-serif; font-size:13px; font-weight:500;
+    padding:7px 13px; border-radius:999px; border:1px solid rgba(247,241,225,0.2);
+    background:transparent; color:#D8C9A8; cursor:pointer;
+  }
+  .day-tab.active{ background:var(--cream); color:var(--mat-dark); }
+  .notes{ display:flex; flex-direction:column; gap:16px; }
+  .empty{
+    font-family:'Caveat',cursive; font-size:22px; color:#B8AB8C;
+    text-align:center; padding:50px 20px; border:2px dashed rgba(247,241,225,0.2); border-radius:10px;
+  }
+  .note{
+    position:relative; border-radius:3px; padding:14px 18px 16px;
+    cursor:pointer; box-shadow:0 5px 12px rgba(0,0,0,0.28);
+    transform:rotate(var(--tilt)); color:var(--ink);
+  }
+  .note::before{
+    content:''; position:absolute; top:-9px; left:50%;
+    transform:translateX(-50%) rotate(-3deg); width:56px; height:20px;
+    background:rgba(255,255,255,0.55); border:1px solid rgba(255,255,255,0.3);
+  }
+  .note.yellow{background:var(--paper-yellow);}
+  .note.mint{background:var(--paper-mint);}
+  .note.coral{background:var(--paper-coral);}
+  .note.blue{background:var(--paper-blue);}
+  .note-row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .note-time{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;}
+  .note-title{font-weight:600;font-size:16px;flex:1;margin:0 4px;}
+  .chevron{transition:transform .2s ease;}
+  .note.open .chevron{transform:rotate(180deg);}
+  .note-body{max-height:0;overflow:hidden;transition:max-height .25s ease;}
+  .note.open .note-body{max-height:260px;margin-top:12px;}
+  .note-detail{font-size:14px;line-height:1.5;margin:0 0 10px;}
+  .note-actions button{
+    font-size:12px;padding:6px 12px;border-radius:5px;
+    border:1px solid rgba(0,0,0,0.15);background:rgba(255,255,255,0.35);cursor:pointer;
+  }
+  .add-note{
+    border-radius:3px;border:2px dashed rgba(247,241,225,0.35);
+    background:transparent;color:#D8C9A8;padding:16px;display:flex;
+    justify-content:center;font-family:'Space Grotesk',sans-serif;cursor:pointer;
+  }
+  .form-note{ background:var(--cream); border-radius:5px; padding:18px; color:var(--ink); margin-bottom: 16px; }
+  .form-row{ display:flex; gap:10px; margin-bottom:10px; flex-wrap: wrap; }
+  .form-row > div{ flex:1; min-width: 140px; }
+  input, textarea, select{ width:100%; padding:8px; border-radius:5px; border:1px solid #D8C9A8; }
+  .color-picker{ display:flex; gap:8px; margin-bottom:14px; }
+  .swatch{ width:26px; height:26px; border-radius:50%; cursor:pointer; }
+  .swatch.selected{ border:2px solid var(--ink); }
+  .swatch.yellow{background:var(--paper-yellow);}
+  .swatch.mint{background:var(--paper-mint);}
+  .swatch.coral{background:var(--paper-coral);}
+  .swatch.blue{background:var(--paper-blue);}
+  .form-actions{ display:flex; gap:8px; justify-content:flex-end; flex-wrap: wrap; }
+  .btn-save{ background:var(--ink); color:var(--cream); border:none; padding:8px 16px; border-radius:5px; cursor:pointer; }
+  .btn-cancel{ background:transparent; color:var(--ink-soft); border:1px solid #D8C9A8; padding:8px 16px; border-radius:5px; cursor:pointer; }
+
+  /* Client Portal & Team Dashboard Box */
+  .portal-box {
+    background: rgba(247, 241, 225, 0.08);
+    border: 1px solid rgba(247,241,225,0.18);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .portal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px dashed rgba(247, 241, 225, 0.15);
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    gap: 10px;
+  }
+  .portal-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  /* Date Section Header */
+  .date-group-header {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--paper-yellow);
+    background: rgba(243, 222, 132, 0.1);
+    border-left: 3px solid var(--paper-yellow);
+    padding: 5px 10px;
+    border-radius: 0 4px 4px 0;
+    margin: 18px 0 10px 0;
+    display: inline-block;
+  }
+  .date-group-header:first-of-type {
+    margin-top: 8px;
+  }
+
+  /* Schedule List inside Portal */
+  .schedule-item {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(247, 241, 225, 0.1);
+    border-radius: 6px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+  }
+  .schedule-meta {
+    display: flex;
+    gap: 12px;
+    font-size: 13px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+  }
+  .meta-tag {
+    background: rgba(247, 241, 225, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(247, 241, 225, 0.15);
+  }
+
+  /* Status Badges */
+  .status-badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .status-Upcoming { background: rgba(243, 222, 132, 0.2); color: var(--paper-yellow); border: 1px solid var(--paper-yellow); }
+  .status-InProgress { background: rgba(166, 198, 216, 0.2); color: var(--paper-blue); border: 1px solid var(--paper-blue); }
+  .status-Completed { background: rgba(182, 211, 172, 0.2); color: var(--paper-mint); border: 1px solid var(--paper-mint); }
+
+  .pdf-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    padding: 6px 12px;
+    background: rgba(231, 174, 151, 0.2);
+    border: 1px solid var(--paper-coral);
+    color: var(--paper-coral);
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .pdf-link:hover { background: rgba(231, 174, 151, 0.35); }
+
+  /* Dropdown Menu */
+  .dropdown-container { position: relative; }
+  .dropdown-trigger {
+    background: transparent;
+    border: none;
+    color: var(--cream);
+    font-size: 18px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .dropdown-trigger:hover { background: rgba(247,241,225,0.15); }
+  .dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 30px;
+    background: var(--cream);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 10;
+    overflow: hidden;
+    min-width: 170px;
+  }
+  .dropdown-menu.show { display: block; }
+  .dropdown-item {
+    width: 100%;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    border: none;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+    color: var(--ink);
+    display: block;
+  }
+  .dropdown-item:hover { background: rgba(0,0,0,0.08); }
+  .dropdown-item.delete { color: #A93226; }
+
+  /* Action Buttons inside Items */
+  .item-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .btn-item-action {
+    background: rgba(247, 241, 225, 0.12);
+    border: 1px solid rgba(247, 241, 225, 0.25);
+    color: var(--cream);
+    border-radius: 4px;
+    padding: 3px 8px;
+    font-size: 11px;
+    cursor: pointer;
+  }
+  .btn-item-action:hover {
+    background: rgba(247, 241, 225, 0.25);
+  }
+  .btn-item-action.delete {
+    color: var(--paper-coral);
+    border-color: rgba(231, 174, 151, 0.4);
+  }
+
+  /* Client & Team Mode Styles */
+  body.client-mode .sidebar, body.team-mode .sidebar { display: none !important; }
+  body.client-mode .notify-btn, body.team-mode .notify-btn { display: none !important; }
+  body.client-mode #addClientBtn, body.team-mode #addTeamItemBtn, body.learnings-mode #addLearningBtn { display: none !important; }
+  body.client-mode .dropdown-container, body.team-mode .dropdown-container { display: none !important; }
+  body.client-mode .admin-only, body.team-mode .admin-only, body.learnings-mode .admin-only { display: none !important; }
+  body.client-mode .main-content, body.team-mode .main-content { max-width: 680px; padding-top: 20px; }
+
+  /* Mobile Responsive Adjustments */
+  @media (max-width: 650px) {
+    .app-container { flex-direction: column; }
+    .sidebar { 
+      width: 100%; 
+      position: relative; 
+      height: auto; 
+      border-right: none; 
+      border-bottom: 1px dashed rgba(247,241,225,0.2); 
+      flex-direction: row; 
+      overflow-x: auto;
       padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      gap: 6px;
     }
-
-    .nested-title {
-      font-size: 1rem;
-      color: #f1f5f9;
-    }
-
-    /* ------------------------------------------------------------------ */
-    /* 3. BADGES & METADATA TAGS                                         */
-    /* ------------------------------------------------------------------ */
-    .id-badge, .date-badge {
-      background-color: #384d3f;
-      color: #d1fae5;
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 4px 8px;
-      border-radius: 4px;
-      border: 1px solid #4d6655;
-      display: inline-flex;
-      align-items: center;
-    }
-
-    .badge-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .badge {
-      font-size: 0.725rem;
-      font-weight: 700;
-      padding: 6px 10px;
-      border-radius: 6px;
-      letter-spacing: 0.5px;
-    }
-
-    .badge-danger {
-      background-color: rgba(239, 68, 68, 0.15);
-      color: #fca5a5;
-      border: 1px solid rgba(239, 68, 68, 0.4);
-    }
-
-    .badge-success {
-      background-color: rgba(34, 197, 94, 0.15);
-      color: #86efac;
-      border: 1px solid rgba(34, 197, 94, 0.4);
-    }
-
-    .badge-warning {
-      background-color: rgba(245, 158, 11, 0.15);
-      color: #fcd34d;
-      border: 1px solid rgba(245, 158, 11, 0.4);
-    }
-
-    .badge-info {
-      background-color: rgba(59, 130, 246, 0.15);
-      color: #93c5fd;
-      border: 1px solid rgba(59, 130, 246, 0.4);
-    }
-
-    .badge-pending {
-      background-color: rgba(234, 179, 8, 0.15);
-      color: #fde047;
-      border: 1px solid rgba(234, 179, 8, 0.4);
-    }
-
-    .handle-tag {
-      background-color: #2d3b32;
-      color: #a7f3d0;
-      font-size: 0.75rem;
-      padding: 4px 10px;
-      border-radius: 12px;
-      display: inline-block;
-      margin-right: 8px;
-    }
-
-    .subtext {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: #cbd5e1;
-    }
-
-    .info-tag {
-      background-color: #1e2923;
-      border: 1px solid #37493d;
-      color: #94a3b8;
-      font-size: 0.75rem;
-      padding: 6px 12px;
-      border-radius: 6px;
-    }
-
-    .info-tag strong {
-      color: #f8fafc;
-    }
-
-    /* ------------------------------------------------------------------ */
-    /* 4. BUTTONS & ACTIONS                                              */
-    /* ------------------------------------------------------------------ */
-    .btn {
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 8px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      min-height: 36px; /* Touch-friendly size */
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      border: none;
-    }
-
-    .btn-primary {
-      background-color: #3b2820;
-      color: #fdba74;
-      border: 1px solid #6b4332;
-    }
-
-    .btn-secondary {
-      background-color: #334155;
-      color: #e2e8f0;
-    }
-
-    .btn-outline-danger {
-      background-color: transparent;
-      color: #fca5a5;
-      border: 1px solid rgba(239, 68, 68, 0.4);
-    }
-
-    /* ------------------------------------------------------------------ */
-    /* 5. RESPONSIVE SECTIONS & OVERFLOW CONTROLS                        */
-    /* ------------------------------------------------------------------ */
-    .section-header {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      align-items: flex-start;
-    }
-
-    @media (min-width: 480px) {
-      .section-header {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-      }
-    }
-
-    .section-title {
-      font-size: 0.875rem;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      color: #e2e8f0;
-      word-break: break-word; /* Prevents overflow */
-    }
-
-    .divider {
-      border: 0;
-      border-top: 1px dashed #37493d;
-    }
-
-    .status-strip {
-      margin-top: 4px;
-    }
-
-    .status-tag {
-      background-color: #374229;
-      color: #bef264;
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 4px 8px;
-      border-radius: 4px;
-    }
-
-    /* ------------------------------------------------------------------ */
-    /* 6. DROPDOWN OVERLAY FIX                                            */
-    /* ------------------------------------------------------------------ */
-    .dropdown-wrapper {
-      position: relative;
-    }
-
-    .menu-btn {
-      background: #2e3e34;
-      border: none;
-      color: #fff;
-      padding: 6px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .dropdown-menu {
-      display: none;
-      position: absolute;
-      right: 0;
-      top: 100%;
-      z-index: 100;
-      background-color: #243029;
-      border: 1px solid #37493d;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-      border-radius: 6px;
-      min-width: 140px;
-      overflow: hidden;
-    }
-
-    .dropdown-menu.show {
-      display: block;
-    }
-
-    .dropdown-item {
-      display: block;
-      width: 100%;
-      padding: 8px 12px;
-      color: #e2e8f0;
-      text-decoration: none;
-      font-size: 0.8rem;
-      background: none;
-      border: none;
-      text-align: left;
-      cursor: pointer;
-    }
-
-    .dropdown-item:hover {
-      background-color: #2e3e34;
-    }
-  </style>
+    .sidebar-brand { display: none; }
+    .nav-btn { flex: 1; text-align: center; justify-content: center; font-size: 12px; padding: 10px 8px; white-space: nowrap; }
+    .main-content { padding: 16px 14px 60px; }
+    header { flex-direction: column; align-items: flex-start; }
+    .header-actions { width: 100%; justify-content: space-between; margin-top: 8px; }
+    .form-row > div { flex: 100%; }
+    .portal-box { padding: 14px; }
+    .portal-header { flex-wrap: wrap; }
+    .schedule-item { padding: 10px; }
+  }
+</style>
 </head>
 <body>
 
-  <main class="dashboard-container">
+<div class="app-container">
+  <!-- Sidebar -->
+  <div class="sidebar" id="appSidebar">
+    <div class="sidebar-brand">📌 Workspace</div>
+    <button class="nav-btn active" onclick="switchTab('deskpad', this)">📌 Desk Pad</button>
+    <button class="nav-btn" onclick="switchTab('clients', this)">👤 Client Portals</button>
+    <button class="nav-btn" onclick="switchTab('team', this)">👥 Team Schedule</button>
+    <button class="nav-btn" onclick="switchTab('learnings', this)">💡 Team Learnings</button>
+  </div>
 
-    <!-- Card 1: Bezawada Cars -->
-    <article class="card">
-      <div class="card-header">
-        <div class="card-header-left">
-          <span class="id-badge">40T21</span>
-          <span class="date-badge">09/08/26</span>
+  <div class="main-content">
+    
+    <!-- PANEL 1: Desk Pad -->
+    <div id="deskpad" class="view-panel active">
+      <header>
+        <div>
+          <h1>Desk pad</h1>
+          <div class="tagline">pin it, peek later</div>
         </div>
-        <div class="dropdown-wrapper">
-          <button class="menu-btn" onclick="toggleDropdown(event)">⋮</button>
-          <div class="dropdown-menu">
-            <button class="dropdown-item">View Details</button>
-            <button class="dropdown-item">Archive</button>
+        <div class="header-actions">
+          <a href="https://www.instagram.com/cineby.dheeraj?igsh=cTM1cXRrZW00dXpy&utm_source=qr" target="_blank" class="brand-watermark">@cinebydheeraj</a>
+          <button class="notify-btn" id="notifyBtn" onclick="requestNotificationPermission()">🔔 Enable Alerts</button>
+        </div>
+      </header>
+
+      <div class="day-tabs" id="dayTabs"></div>
+      <div class="notes" id="notesList"></div>
+    </div>
+
+    <!-- PANEL 2: Client Portals -->
+    <div id="clients" class="view-panel">
+      <header>
+        <div>
+          <h1 id="clientHeaderTitle">Client Portals</h1>
+          <div class="tagline" id="clientHeaderTagline">manage client schedules, payment status & script PDFs</div>
+        </div>
+        <div class="header-actions">
+          <a href="https://www.instagram.com/cineby.dheeraj?igsh=cTM1cXRrZW00dXpy&utm_source=qr" target="_blank" class="brand-watermark">@cinebydheeraj</a>
+          <button class="btn-save" id="addClientBtn" onclick="openClientForm()">+ Add New Client</button>
+        </div>
+      </header>
+
+      <!-- Portals List Container -->
+      <div id="clientsPortalsList"></div>
+    </div>
+
+    <!-- PANEL 3: Team Schedule Tab -->
+    <div id="team" class="view-panel">
+      <header>
+        <div>
+          <h1 id="teamHeaderTitle">Team Schedule</h1>
+          <div class="tagline" id="teamHeaderTagline">live shoot schedule & task deadlines for the team</div>
+        </div>
+        <div class="header-actions">
+          <a href="https://www.instagram.com/cineby.dheeraj?igsh=cTM1cXRrZW00dXpy&utm_source=qr" target="_blank" class="brand-watermark">@cinebydheeraj</a>
+          <button class="admin-only btn-save" onclick="shareTeamLink()" style="background:var(--paper-blue); color:var(--ink);">🔗 Copy Team Link</button>
+          <button class="admin-only btn-save" id="addTeamItemBtn" onclick="openTeamForm()">+ Add Team Task</button>
+        </div>
+      </header>
+
+      <!-- Add / Edit Team Schedule Form (No Payment Input) -->
+      <div id="teamForm" class="form-note" style="display:none;">
+        <div class="form-row">
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Assigned To / Member Name 👤</label>
+            <input type="text" id="teamAssigneeInput" placeholder="e.g. Dheeraj, Editor 1">
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Task Type 📌</label>
+            <select id="teamTypeInput">
+              <option value="Shoot">Shoot 🎬</option>
+              <option value="Edit">Edit ✂️</option>
+              <option value="Both">Both (Shoot & Edit) 🎬✂️</option>
+            </select>
           </div>
         </div>
-      </div>
-
-      <h2 class="card-title">Bezawada Cars</h2>
-
-      <div class="badge-group">
-        <span class="badge badge-danger">× NOT PAID</span>
-        <span class="badge badge-success">COMPLETED</span>
-        <button class="btn btn-secondary">✏️ Edit</button>
-        <button class="btn btn-outline-danger">× Delete</button>
-      </div>
-
-      <div class="badge-group">
-        <span class="info-tag">🎬 Start Date: <strong>09/08/26</strong></span>
-        <span class="info-tag">✂️ Edit Deadline: <strong>TBD</strong></span>
-      </div>
-    </article>
-
-
-    <!-- Card 2: RANGA -->
-    <article class="card">
-      <div class="card-header">
-        <h2 class="card-title">RANGA</h2>
-        <div class="badge-group">
-          <span class="badge badge-danger">× NOT PAID</span>
-          <span class="badge badge-warning">REELS / VIDEOS DONE 0/8</span>
+        <div class="form-row">
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Client / Project Title</label>
+            <input type="text" id="teamTitleInput" placeholder="e.g. Taluka - Commercial Shoot">
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Status</label>
+            <select id="teamStatusInput">
+              <option value="Upcoming">Upcoming</option>
+              <option value="InProgress">In Progress</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Shoot / Start Date 🎬</label>
+            <input type="date" id="teamShootDateInput">
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Edit Deadline ✂️</label>
+            <input type="date" id="teamEditDateInput">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Script PDF / Document Link 📄</label>
+            <input type="text" id="teamPdfInput" placeholder="https://drive.google.com/file/d/.../preview">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Team Notes & Instructions</label>
+            <textarea id="teamNoteInput" placeholder="Assignees, camera gear, location details..."></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-cancel" onclick="closeTeamForm()">Cancel</button>
+          <button class="btn-save" id="teamFormSaveBtn" onclick="saveTeamItem()">Save Team Task</button>
         </div>
       </div>
 
-      <div class="card-meta">
-        <span class="handle-tag">@cinebydheeraj</span>
-        <span class="subtext">YT MATE</span>
-      </div>
+      <!-- Team Schedules List Container -->
+      <div id="teamSchedulesList"></div>
+    </div>
 
-      <hr class="divider" />
-
-      <!-- Section Header with Add Button -->
-      <div class="section-header">
-        <h3 class="section-title">SCHEDULES & SCRIPT DOCUMENTS</h3>
-        <button class="btn btn-primary">+ Add Schedule/Script</button>
-      </div>
-
-      <div class="status-strip">
-        <span class="status-tag">UNSCHEDULED / TBD</span>
-      </div>
-
-      <!-- Nested Card 2.1: Funny Talk Edit -->
-      <div class="nested-card">
-        <h4 class="nested-title">Funny Talk Edit</h4>
-
-        <div class="badge-group">
-          <span class="badge badge-danger">× NOT PAID</span>
-          <span class="badge badge-info">UPCOMING</span>
-          <button class="btn btn-secondary">✏️ Edit</button>
-          <button class="btn btn-outline-danger">× Delete</button>
+    <!-- PANEL 4: What We Learned Today Tab -->
+    <div id="learnings" class="view-panel">
+      <header>
+        <div>
+          <h1>What We Learned Today</h1>
+          <div class="tagline">daily knowledge, fixes & key takeaways from the team</div>
         </div>
-
-        <div class="badge-group">
-          <span class="info-tag">🎬 Start Date: <strong>TBD</strong></span>
-          <span class="info-tag">✂️ Edit Deadline: <strong>TBD</strong></span>
+        <div class="header-actions">
+          <a href="https://www.instagram.com/cineby.dheeraj?igsh=cTM1cXRrZW00dXpy&utm_source=qr" target="_blank" class="brand-watermark">@cinebydheeraj</a>
+          <button class="admin-only btn-save" id="addLearningBtn" onclick="openLearningForm()">+ Add New Learning</button>
         </div>
-      </div>
+      </header>
 
-      <!-- Nested Card 2.2: Schedule 1 Gameplay -->
-      <div class="nested-card">
-        <h4 class="nested-title">Schedule 1 Gameplay</h4>
-
-        <div class="badge-group">
-          <span class="badge badge-pending">⌛ PENDING</span>
-          <span class="badge badge-info">UPCOMING</span>
-          <button class="btn btn-secondary">✏️ Edit</button>
-          <button class="btn btn-outline-danger">× Delete</button>
+      <!-- Add / Edit Learning Form -->
+      <div id="learningForm" class="form-note" style="display:none;">
+        <div class="form-row">
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Team Member Name 👤</label>
+            <input type="text" id="learnAuthorInput" placeholder="e.g. Alex / Editor 1">
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Topic / Title 💡</label>
+            <input type="text" id="learnTitleInput" placeholder="e.g. Color Grading Log Footage in Premiere">
+          </div>
         </div>
-
-        <div class="badge-group">
-          <span class="info-tag">🎬 Start Date: <strong>TBD</strong></span>
-          <span class="info-tag">✂️ Edit Deadline: <strong>TBD</strong></span>
+        <div class="form-row">
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Key Takeaways & Notes 📝</label>
+            <textarea id="learnContentInput" placeholder="Write what you learned today, workflow improvements, or issues solved..."></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-cancel" onclick="closeLearningForm()">Cancel</button>
+          <button class="btn-save" id="learnFormSaveBtn" onclick="saveLearningItem()">Post Learning</button>
         </div>
       </div>
 
-      <div class="date-footer">
-        <span class="date-badge">DATE: 04/08/26</span>
+      <!-- Learnings Feed List Container -->
+      <div id="learningsList"></div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBdtfVQVFkA1-48ZJczmIHgLxirf9byHMQ",
+  authDomain: "sync-8b93f.firebaseapp.com",
+  projectId: "sync-8b93f",
+  storageBucket: "sync-8b93f.firebasestorage.app",
+  messagingSenderId: "762945992908",
+  appId: "1:762945992908:web:241c2e2802a94d149faa69",
+  measurementId: "G-BRTV17TSDR",
+  databaseURL: "https://sync-8b93f-default-rtdb.firebaseio.com"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const COLORS = ['yellow','mint','coral','blue'];
+let entries = [];
+let clients = [];
+let teamTasks = [];
+let learnings = [];
+let activeDay = DAYS[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
+let openId = null;
+let formOpen = false;
+let editingId = null;
+
+// State management for active form slots to prevent DOM destruction across Firebase syncs
+let activeScheduleClientId = null;
+let activeScheduleItemId = null;
+let activeClientFormId = null; 
+let isNewClientFormOpen = false;
+
+let editingTeamItemId = null;
+let editingLearningId = null;
+let notifiedTasks = new Set();
+
+const urlParams = new URLSearchParams(window.location.search);
+const targetClient = urlParams.get('client');
+const targetView = urlParams.get('view');
+
+/* Update Browser Title immediately for Shared Links */
+if (targetClient) {
+  document.title = `${targetClient} Portal | @cinebydheeraj`;
+} else if (targetView === 'team') {
+  document.title = `Team Schedule | @cinebydheeraj`;
+}
+
+function uid(){ return 'e' + Math.random().toString(36).slice(2, 9); }
+
+/* Converts YYYY-MM-DD date strings into DD/MM/YY format */
+function formatDate(dateStr) {
+  if (!dateStr) return 'TBD';
+  const parts = dateStr.split('-');
+  if (parts.length !== 3) return dateStr;
+  const [yyyy, mm, dd] = parts;
+  const yy = yyyy.slice(-2);
+  return `${dd}/${mm}/${yy}`;
+}
+
+/* Helper to get Today / Tomorrow / Clean Date label */
+function getDateCategoryLabel(dateStr) {
+  if (!dateStr) return 'UNSCHEDULED / TBD';
+  
+  const now = new Date();
+  const todayStr = now.toISOString().split('T')[0];
+  
+  const tomorrow = new Date();
+  tomorrow.setDate(now.getDate() + 1);
+  const tomorrowStr = tomorrow.toISOString().split('T')[0];
+
+  if (dateStr === todayStr) {
+    return `TODAY (${formatDate(dateStr)})`;
+  } else if (dateStr === tomorrowStr) {
+    return `TOMORROW (${formatDate(dateStr)})`;
+  } else {
+    return `DATE: ${formatDate(dateStr)}`;
+  }
+}
+
+function tiltFor(id){
+  let h = 0;
+  for(const c of id) h = (h * 31 + c.charCodeAt(0)) % 1000;
+  return ((h % 5) - 2) * 0.6 + 'deg';
+}
+
+function switchTab(panelId, btn) {
+  document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(panelId).classList.add('active');
+  if(btn) btn.classList.add('active');
+}
+
+function requestNotificationPermission() {
+  if (!("Notification" in window)) {
+    alert("This browser does not support desktop notifications.");
+    return;
+  }
+  Notification.permission && Notification.requestPermission().then(permission => {
+    updateNotificationButton();
+    if (permission === "granted") {
+      new Notification("Desk Pad Alerts On!", { body: "You will be notified when your task start times arrive." });
+    }
+  });
+}
+
+function updateNotificationButton() {
+  const btn = document.getElementById("notifyBtn");
+  if (!btn || !("Notification" in window)) return;
+  if (Notification.permission === "granted") {
+    btn.textContent = "🔔 Alerts Active";
+    btn.style.opacity = "0.7";
+  } else {
+    btn.textContent = "🔔 Enable Alerts";
+    btn.style.opacity = "1";
+  }
+}
+
+function checkStartTimes() {
+  const now = new Date();
+  const currentDayIndex = now.getDay() === 0 ? 6 : now.getDay() - 1;
+  const currentDay = DAYS[currentDayIndex];
+  
+  const currentHours = String(now.getHours()).padStart(2, '0');
+  const currentMinutes = String(now.getMinutes()).padStart(2, '0');
+  const currentTime = `${currentHours}:${currentMinutes}`;
+
+  entries.forEach(entry => {
+    if (entry.day === currentDay && entry.start === currentTime) {
+      const notificationKey = `${entry.id}-${entry.start}`;
+      if (!notifiedTasks.has(notificationKey)) {
+        notifiedTasks.add(notificationKey);
+        if ("Notification" in window && Notification.permission === "granted") {
+          new Notification(`Task Starting: ${entry.title}`, {
+            body: entry.details ? entry.details : `It's ${to12h(entry.start)}! Time to start your task.`
+          });
+        } else {
+          alert(`⏰ TASK STARTING!\n\nTask: ${entry.title}\nTime: ${to12h(entry.start)}`);
+        }
+      }
+    }
+  });
+}
+
+function load(){
+  db.ref('timetable-entries').on('value', (snapshot) => {
+    const data = snapshot.val();
+    entries = data ? Object.values(data) : [];
+    render();
+  });
+
+  db.ref('clients-portals').on('value', (snapshot) => {
+    const data = snapshot.val();
+    clients = data ? Object.values(data) : [];
+    renderClientsPortals();
+  });
+
+  db.ref('team-schedules').on('value', (snapshot) => {
+    const data = snapshot.val();
+    teamTasks = data ? Object.values(data) : [];
+    renderTeamSchedules();
+  });
+
+  db.ref('team-learnings').on('value', (snapshot) => {
+    const data = snapshot.val();
+    learnings = data ? Object.values(data) : [];
+    renderLearnings();
+  });
+}
+
+function save(){
+  const entriesObj = {};
+  entries.forEach(item => entriesObj[item.id] = item);
+  db.ref('timetable-entries').set(entriesObj);
+}
+
+function saveClientsToFirebase(){
+  const clientsObj = {};
+  clients.forEach(c => clientsObj[c.id] = c);
+  db.ref('clients-portals').set(clientsObj);
+}
+
+function saveTeamToFirebase(){
+  const teamObj = {};
+  teamTasks.forEach(t => teamObj[t.id] = t);
+  db.ref('team-schedules').set(teamObj);
+}
+
+function saveLearningsToFirebase(){
+  const learnObj = {};
+  learnings.forEach(l => learnObj[l.id] = l);
+  db.ref('team-learnings').set(learnObj);
+}
+
+function to12h(t){
+  if(!t) return '';
+  let [h,m] = t.split(':').map(Number);
+  const ap = h >= 12 ? 'PM' : 'AM';
+  h = h % 12; if(h===0) h = 12;
+  return h + ':' + String(m).padStart(2,'0') + ' ' + ap;
+}
+
+function renderTabs(){
+  const tabs = document.getElementById('dayTabs');
+  tabs.innerHTML = '';
+  DAYS.forEach(d => {
+    const btn = document.createElement('button');
+    btn.className = 'day-tab' + (d === activeDay ? ' active' : '');
+    btn.textContent = d;
+    btn.onclick = () => { activeDay = d; openId = null; formOpen = false; render(); };
+    tabs.appendChild(btn);
+  });
+}
+
+function renderNotes(){
+  const list = document.getElementById('notesList');
+  list.innerHTML = '';
+
+  const dayEntries = entries
+    .filter(e => e.day === activeDay)
+    .sort((a,b) => a.start.localeCompare(b.start));
+
+  if(dayEntries.length === 0 && !formOpen){
+    const empty = document.createElement('div');
+    empty.className = 'empty';
+    empty.textContent = 'nothing pinned for ' + activeDay + ' yet';
+    list.appendChild(empty);
+  }
+
+  dayEntries.forEach(entry => {
+    const note = document.createElement('div');
+    note.className = 'note ' + entry.color + (openId === entry.id ? ' open' : '');
+    note.style.setProperty('--tilt', tiltFor(entry.id));
+    note.onclick = (ev) => {
+      if(ev.target.closest('.note-actions')) return;
+      openId = openId === entry.id ? null : entry.id;
+      render();
+    };
+
+    const row = document.createElement('div');
+    row.className = 'note-row';
+    row.innerHTML = `
+      <span class="note-time">${to12h(entry.start)}${entry.end ? ' – ' + to12h(entry.end) : ''}</span>
+      <span class="note-title">${escapeHtml(entry.title)}</span>
+      <span class="chevron">⌄</span>
+    `;
+    note.appendChild(row);
+
+    const body = document.createElement('div');
+    body.className = 'note-body';
+    const detailText = entry.details ? escapeHtml(entry.details) : 'No extra notes.';
+    body.innerHTML = `<p class="note-detail">${detailText}</p>`;
+    const actions = document.createElement('div');
+    actions.className = 'note-actions';
+    const editBtn = document.createElement('button');
+    editBtn.textContent = 'Edit';
+    editBtn.onclick = (e) => { e.stopPropagation(); startEdit(entry.id); };
+    const delBtn = document.createElement('button');
+    delBtn.style.color = "#7A2E1E";
+    delBtn.textContent = 'Remove';
+    delBtn.onclick = (e) => { e.stopPropagation(); deleteEntry(entry.id); };
+    actions.appendChild(editBtn);
+    actions.appendChild(delBtn);
+    body.appendChild(actions);
+    note.appendChild(body);
+
+    list.appendChild(note);
+  });
+
+  if(formOpen){
+    list.appendChild(buildForm());
+  } else {
+    const addBtn = document.createElement('button');
+    addBtn.className = 'add-note';
+    addBtn.innerHTML = '+ &nbsp;pin a new task';
+    addBtn.onclick = () => { formOpen = true; editingId = null; render(); };
+    list.appendChild(addBtn);
+  }
+}
+
+/* CLIENT PORTAL LOGIC */
+function openClientForm() {
+  isNewClientFormOpen = true;
+  activeClientFormId = null;
+  renderClientsPortals();
+}
+
+function startEditClientPortal(clientId) {
+  isNewClientFormOpen = false;
+  activeClientFormId = clientId;
+  renderClientsPortals();
+  closeAllDropdowns();
+}
+
+function closeClientForm() {
+  isNewClientFormOpen = false;
+  activeClientFormId = null;
+  renderClientsPortals();
+}
+
+function saveClient() {
+  const name = document.getElementById('clientNameInput').value.trim();
+  const badgeLabel = document.getElementById('clientBadgeLabelInput').value.trim();
+  const editsDone = document.getElementById('clientEditsDoneInput').value.trim();
+  const editLimit = document.getElementById('clientEditLimitInput').value.trim();
+  const paymentStatus = document.getElementById('clientPaymentStatusInput').value;
+  const note = document.getElementById('clientNoteInput').value.trim();
+  if(!name) { alert('Please enter a client name.'); return; }
+  
+  if(activeClientFormId) {
+    const client = clients.find(c => c.id === activeClientFormId);
+    if(client) {
+      client.name = name;
+      client.badgeLabel = badgeLabel || 'REELS / VIDEOS DONE';
+      client.editsDone = editsDone !== '' ? editsDone : null;
+      client.editLimit = editLimit !== '' ? editLimit : null;
+      client.paymentStatus = paymentStatus || 'Not Paid';
+      client.note = note;
+    }
+  } else {
+    clients.push({
+      id: uid(),
+      name,
+      badgeLabel: badgeLabel || 'REELS / VIDEOS DONE',
+      editsDone: editsDone !== '' ? editsDone : null,
+      editLimit: editLimit !== '' ? editLimit : null,
+      paymentStatus: paymentStatus || 'Not Paid',
+      note,
+      items: []
+    });
+  }
+  
+  isNewClientFormOpen = false;
+  activeClientFormId = null;
+  saveClientsToFirebase();
+  renderClientsPortals();
+}
+
+function deleteClient(id) {
+  const confirmed = confirm("Are you sure you want to delete this Client Portal?");
+  if (!confirmed) return;
+
+  clients = clients.filter(c => c.id !== id);
+  saveClientsToFirebase();
+  renderClientsPortals();
+  closeAllDropdowns();
+}
+
+/* ADD / EDIT ITEM TO CLIENT PORTAL */
+function openScheduleForm(clientId) {
+  activeScheduleClientId = clientId;
+  activeScheduleItemId = null;
+  renderClientsPortals();
+}
+
+function startEditScheduleItem(clientId, itemId) {
+  activeScheduleClientId = clientId;
+  activeScheduleItemId = itemId;
+  renderClientsPortals();
+}
+
+function closeScheduleForm() {
+  activeScheduleClientId = null;
+  activeScheduleItemId = null;
+  renderClientsPortals();
+}
+
+function saveSchedule() {
+  const title = document.getElementById('schTitleInput').value.trim();
+  const itemType = document.getElementById('schTypeInput').value;
+  const shootDate = document.getElementById('schShootDateInput').value;
+  const editDate = document.getElementById('schEditDateInput').value;
+  const pdfUrl = document.getElementById('schPdfInput').value.trim();
+  const note = document.getElementById('schNoteInput').value.trim();
+  const status = document.getElementById('schStatusInput').value;
+  const paymentStatus = document.getElementById('schPaymentStatusInput').value;
+
+  if(!title) { alert('Please enter an item/project title.'); return; }
+  const client = clients.find(c => c.id === activeScheduleClientId);
+  if(!client) return;
+
+  if(!client.items) client.items = [];
+
+  if (activeScheduleItemId) {
+    const item = client.items.find(i => i.id === activeScheduleItemId);
+    if (item) {
+      item.title = title;
+      item.itemType = itemType;
+      item.shootDate = shootDate;
+      item.editDate = editDate;
+      item.pdfUrl = pdfUrl || null;
+      item.note = note;
+      item.status = status;
+      item.paymentStatus = paymentStatus || 'Not Paid';
+    }
+  } else {
+    client.items.push({
+      id: uid(),
+      title,
+      itemType: itemType || 'Both',
+      shootDate,
+      editDate,
+      note,
+      status,
+      paymentStatus: paymentStatus || 'Not Paid',
+      pdfUrl: pdfUrl || null
+    });
+  }
+
+  activeScheduleClientId = null;
+  activeScheduleItemId = null;
+  saveClientsToFirebase();
+  renderClientsPortals();
+}
+
+function removeItemFromClient(clientId, itemId) {
+  const confirmed = confirm("Are you sure you want to remove this item?");
+  if (!confirmed) return;
+
+  const client = clients.find(c => c.id === clientId);
+  if(client && client.items) {
+    client.items = client.items.filter(i => i.id !== itemId);
+    saveClientsToFirebase();
+    renderClientsPortals();
+  }
+}
+
+/* TEAM SCHEDULE LOGIC (NO PAYMENT LOGIC) */
+function openTeamForm() {
+  editingTeamItemId = null;
+  document.getElementById('teamAssigneeInput').value = '';
+  document.getElementById('teamTypeInput').value = 'Shoot';
+  document.getElementById('teamTitleInput').value = '';
+  document.getElementById('teamShootDateInput').value = '';
+  document.getElementById('teamEditDateInput').value = '';
+  document.getElementById('teamPdfInput').value = '';
+  document.getElementById('teamNoteInput').value = '';
+  document.getElementById('teamStatusInput').value = 'Upcoming';
+  document.getElementById('teamFormSaveBtn').textContent = 'Save Team Task';
+  document.getElementById('teamForm').style.display = 'block';
+}
+
+function startEditTeamItem(itemId) {
+  const item = teamTasks.find(t => t.id === itemId);
+  if(!item) return;
+
+  editingTeamItemId = itemId;
+  document.getElementById('teamAssigneeInput').value = item.assignee || '';
+  document.getElementById('teamTypeInput').value = item.taskType || 'Shoot';
+  document.getElementById('teamTitleInput').value = item.title || '';
+  document.getElementById('teamShootDateInput').value = item.shootDate || '';
+  document.getElementById('teamEditDateInput').value = item.editDate || '';
+  document.getElementById('teamPdfInput').value = item.pdfUrl || '';
+  document.getElementById('teamNoteInput').value = item.note || '';
+  document.getElementById('teamStatusInput').value = item.status || 'Upcoming';
+  document.getElementById('teamFormSaveBtn').textContent = 'Update Team Task';
+  document.getElementById('teamForm').style.display = 'block';
+}
+
+function closeTeamForm() {
+  document.getElementById('teamForm').style.display = 'none';
+  editingTeamItemId = null;
+}
+
+function saveTeamItem() {
+  const assignee = document.getElementById('teamAssigneeInput').value.trim();
+  const taskType = document.getElementById('teamTypeInput').value;
+  const title = document.getElementById('teamTitleInput').value.trim();
+  const shootDate = document.getElementById('teamShootDateInput').value;
+  const editDate = document.getElementById('teamEditDateInput').value;
+  const pdfUrl = document.getElementById('teamPdfInput').value.trim();
+  const note = document.getElementById('teamNoteInput').value.trim();
+  const status = document.getElementById('teamStatusInput').value;
+
+  if(!title) { alert('Please enter a team task/project title.'); return; }
+
+  if(editingTeamItemId) {
+    const item = teamTasks.find(t => t.id === editingTeamItemId);
+    if(item) {
+      item.assignee = assignee || null;
+      item.taskType = taskType;
+      item.title = title;
+      item.shootDate = shootDate;
+      item.editDate = editDate;
+      item.pdfUrl = pdfUrl || null;
+      item.note = note;
+      item.status = status;
+    }
+  } else {
+    teamTasks.push({
+      id: uid(),
+      assignee: assignee || null,
+      taskType: taskType || 'Shoot',
+      title,
+      shootDate,
+      editDate,
+      pdfUrl: pdfUrl || null,
+      note,
+      status
+    });
+  }
+
+  saveTeamToFirebase();
+  closeTeamForm();
+  renderTeamSchedules();
+}
+
+function deleteTeamItem(itemId) {
+  const confirmed = confirm("Are you sure you want to remove this team schedule?");
+  if (!confirmed) return;
+
+  teamTasks = teamTasks.filter(t => t.id !== itemId);
+  saveTeamToFirebase();
+  renderTeamSchedules();
+}
+
+function shareTeamLink() {
+  const cleanUrl = window.location.origin + window.location.pathname;
+  const teamUrl = `${cleanUrl}?view=team`;
+
+  if (navigator.share) {
+    navigator.share({
+      title: `Team Schedule | @cinebydheeraj`,
+      text: `Live shoot schedule & deadlines for the team`,
+      url: teamUrl
+    }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(teamUrl).then(() => {
+      alert(`🔗 Team Schedule Link copied!\n\n${teamUrl}`);
+    });
+  }
+}
+
+function getPaymentBadgeHtml(status) {
+  const cleanStatus = status || 'Not Paid';
+  if (cleanStatus === 'Paid') {
+    return `<span class="payment-badge payment-paid">✓ Paid</span>`;
+  } else if (cleanStatus === 'Pending') {
+    return `<span class="payment-badge payment-pending">⏳ Pending</span>`;
+  } else {
+    return `<span class="payment-badge payment-notpaid">✕ Not Paid</span>`;
+  }
+}
+
+function renderTeamSchedules() {
+  const container = document.getElementById('teamSchedulesList');
+  if(!container) return;
+  container.innerHTML = '';
+
+  let visibleTasks = teamTasks;
+
+  if (targetView === 'team') {
+    visibleTasks = teamTasks.filter(t => t.status !== 'Completed');
+  }
+
+  if (visibleTasks.length === 0) {
+    container.innerHTML = `<div class="empty">no ${targetView === 'team' ? 'upcoming or present' : ''} team schedules found</div>`;
+    return;
+  }
+
+  // Group tasks by person/assignee
+  const personGroups = {};
+  visibleTasks.forEach(task => {
+    const personKey = task.assignee ? task.assignee.trim().toUpperCase() : 'UNASSIGNED';
+    if (!personGroups[personKey]) {
+      personGroups[personKey] = [];
+    }
+    personGroups[personKey].push(task);
+  });
+
+  // Output each person's header once, followed by all of their assigned tasks
+  Object.keys(personGroups).forEach(personName => {
+    const personSection = document.createElement('div');
+    personSection.style.marginBottom = '24px';
+
+    const personBadge = document.createElement('div');
+    personBadge.className = 'assignee-badge';
+    personBadge.style.fontSize = '12px';
+    personBadge.style.padding = '4px 10px';
+    personBadge.style.marginBottom = '12px';
+    personBadge.innerHTML = `👤 ${escapeHtml(personName)}`;
+    personSection.appendChild(personBadge);
+
+    personGroups[personName].forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'schedule-item';
+      card.style.padding = '16px';
+      card.style.marginBottom = '14px';
+
+      card.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <strong style="font-size:16px;">${escapeHtml(item.title)}</strong>
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span class="status-badge status-${item.status}">${item.status}</span>
+            <div class="admin-only item-actions">
+              <button class="btn-item-action" onclick="startEditTeamItem('${item.id}')">✏️ Edit</button>
+              <button class="btn-item-action delete" onclick="deleteTeamItem('${item.id}')">✕ Delete</button>
+            </div>
+          </div>
+        </div>
+        <div class="schedule-meta" style="margin-top:10px;">
+          <span class="meta-tag">🎬 Shoot: <strong>${formatDate(item.shootDate)}</strong></span>
+          <span class="meta-tag">✂️ Edit Deadline: <strong>${formatDate(item.editDate)}</strong></span>
+        </div>
+        ${item.pdfUrl ? `<a href="${escapeHtml(item.pdfUrl)}" target="_blank" class="pdf-link">📄 Open Script PDF / Document</a>` : ''}
+        ${item.note ? `<div class="client-note" style="margin-top:10px; font-size:13px; color:#D8C9A8;">${escapeHtml(item.note)}</div>` : ''}
+      `;
+
+      personSection.appendChild(card);
+    });
+
+    container.appendChild(personSection);
+  });
+}
+
+/* TEAM LEARNINGS LOGIC */
+function openLearningForm() {
+  editingLearningId = null;
+  document.getElementById('learnAuthorInput').value = '';
+  document.getElementById('learnTitleInput').value = '';
+  document.getElementById('learnContentInput').value = '';
+  document.getElementById('learnFormSaveBtn').textContent = 'Post Learning';
+  document.getElementById('learningForm').style.display = 'block';
+}
+
+function startEditLearningItem(id) {
+  const item = learnings.find(l => l.id === id);
+  if (!item) return;
+
+  editingLearningId = id;
+  document.getElementById('learnAuthorInput').value = item.author || '';
+  document.getElementById('learnTitleInput').value = item.title || '';
+  document.getElementById('learnContentInput').value = item.content || '';
+  document.getElementById('learnFormSaveBtn').textContent = 'Update Learning';
+  document.getElementById('learningForm').style.display = 'block';
+}
+
+function closeLearningForm() {
+  document.getElementById('learningForm').style.display = 'none';
+  editingLearningId = null;
+}
+
+function saveLearningItem() {
+  const author = document.getElementById('learnAuthorInput').value.trim();
+  const title = document.getElementById('learnTitleInput').value.trim();
+  const content = document.getElementById('learnContentInput').value.trim();
+
+  if(!title || !content) { alert('Please enter both a topic title and key takeaways.'); return; }
+
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  if(editingLearningId) {
+    const item = learnings.find(l => l.id === editingLearningId);
+    if(item) {
+      item.author = author || 'Team Member';
+      item.title = title;
+      item.content = content;
+    }
+  } else {
+    learnings.push({
+      id: uid(),
+      author: author || 'Team Member',
+      title,
+      content,
+      date: todayStr,
+      timestamp: Date.now()
+    });
+  }
+
+  saveLearningsToFirebase();
+  closeLearningForm();
+  renderLearnings();
+}
+
+function deleteLearningItem(id) {
+  const confirmed = confirm("Are you sure you want to delete this daily learning entry?");
+  if (!confirmed) return;
+
+  learnings = learnings.filter(l => l.id !== id);
+  saveLearningsToFirebase();
+  renderLearnings();
+}
+
+function getLearningDateLabel(dateStr) {
+  if(!dateStr) return 'RECENT LEARNINGS';
+  const now = new Date();
+  const todayStr = now.toISOString().split('T')[0];
+
+  const yesterday = new Date();
+  yesterday.setDate(now.getDate() - 1);
+  const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+  if (dateStr === todayStr) return `TODAY'S LEARNINGS (${formatDate(dateStr)})`;
+  if (dateStr === yesterdayStr) return `YESTERDAY'S LEARNINGS (${formatDate(dateStr)})`;
+  return `LEARNED ON ${formatDate(dateStr)}`;
+}
+
+function renderLearnings() {
+  const container = document.getElementById('learningsList');
+  if(!container) return;
+  container.innerHTML = '';
+
+  if(learnings.length === 0) {
+    container.innerHTML = `<div class="empty">no daily learnings posted yet</div>`;
+    return;
+  }
+
+  // Sort by date/timestamp descending (newest first)
+  const sortedLearnings = [...learnings].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+  // Group by Date
+  const groups = {};
+  sortedLearnings.forEach(item => {
+    const key = item.date || 'TBD';
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(item);
+  });
+
+  Object.keys(groups).forEach(dateKey => {
+    const headerTitle = getLearningDateLabel(dateKey === 'TBD' ? '' : dateKey);
+
+    const groupHeader = document.createElement('div');
+    groupHeader.className = 'date-group-header';
+    groupHeader.textContent = headerTitle;
+    container.appendChild(groupHeader);
+
+    groups[dateKey].forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'schedule-item';
+      card.style.padding = '16px';
+      card.style.marginBottom = '14px';
+
+      card.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <div class="assignee-badge" style="margin-bottom:0;">👤 ${escapeHtml(item.author || 'Team Member')}</div>
+          <div class="admin-only item-actions">
+            <button class="btn-item-action" onclick="startEditLearningItem('${item.id}')">✏️ Edit</button>
+            <button class="btn-item-action delete" onclick="deleteLearningItem('${item.id}')">✕ Delete</button>
+          </div>
+        </div>
+        <strong style="font-size:16px; color:var(--paper-yellow); display:block; margin-bottom:6px;">${escapeHtml(item.title)}</strong>
+        <div style="font-size:14px; line-height:1.5; color:var(--cream); white-space:pre-wrap;">${escapeHtml(item.content)}</div>
+      `;
+
+      container.appendChild(card);
+    });
+  });
+}
+
+/* SHARE LINK FOR CLIENT PORTAL PAGE */
+function shareClientLink(clientName) {
+  const cleanUrl = window.location.origin + window.location.pathname;
+  const shareUrl = `${cleanUrl}?client=${encodeURIComponent(clientName)}`;
+  
+  if (navigator.share) {
+    navigator.share({
+      title: `${clientName} Portal | @cinebydheeraj`,
+      text: `All shoot schedules, deadlines & scripts for ${clientName}`,
+      url: shareUrl
+    }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      alert(`🔗 Private Portal Link copied for ${clientName}!\n\n${shareUrl}`);
+    });
+  }
+  closeAllDropdowns();
+}
+
+/* HELPER HTML BUILDERS FOR DYNAMIC INLINE FORMS */
+function buildClientFormHtml(clientObj = null) {
+  const name = clientObj ? escapeHtml(clientObj.name) : '';
+  const badgeLabel = clientObj ? escapeHtml(clientObj.badgeLabel || 'REELS / VIDEOS DONE') : 'REELS / VIDEOS DONE';
+  const editsDone = (clientObj && clientObj.editsDone !== undefined && clientObj.editsDone !== null) ? clientObj.editsDone : '';
+  const editLimit = (clientObj && clientObj.editLimit !== undefined && clientObj.editLimit !== null) ? clientObj.editLimit : '';
+  const paymentStatus = clientObj ? (clientObj.paymentStatus || 'Not Paid') : 'Not Paid';
+  const note = clientObj ? escapeHtml(clientObj.note || '') : '';
+  const btnText = clientObj ? 'Update Client Portal' : 'Save Client Portal';
+
+  return `
+    <div id="clientForm" class="form-note">
+      <div class="form-row">
+        <div>
+          <label style="font-size:12px; font-weight:bold;">Client Name</label>
+          <input type="text" id="clientNameInput" placeholder="e.g. Procafe" value="${name}">
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:bold;">Badge Label Title (Top Line)</label>
+          <input type="text" id="clientBadgeLabelInput" placeholder="e.g. REELS / VIDEOS DONE" value="${badgeLabel}">
+        </div>
       </div>
+      <div class="form-row">
+        <div>
+          <label style="font-size:12px; font-weight:bold;">Completed Edits / Deliverables (Bottom Line)</label>
+          <input type="number" id="clientEditsDoneInput" placeholder="e.g. 1" min="0" value="${editsDone}">
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:bold;">Total Monthly Limit / Quota</label>
+          <input type="number" id="clientEditLimitInput" placeholder="e.g. 40" min="0" value="${editLimit}">
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:bold;">Overall Payment Status 💳</label>
+          <select id="clientPaymentStatusInput">
+            <option value="Not Paid" ${paymentStatus === 'Not Paid' ? 'selected' : ''}>Not Paid ❌</option>
+            <option value="Paid" ${paymentStatus === 'Paid' ? 'selected' : ''}>Paid ✅</option>
+            <option value="Pending" ${paymentStatus === 'Pending' ? 'selected' : ''}>Pending ⏳</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div>
+          <label style="font-size:12px; font-weight:bold;">General Notes / Details (Optional)</label>
+          <textarea id="clientNoteInput" placeholder="Contact info, brand specs...">${note}</textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-cancel" onclick="closeClientForm()">Cancel</button>
+        <button class="btn-save" onclick="saveClient()">${btnText}</button>
+      </div>
+    </div>
+  `;
+}
 
-    </article>
+function buildScheduleFormHtml(itemObj = null) {
+  const title = itemObj ? escapeHtml(itemObj.title) : '';
+  const itemType = itemObj ? (itemObj.itemType || 'Both') : 'Both';
+  const shootDate = itemObj ? (itemObj.shootDate || '') : '';
+  const editDate = itemObj ? (itemObj.editDate || '') : '';
+  const pdfUrl = itemObj ? escapeHtml(itemObj.pdfUrl || '') : '';
+  const note = itemObj ? escapeHtml(itemObj.note || '') : '';
+  const status = itemObj ? itemObj.status : 'Upcoming';
+  const paymentStatus = itemObj ? (itemObj.paymentStatus || 'Not Paid') : 'Not Paid';
+  const btnText = itemObj ? 'Update Item Changes' : 'Add To Client Portal';
 
-  </main>
+  return `
+    <div id="scheduleForm" class="form-note">
+      <div class="form-row">
+        <div>
+          <label style="font-size:12px; font-weight:bold;">Project / Item Name</label>
+          <input type="text" id="schTitleInput" placeholder="e.g. Promo Reel 1" value="${title}">
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:bold;">Task Type 📌</label>
+          <select id="schTypeInput">
+            <option value="Both" ${itemType === 'Both' ? 'selected' : ''}>Both (Shoot & Edit) 🎬✂️</option>
+            <option value="Shoot" ${itemType === 'Shoot' ? 'selected' : ''}>Shoot Only 🎬</option>
+            <option value="Edit" ${itemType === 'Edit' ? 'selected' : ''}>Edit Only ✂️</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:bold;">Status</label>
+          <select id="schStatusInput">
+            <option value="Upcoming" ${status === 'Upcoming' ? 'selected' : ''}>Upcoming</option>
+            <option value="InProgress" ${status === 'InProgress' ? 'selected' : ''}>In Progress</option>
+            <option value="Completed" ${status === 'Completed' ? 'selected' : ''}>Completed</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:bold;">Payment Status 💳</label>
+          <select id="schPaymentStatusInput">
+            <option value="Not Paid" ${paymentStatus === 'Not Paid' ? 'selected' : ''}>Not Paid ❌</option>
+            <option value="Paid" ${paymentStatus === 'Paid' ? 'selected' : ''}>Paid ✅</option>
+            <option value="Pending" ${paymentStatus === 'Pending' ? 'selected' : ''}>Pending ⏳</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div>
+          <label style="font-size:12px; font-weight:bold;">Shoot / Start Date 🎬</label>
+          <input type="date" id="schShootDateInput" value="${shootDate}">
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:bold;">Edit Deadline ✂️</label>
+          <input type="date" id="schEditDateInput" value="${editDate}">
+        </div>
+      </div>
+      <div class="form-row">
+        <div>
+          <label style="font-size:12px; font-weight:bold;">Script PDF / Google Drive URL 📄</label>
+          <input type="text" id="schPdfInput" placeholder="https://drive.google.com/file/d/.../preview" value="${pdfUrl}">
+        </div>
+      </div>
+      <div class="form-row">
+        <div>
+          <label style="font-size:12px; font-weight:bold;">Notes / Instructions (Optional)</label>
+          <textarea id="schNoteInput" placeholder="Instructions, drive links, specs...">${note}</textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-cancel" onclick="closeScheduleForm()">Cancel</button>
+        <button class="btn-save" onclick="saveSchedule()">${btnText}</button>
+      </div>
+    </div>
+  `;
+}
 
-  <script>
-    // Handles toggling dropdown options safely without overflowing screen edge
-    function toggleDropdown(event) {
-      event.stopPropagation();
-      const menu = event.currentTarget.nextElementSibling;
-      
-      // Close all open menus first
-      document.querySelectorAll('.dropdown-menu').forEach(m => {
-        if (m !== menu) m.classList.remove('show');
+/* RENDER CLIENT PORTALS */
+function renderClientsPortals() {
+  const container = document.getElementById('clientsPortalsList');
+  if(!container) return;
+  container.innerHTML = '';
+
+  let filteredClients = clients;
+
+  if (targetClient) {
+    filteredClients = clients.filter(c => c.name.toLowerCase() === targetClient.toLowerCase());
+  }
+
+  let topSlotHtml = isNewClientFormOpen ? buildClientFormHtml(null) : '';
+
+  if(filteredClients.length === 0 && !isNewClientFormOpen) {
+    container.innerHTML = `<div class="empty">${targetClient ? 'no portal found for ' + escapeHtml(targetClient) : 'no client portals added yet'}</div>`;
+    return;
+  }
+
+  let htmlContent = topSlotHtml;
+
+  // Status Priority Order for Client Items sorting
+  const STATUS_ORDER = {
+    'InProgress': 1,
+    'Upcoming': 2,
+    'Completed': 3
+  };
+
+  filteredClients.forEach(c => {
+    let clientCardFormHtml = (activeClientFormId === c.id) ? buildClientFormHtml(c) : '';
+    let scheduleFormHtml = '';
+
+    let itemsHtml = '';
+    if (c.items && c.items.length > 0) {
+      // Priority sorting: InProgress -> Upcoming -> Completed, then by date
+      const sortedItems = [...c.items];
+      sortedItems.forEach(item => {
+        item._primaryDate = item.shootDate || item.editDate || '';
+      });
+      sortedItems.sort((a, b) => {
+        const priorityA = STATUS_ORDER[a.status] || 99;
+        const priorityB = STATUS_ORDER[b.status] || 99;
+
+        if (priorityA !== priorityB) {
+          return priorityA - priorityB;
+        }
+
+        if (!a._primaryDate) return 1;
+        if (!b._primaryDate) return -1;
+        return a._primaryDate.localeCompare(b._primaryDate);
       });
 
-      menu.classList.toggle('show');
+      // Group items by Status/Date priority
+      const itemGroups = {};
+      sortedItems.forEach(item => {
+        const key = item._primaryDate || 'TBD';
+        if (!itemGroups[key]) itemGroups[key] = [];
+        itemGroups[key].push(item);
+      });
+
+      Object.keys(itemGroups).forEach(dateKey => {
+        const sampleGroup = itemGroups[dateKey];
+        const headerTitle = getDateCategoryLabel(dateKey === 'TBD' ? '' : dateKey);
+
+        itemsHtml += `<div class="date-group-header">${headerTitle}</div>`;
+
+        sampleGroup.forEach(item => {
+          const type = item.itemType || 'Both';
+          
+          let resolvedShootDate = item.shootDate || (dateKey !== 'TBD' ? dateKey : '');
+
+          let shootLabel = (type === 'Edit') ? '🎬 Start Date' : '🎬 Shoot';
+          let showShootTag = (type === 'Both' || type === 'Shoot' || type === 'Edit');
+          let showEditTag = (type === 'Both' || type === 'Edit');
+
+          itemsHtml += `
+            <div class="schedule-item">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                <strong>${escapeHtml(item.title)}</strong>
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                  ${getPaymentBadgeHtml(item.paymentStatus)}
+                  <span class="status-badge status-${item.status}">${item.status}</span>
+                  <div class="admin-only item-actions">
+                    <button class="btn-item-action" onclick="startEditScheduleItem('${c.id}', '${item.id}')">✏️ Edit</button>
+                    <button class="btn-item-action delete" onclick="removeItemFromClient('${c.id}', '${item.id}')">✕ Delete</button>
+                  </div>
+                </div>
+              </div>
+              <div class="schedule-meta">
+                ${showShootTag ? `<span class="meta-tag">${shootLabel}: <strong>${formatDate(resolvedShootDate)}</strong></span>` : ''}
+                ${showEditTag ? `<span class="meta-tag">✂️ Edit Deadline: <strong>${formatDate(item.editDate)}</strong></span>` : ''}
+              </div>
+              ${item.pdfUrl ? `<a href="${escapeHtml(item.pdfUrl)}" target="_blank" class="pdf-link">📄 Open Script PDF / Document</a>` : ''}
+              ${item.note ? `<div class="client-note" style="margin-top:6px;">${escapeHtml(item.note)}</div>` : ''}
+            </div>
+          `;
+        });
+      });
+    } else {
+      itemsHtml = '<div style="font-size:13px; color:#D8C9A8; font-style:italic;">No schedules or scripts added to this portal yet.</div>';
     }
 
-    // Close menu when clicking outside
-    document.addEventListener('click', () => {
-      document.querySelectorAll('.dropdown-menu').forEach(menu => {
-        menu.classList.remove('show');
-      });
-    });
-  </script>
+    if (activeScheduleClientId === c.id) {
+      const activeItem = c.items ? c.items.find(i => i.id === activeScheduleItemId) : null;
+      scheduleFormHtml = buildScheduleFormHtml(activeItem);
+    }
 
+    const hasNumbers = (c.editsDone !== undefined && c.editsDone !== null && c.editLimit !== undefined && c.editLimit !== null);
+    const badgeLabelText = c.badgeLabel || 'REELS / VIDEOS DONE';
+
+    htmlContent += `
+      <div class="portal-box">
+        <div class="portal-header">
+          <div>
+            <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+              <div class="portal-title">${escapeHtml(c.name)}</div>
+              ${getPaymentBadgeHtml(c.paymentStatus)}
+              ${hasNumbers ? `
+                <div class="red-edit-badge">
+                  <span class="red-edit-label">${escapeHtml(badgeLabelText)}</span>
+                  <span class="red-edit-number">${c.editsDone}/${c.editLimit}</span>
+                </div>
+              ` : ''}
+              <a href="https://www.instagram.com/cineby.dheeraj?igsh=cTM1cXRrZW00dXpy&utm_source=qr" target="_blank" class="brand-watermark">@cinebydheeraj</a>
+            </div>
+            ${c.note ? `<div class="client-note">${escapeHtml(c.note)}</div>` : ''}
+          </div>
+          <div class="dropdown-container">
+            <button class="dropdown-trigger" onclick="toggleDropdown('${c.id}', event)">⋮</button>
+            <div class="dropdown-menu" id="dropdown-${c.id}">
+              <button class="dropdown-item" onclick="shareClientLink('${escapeHtml(c.name)}')">🔗 Share Client Portal</button>
+              <button class="dropdown-item" onclick="startEditClientPortal('${c.id}')">✏️ Edit Client Portal</button>
+              <button class="dropdown-item delete" onclick="deleteClient('${c.id}')">🗑️ Delete Portal</button>
+            </div>
+          </div>
+        </div>
+
+        ${clientCardFormHtml}
+
+        <div style="margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:12px; font-weight:bold; letter-spacing:0.5px; text-transform:uppercase; color:var(--paper-yellow);">Schedules & Script Documents</span>
+          <button class="admin-only btn-save" style="font-size:11px; padding:4px 10px;" onclick="openScheduleForm('${c.id}')">+ Add Schedule/Script</button>
+        </div>
+
+        ${scheduleFormHtml}
+
+        ${itemsHtml}
+      </div>
+    `;
+  });
+
+  container.innerHTML = htmlContent;
+}
+
+/* Dropdown Handlers */
+function toggleDropdown(id, event) {
+  event.stopPropagation();
+  const currentMenu = document.getElementById(`dropdown-${id}`);
+  const isShow = currentMenu ? currentMenu.classList.contains('show') : false;
+  closeAllDropdowns();
+  if (!isShow && currentMenu) { currentMenu.classList.add('show'); }
+}
+
+function closeAllDropdowns() {
+  document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('show'));
+}
+
+window.onclick = function() { closeAllDropdowns(); };
+
+function escapeHtml(str){
+  if (!str) return '';
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function startEdit(id){ editingId = id; formOpen = true; openId = null; render(); }
+
+function deleteEntry(id){
+  const confirmed = confirm("Are you sure you want to remove this task?");
+  if (!confirmed) return;
+
+  entries = entries.filter(e => e.id !== id);
+  save();
+  render();
+}
+
+function buildForm(){
+  const editing = editingId ? entries.find(e => e.id === editingId) : null;
+  const wrap = document.createElement('div');
+  wrap.className = 'form-note';
+
+  wrap.innerHTML = `
+    <div class="form-row">
+      <div><label>Start</label><input type="time" id="fStart" value="${editing ? editing.start : ''}"></div>
+      <div><label>End (optional)</label><input type="time" id="fEnd" value="${editing && editing.end ? editing.end : ''}"></div>
+    </div>
+    <div class="form-row">
+      <div><label>Task</label><input type="text" id="fTitle" placeholder="e.g. Chemistry revision" value="${editing ? escapeHtml(editing.title) : ''}"></div>
+    </div>
+    <div class="form-row">
+      <div><label>Notes (optional)</label><textarea id="fDetails">${editing ? escapeHtml(editing.details || '') : ''}</textarea></div>
+    </div>
+    <div class="color-picker" id="colorPicker"></div>
+    <div class="form-actions">
+      <button class="btn-cancel" id="cancelBtn">Cancel</button>
+      <button class="btn-save" id="saveBtn">${editing ? 'Save changes' : 'Pin it'}</button>
+    </div>
+  `;
+
+  const picker = wrap.querySelector('#colorPicker');
+  let selectedColor = editing ? editing.color : COLORS[Math.floor(Math.random()*COLORS.length)];
+  COLORS.forEach(c => {
+    const sw = document.createElement('div');
+    sw.className = 'swatch ' + c + (c === selectedColor ? ' selected' : '');
+    sw.onclick = () => {
+      selectedColor = c;
+      picker.querySelectorAll('.swatch').forEach(s => s.classList.remove('selected'));
+      sw.classList.add('selected');
+    };
+    picker.appendChild(sw);
+  });
+
+  wrap.querySelector('#cancelBtn').onclick = () => { formOpen = false; editingId = null; render(); };
+  wrap.querySelector('#saveBtn').onclick = () => {
+    const start = wrap.querySelector('#fStart').value;
+    const end = wrap.querySelector('#fEnd').value;
+    const title = wrap.querySelector('#fTitle').value.trim();
+    const details = wrap.querySelector('#fDetails').value.trim();
+    if(!start || !title){ alert('Please add a start time and task name.'); return; }
+    if(editing){
+      editing.start = start; editing.end = end; editing.title = title;
+      editing.details = details; editing.color = selectedColor;
+    } else {
+      entries.push({ id: uid(), day: activeDay, start, end, title, details, color: selectedColor });
+    }
+    formOpen = false; editingId = null; save(); render();
+  };
+
+  return wrap;
+}
+
+function render(){
+  renderTabs();
+  renderNotes();
+  updateNotificationButton();
+}
+
+// Check View Modes (Client or Team Share Links)
+if (targetClient) {
+  document.body.classList.add('client-mode');
+  switchTab('clients', null);
+  document.getElementById('clientHeaderTitle').textContent = `${targetClient} Client Portal`;
+  document.getElementById('clientHeaderTagline').textContent = 'Your live project schedules, deadlines & script documents';
+} else if (targetView === 'team') {
+  document.body.classList.add('team-mode');
+  switchTab('team', null);
+  document.getElementById('teamHeaderTitle').textContent = `Team Production Schedule`;
+  document.getElementById('teamHeaderTagline').textContent = 'Live shoot schedules & active project deadlines';
+}
+
+load();
+setInterval(checkStartTimes, 10000);
+</script>
 </body>
 </html>
