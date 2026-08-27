@@ -327,6 +327,19 @@
   .status-InProgress { background: rgba(166, 198, 216, 0.2); color: var(--paper-blue); border: 1px solid var(--paper-blue); }
   .status-Completed { background: rgba(182, 211, 172, 0.2); color: var(--paper-mint); border: 1px solid var(--paper-mint); }
 
+  /* Payment Badges */
+  .pay-badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .pay-Paid { background: rgba(182, 211, 172, 0.25); color: #8ED680; border: 1px solid rgba(142, 214, 128, 0.5); }
+  .pay-NotPaid { background: rgba(255, 77, 77, 0.2); color: #FF6B6B; border: 1px solid rgba(255, 107, 107, 0.4); }
+  .pay-Pending { background: rgba(243, 222, 132, 0.2); color: var(--paper-yellow); border: 1px solid rgba(243, 222, 132, 0.4); }
+
   .pdf-link {
     display: inline-flex;
     align-items: center;
@@ -511,6 +524,14 @@
               <option value="Upcoming">Upcoming</option>
               <option value="InProgress">In Progress</option>
               <option value="Completed">Completed</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:bold;">Video Payment Status 💳</label>
+            <select id="teamPaymentInput">
+              <option value="Paid">Paid ✅</option>
+              <option value="NotPaid" selected>Not Paid ❌</option>
+              <option value="Pending">Pending ⏳</option>
             </select>
           </div>
         </div>
@@ -897,6 +918,7 @@ function saveClient() {
   const badgeLabel = document.getElementById('clientBadgeLabelInput').value.trim();
   const editsDone = document.getElementById('clientEditsDoneInput').value.trim();
   const editLimit = document.getElementById('clientEditLimitInput').value.trim();
+  const paymentStatus = document.getElementById('clientPaymentInput').value;
   const note = document.getElementById('clientNoteInput').value.trim();
   if(!name) { alert('Please enter a client name.'); return; }
   
@@ -907,6 +929,7 @@ function saveClient() {
       client.badgeLabel = badgeLabel || 'REELS / VIDEOS DONE';
       client.editsDone = editsDone !== '' ? editsDone : null;
       client.editLimit = editLimit !== '' ? editLimit : null;
+      client.paymentStatus = paymentStatus || 'NotPaid';
       client.note = note;
     }
   } else {
@@ -916,6 +939,7 @@ function saveClient() {
       badgeLabel: badgeLabel || 'REELS / VIDEOS DONE',
       editsDone: editsDone !== '' ? editsDone : null,
       editLimit: editLimit !== '' ? editLimit : null,
+      paymentStatus: paymentStatus || 'NotPaid',
       note,
       items: []
     });
@@ -964,6 +988,7 @@ function saveSchedule() {
   const pdfUrl = document.getElementById('schPdfInput').value.trim();
   const note = document.getElementById('schNoteInput').value.trim();
   const status = document.getElementById('schStatusInput').value;
+  const paymentStatus = document.getElementById('schPaymentInput').value;
 
   if(!title) { alert('Please enter an item/project title.'); return; }
   const client = clients.find(c => c.id === activeScheduleClientId);
@@ -981,6 +1006,7 @@ function saveSchedule() {
       item.pdfUrl = pdfUrl || null;
       item.note = note;
       item.status = status;
+      item.paymentStatus = paymentStatus;
     }
   } else {
     client.items.push({
@@ -991,6 +1017,7 @@ function saveSchedule() {
       editDate,
       note,
       status,
+      paymentStatus: paymentStatus || 'NotPaid',
       pdfUrl: pdfUrl || null
     });
   }
@@ -1024,6 +1051,7 @@ function openTeamForm() {
   document.getElementById('teamPdfInput').value = '';
   document.getElementById('teamNoteInput').value = '';
   document.getElementById('teamStatusInput').value = 'Upcoming';
+  document.getElementById('teamPaymentInput').value = 'NotPaid';
   document.getElementById('teamFormSaveBtn').textContent = 'Save Team Task';
   document.getElementById('teamForm').style.display = 'block';
 }
@@ -1041,6 +1069,7 @@ function startEditTeamItem(itemId) {
   document.getElementById('teamPdfInput').value = item.pdfUrl || '';
   document.getElementById('teamNoteInput').value = item.note || '';
   document.getElementById('teamStatusInput').value = item.status || 'Upcoming';
+  document.getElementById('teamPaymentInput').value = item.paymentStatus || 'NotPaid';
   document.getElementById('teamFormSaveBtn').textContent = 'Update Team Task';
   document.getElementById('teamForm').style.display = 'block';
 }
@@ -1059,6 +1088,7 @@ function saveTeamItem() {
   const pdfUrl = document.getElementById('teamPdfInput').value.trim();
   const note = document.getElementById('teamNoteInput').value.trim();
   const status = document.getElementById('teamStatusInput').value;
+  const paymentStatus = document.getElementById('teamPaymentInput').value;
 
   if(!title) { alert('Please enter a team task/project title.'); return; }
 
@@ -1073,6 +1103,7 @@ function saveTeamItem() {
       item.pdfUrl = pdfUrl || null;
       item.note = note;
       item.status = status;
+      item.paymentStatus = paymentStatus;
     }
   } else {
     teamTasks.push({
@@ -1084,7 +1115,8 @@ function saveTeamItem() {
       editDate,
       pdfUrl: pdfUrl || null,
       note,
-      status
+      status,
+      paymentStatus: paymentStatus || 'NotPaid'
     });
   }
 
@@ -1164,10 +1196,14 @@ function renderTeamSchedules() {
       card.style.padding = '16px';
       card.style.marginBottom = '14px';
 
+      let itemPayStatus = item.paymentStatus || 'NotPaid';
+      let itemPayLabel = itemPayStatus === 'Paid' ? 'Paid ✅' : (itemPayStatus === 'Pending' ? 'Pending ⏳' : 'Not Paid ❌');
+
       card.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <strong style="font-size:16px;">${escapeHtml(item.title)}</strong>
           <div style="display:flex; align-items:center; gap:8px;">
+            <span class="pay-badge pay-${itemPayStatus}">${itemPayLabel}</span>
             <span class="status-badge status-${item.status}">${item.status}</span>
             <div class="admin-only item-actions">
               <button class="btn-item-action" onclick="startEditTeamItem('${item.id}')">✏️ Edit</button>
@@ -1349,6 +1385,7 @@ function buildClientFormHtml(clientObj = null) {
   const badgeLabel = clientObj ? escapeHtml(clientObj.badgeLabel || 'REELS / VIDEOS DONE') : 'REELS / VIDEOS DONE';
   const editsDone = (clientObj && clientObj.editsDone !== undefined && clientObj.editsDone !== null) ? clientObj.editsDone : '';
   const editLimit = (clientObj && clientObj.editLimit !== undefined && clientObj.editLimit !== null) ? clientObj.editLimit : '';
+  const paymentStatus = clientObj ? (clientObj.paymentStatus || 'NotPaid') : 'NotPaid';
   const note = clientObj ? escapeHtml(clientObj.note || '') : '';
   const btnText = clientObj ? 'Update Client Portal' : 'Save Client Portal';
 
@@ -1373,6 +1410,14 @@ function buildClientFormHtml(clientObj = null) {
           <label style="font-size:12px; font-weight:bold;">Total Monthly Limit / Quota</label>
           <input type="number" id="clientEditLimitInput" placeholder="e.g. 40" min="0" value="${editLimit}">
         </div>
+        <div>
+          <label style="font-size:12px; font-weight:bold;">Account Payment Status 💳</label>
+          <select id="clientPaymentInput">
+            <option value="Paid" ${paymentStatus === 'Paid' ? 'selected' : ''}>Paid ✅</option>
+            <option value="NotPaid" ${paymentStatus === 'NotPaid' ? 'selected' : ''}>Not Paid ❌</option>
+            <option value="Pending" ${paymentStatus === 'Pending' ? 'selected' : ''}>Pending ⏳</option>
+          </select>
+        </div>
       </div>
       <div class="form-row">
         <div>
@@ -1396,13 +1441,14 @@ function buildScheduleFormHtml(itemObj = null) {
   const pdfUrl = itemObj ? escapeHtml(itemObj.pdfUrl || '') : '';
   const note = itemObj ? escapeHtml(itemObj.note || '') : '';
   const status = itemObj ? itemObj.status : 'Upcoming';
-  const btnText = itemObj ? 'Update Item Changes' : 'Add To Client Portal';
+  const paymentStatus = itemObj ? (itemObj.paymentStatus || 'NotPaid') : 'NotPaid';
+  const btnText = itemObj ? 'Update Video Item' : 'Add To Client Portal';
 
   return `
     <div id="scheduleForm" class="form-note">
       <div class="form-row">
         <div>
-          <label style="font-size:12px; font-weight:bold;">Project / Item Name</label>
+          <label style="font-size:12px; font-weight:bold;">Video / Project Title</label>
           <input type="text" id="schTitleInput" placeholder="e.g. Promo Reel 1" value="${title}">
         </div>
         <div>
@@ -1419,6 +1465,14 @@ function buildScheduleFormHtml(itemObj = null) {
             <option value="Upcoming" ${status === 'Upcoming' ? 'selected' : ''}>Upcoming</option>
             <option value="InProgress" ${status === 'InProgress' ? 'selected' : ''}>In Progress</option>
             <option value="Completed" ${status === 'Completed' ? 'selected' : ''}>Completed</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:bold;">Video Payment Status 💳</label>
+          <select id="schPaymentInput">
+            <option value="Paid" ${paymentStatus === 'Paid' ? 'selected' : ''}>Paid ✅</option>
+            <option value="NotPaid" ${paymentStatus === 'NotPaid' ? 'selected' : ''}>Not Paid ❌</option>
+            <option value="Pending" ${paymentStatus === 'Pending' ? 'selected' : ''}>Pending ⏳</option>
           </select>
         </div>
       </div>
@@ -1527,12 +1581,16 @@ function renderClientsPortals() {
           let shootLabel = (type === 'Edit') ? '🎬 Start Date' : '🎬 Shoot';
           let showShootTag = (type === 'Both' || type === 'Shoot' || type === 'Edit');
           let showEditTag = (type === 'Both' || type === 'Edit');
+          
+          let itemPayStatus = item.paymentStatus || 'NotPaid';
+          let itemPayLabel = itemPayStatus === 'Paid' ? 'Paid ✅' : (itemPayStatus === 'Pending' ? 'Pending ⏳' : 'Not Paid ❌');
 
           itemsHtml += `
             <div class="schedule-item">
               <div style="display:flex; justify-content:space-between; align-items:center;">
                 <strong>${escapeHtml(item.title)}</strong>
                 <div style="display:flex; align-items:center; gap:8px;">
+                  <span class="pay-badge pay-${itemPayStatus}">${itemPayLabel}</span>
                   <span class="status-badge status-${item.status}">${item.status}</span>
                   <div class="admin-only item-actions">
                     <button class="btn-item-action" onclick="startEditScheduleItem('${c.id}', '${item.id}')">✏️ Edit</button>
@@ -1561,6 +1619,9 @@ function renderClientsPortals() {
 
     const hasNumbers = (c.editsDone !== undefined && c.editsDone !== null && c.editLimit !== undefined && c.editLimit !== null);
     const badgeLabelText = c.badgeLabel || 'REELS / VIDEOS DONE';
+    
+    let clientPayStatus = c.paymentStatus || 'NotPaid';
+    let clientPayLabel = clientPayStatus === 'Paid' ? 'Paid ✅' : (clientPayStatus === 'Pending' ? 'Pending ⏳' : 'Not Paid ❌');
 
     htmlContent += `
       <div class="portal-box">
@@ -1568,6 +1629,7 @@ function renderClientsPortals() {
           <div>
             <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
               <div class="portal-title">${escapeHtml(c.name)}</div>
+              <span class="pay-badge pay-${clientPayStatus}">${clientPayLabel}</span>
               ${hasNumbers ? `
                 <div class="red-edit-badge">
                   <span class="red-edit-label">${escapeHtml(badgeLabelText)}</span>
